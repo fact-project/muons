@@ -135,6 +135,10 @@ def detection(
     outer_off_density = onoff['outer_off'].sum()/onoff['area_outer_off']
 
     off_density = (outer_off_density + inner_off_density)/2
+    
+    if off_density == 0:
+        return ret
+    
     on_off_ratio = on_density/off_density
 
     ret['density_circle_model_on_off_ratio'] = on_off_ratio
