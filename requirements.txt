@@ -1,6 +1,1 @@
-sklearn
-scikit-image
-scipy
-docopt
-pyfact
-pandas
+https://github.com/fact-project/photon_stream/archive/master.tar.gz
