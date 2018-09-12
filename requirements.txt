@@ -1,0 +1,6 @@
+sklearn
+scikit-image
+scipy
+docopt
+pyfact
+pandas

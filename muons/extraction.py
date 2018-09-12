@@ -1,8 +1,6 @@
 import numpy as np
-from ..event_list_reader import EventListReader
+import photon_stream as ps
 from .detection import detection
-from ..photon_cluster import PhotonStreamCluster
-from ..io.jsonl import event_to_dict
 import gzip
 import os
 import json
@@ -65,7 +63,7 @@ def extract_muons_from_run(
    12)      float32     muon ring overlapp with field of view (0.0 to 1.0) [1]
    13)      float32     number of photons muon cluster [1]
     """
-    run = EventListReader(input_run_path)
+    run = ps.EventListReader(input_run_path)
     with gzip.open(output_run_path, 'wt') as f_muon_run, \
         open(output_run_header_path, 'wb') as f_muon_run_header:
 
@@ -76,13 +74,13 @@ def extract_muons_from_run(
                 FACT_PHYSICS_SELF_TRIGGER
             ):
 
-                photon_clusters = PhotonStreamCluster(event.photon_stream)
+                photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
                 muon_features = detection(event, photon_clusters)
 
                 if muon_features['is_muon']:
 
                     # EXPORT EVENT in JSON
-                    event_dict = event_to_dict(event)
+                    event_dict = ps.io.jsonl.event_to_dict(event)
                     json.dump(event_dict, f_muon_run)
                     f_muon_run.write('\n')
 
