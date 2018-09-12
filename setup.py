@@ -23,6 +23,7 @@ setup(
         'scikit-image',
         'pyfact',
         'pandas',
+        "photon_stream",
     ],
     entry_points={'console_scripts': [
         'phs_extract_muons = ' +
