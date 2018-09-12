@@ -35,6 +35,7 @@ def test_ring_overlapp():
 
 
 @pytest.mark.slow
+@pytest.mark.filterwarnings("error")
 def test_muon_detection():
 
     np.random.seed(seed=1)
@@ -65,7 +66,7 @@ def test_muon_detection():
     for event in run:
         clusters = ps.PhotonStreamCluster(event.photon_stream)
         ret = muons.detection(event, clusters)
-
+        
         if ret['is_muon']:
             if event.observation_info.event in muon_truth:
                 true_positives += 1

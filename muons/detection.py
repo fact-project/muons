@@ -57,12 +57,13 @@ def detection(
     flat_photon_stream = clusters.point_cloud
     full_clusters_fps = flat_photon_stream[full_cluster_mask]
 
-    circle_model, inliers = ransac(
-        data=full_clusters_fps[:, 0:2], # only cx and cy not the time
-        model_class=CircleModel,
-        min_samples=initial_circle_model_min_samples,
-        residual_threshold=initial_circle_model_residual_threshold,
-        max_trials=initial_circle_model_max_trails)
+    with np.errstate(invalid='ignore'):
+        circle_model, inliers = ransac(
+            data=full_clusters_fps[:, 0:2], # only cx and cy not the time
+            model_class=CircleModel,
+            min_samples=initial_circle_model_min_samples,
+            residual_threshold=initial_circle_model_residual_threshold,
+            max_trials=initial_circle_model_max_trails)
 
     cx = circle_model.params[0]
     cy = circle_model.params[1]
@@ -72,6 +73,9 @@ def detection(
     ret['muon_ring_cy'] = cy
     ret['muon_ring_r'] = r
 
+    if r < min_muon_ring_radius or r > max_muon_ring_radius:
+        return ret
+    
     muon_ring_overlapp_with_field_of_view = circle_overlapp(
         cx1=0.0,
         cy1=0.0,
@@ -79,9 +83,6 @@ def detection(
         cx2=cx,
         cy2=cy,
         r2=r)
-
-    if r < min_muon_ring_radius or r > max_muon_ring_radius:
-        return ret
 
     ret['muon_ring_overlapp_with_field_of_view'] = (
         muon_ring_overlapp_with_field_of_view
