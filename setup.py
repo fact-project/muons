@@ -14,7 +14,7 @@ setup(
     ],
     package_data={
         'muons': [
-            'tests/resources/*',]
+            'tests/resources/*', ]
     },
     install_requires=[
         'docopt',
@@ -24,6 +24,8 @@ setup(
         'pyfact',
         'pandas',
     ],
-    entry_points={'console_scripts': []},
+    entry_points={'console_scripts': [
+        'phs_extract_muons = ' +
+        'muons.isdc_production.worker_node_main:main', ]},
     zip_safe=False,
 )
