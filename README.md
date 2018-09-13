@@ -9,7 +9,9 @@ A collection of tools to recognize, extract and plot the FACT muon events, extra
 ### Recognize muon events
 
 The process of recognition is divided into 6 parts:
-    1) Photons are tested if they belong to a cluster. Photons that do not belong to the cluster are given label -1. Photons that belong to a cluster are given the label (0,....,n) depending on the cluster number they belong to. 
+
+
+    1) Photons are tested if they belong to a cluster. Photons that do not belong to the cluster are given label -1. Photons that belong to a cluster are given the label (0,....,n) depending on the cluster number they belong to.    
     2) The number of photons is the sum of all the photons for which the cluster number is >=0.
     3) In order to find muon-like events ransac (RANdom SAmple Consensus) for a circle model is run.
     4) Using ransac parameters (e.g. cx, cy, r, ..) of the best fit are found. If the radius of muon ring is not between the set values then the event is disregarded.
