@@ -1,12 +1,11 @@
 import photon_stream as ps
 import muons
 import numpy as np
-import csv
 import os
-import os.path
-import sys
 import json
 from pathlib import Path
+import glob
+import fact
 
 
 def standard_deviation(point_cloud, muon_props):
@@ -29,26 +28,6 @@ def muon_ring_std_event(clusters, muon_props):
     real_std = standard_deviation(point_cloud, muon_props)
     return real_std
 
-"""
-def muon_ring_std_run(path):
-    run = ps.EventListReader(path)
-    average_run_dev = 0
-    hist_data = []
-    muon_count = 0
-    for events, event in enumerate(run):
-        clusters = ps.PhotonStreamCluster(event.photon_stream)
-        muon_props = muons.extraction.detection(event, clusters)
-        real_std_event= muon_ring_std_event(event)[0]
-        muon_count += muon_ring_std_event(event)[1]
-        if real_std_event != 0:
-            hist_data.append(real_std_event)
-    average_run = np.average(hist_data)
-    if events != 0:
-        percent = (muon_count/events)*100
-    print("Finished run ", "Events: ", events,
-     "muons: ", muon_count, "efficiency: ", percent)
-    return average_run
-"""
 
 def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
     jobs = []
@@ -90,43 +69,3 @@ def run_job(inpath, outpath):
         }
         fout.write(json.dumps(out))
     os.rename(outpath + ".temp", outpath)
-
-"""
-def muon_ring_std_nights(muon_dir, save_dir_data):
-    for dir, subdirList, fileList in os.walk(muon_dir):
-        if dir[len(muon_dir)+1:].count(os.sep) == 2:
-            date = str(dir)[-10:-6] + str(dir)[-5:-3] + str(dir)[-2:]
-            year = date [0:4]
-            month = date [4:6]
-            night = date[6:8]
-            aveg_name = (save_dir_data + "std_of_runs_" 
-            + date + ".csv")
-            temp_name = (save_dir_data + "temp_" 
-            + "std_of_runs_" + date + ".csv")
-            res_path = Path(aveg_name)
-            saving = []
-            print(date)
-            if not res_path.is_file():
-                for f in fileList:
-                    run_number = str(f)[9:12]
-                    if "phs" in str(f):
-                        path = (muon_dir + "/" + year + "/" 
-                        + month + "/" + night + "/" + f)
-                        statinfo = os.stat(path)
-                        if statinfo.st_size > 67:
-                            run_std = muon_ring_std_run(path)
-                            saving.append((run_std, date, run_number))
-                        else:
-                            continue
-                if len(saving) != 0:
-                    with open(temp_name, "w") as csvfile:
-                        writer = csv.writer(csvfile)
-                        writer.writerows(saving)
-            else:
-                print("Already calculated")
-            try:
-                os.rename(temp_name, aveg_name)
-            except:
-                print("Skipped")
-            print("Finished night ")
-"""
