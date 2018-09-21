@@ -39,7 +39,7 @@ def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
         job["output_path"] = fact.path.tree_path(
             night=fact_path["night"],
             run=fact_path["run"],
-            suffix=".muon.fuzz.csv",
+            suffix=".muon.fuzz.jsonl",
             prefix=output_dir)
         jobs.append(job)
     return jobs
