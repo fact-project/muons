@@ -1,5 +1,5 @@
 import numpy as np
-import ring_simulation as rs
+from . import ring_simulation as rs
 import photon_stream as ps
 from scipy import stats
 
@@ -70,7 +70,7 @@ def test_emit_photons():
                 ch_rate=3)[0]
         ),
         9000,
-        decimal=-2
+        decimal=-3
     )
 
 

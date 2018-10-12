@@ -1,11 +1,12 @@
-import numpy as np'
+import numpy as np
 from scipy import stats
+from . import many_simulations as ms
 
 
 def test_draw_inclination():
     size = 100000
     r = 1
-    inclinations = rs.draw_inclination(
+    inclinations = ms.draw_inclination(
         low=0,
         high=np.pi/2,
         size=size
@@ -26,7 +27,7 @@ def test_draw_inclination():
 def test_draw_azimuth():
     size = 100000
     r = 1
-    azimuths = rs.draw_azimuth(
+    azimuths = ms.draw_azimuth(
         low=0,
         high=np.pi,
         size=size

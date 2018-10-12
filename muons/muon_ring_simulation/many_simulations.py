@@ -1,6 +1,7 @@
 import numpy as np
 import photon_stream as ps
-import muons
+from . import ring_simulation as rs
+
 
 def draw_position_on_aperture_plane(max_aperture_radius):
     theta = np.random.uniform(
@@ -32,22 +33,22 @@ def draw_azimuth(low=0, high=2*np.pi, size=1):
 def get_trajectory(max_inclination, max_aperture_radius):
     inclination = draw_inclination(high=max_inclination)
     azimuth = draw_azimuth()
-    muon_direction = pol2cart(1, azimuth, inclination)
+    muon_direction = rs.pol2cart(1, azimuth, inclination)
     theta, b = draw_position_on_aperture_plane(max_aperture_radius)
-    muon_support = pol2cart(b, theta, 0.5*np.pi)
+    muon_support = rs.pol2cart(b, theta, 0.5*np.pi)
     return muon_support, muon_direction
 
 
 def create_jobs(
-    outpath
+    outpath,
     number_of_muons,
     max_inclination,
     max_aperture_radius,
-    opening_angle
-    nsb_rate_per_pixel=35e6,
-    arrival_time_std=500e-12,
-    ch_rate=3,
-    fact_aperture_radius=3.93/2
+    opening_angle,
+    nsb_rate_per_pixel,
+    arrival_time_std,
+    ch_rate,
+    fact_aperture_radius
 ):
     jobs = []
     for event_id in range(number_of_muons):
@@ -70,7 +71,7 @@ def create_jobs(
 
 
 def run_job(job):
-    event = muons.muon_ring_simulation.simulate_response(
+    event = rs.simulate_response(
         muon_support=job["muon_support"],
         muon_direction=job["muon_direction"],
         opening_angle=job["opening_angle"],

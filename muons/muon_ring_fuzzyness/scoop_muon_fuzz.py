@@ -2,7 +2,7 @@
 Muon ring fuzziness
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: muon_fuzz --muon_dir=DIR --output_dir=DIR [--suffix=SUF]
+Usage: scoop_muon_fuzz.py --muon_dir=DIR --output_dir=DIR [--suffix=SUF]
 
 Options:
     --muon_dir=DIR      The location of muon data

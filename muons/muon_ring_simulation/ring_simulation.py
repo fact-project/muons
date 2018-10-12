@@ -23,8 +23,6 @@ def position_on_ray(support, direction, alpha):
 
 
 def get_d_alpha(ch_rate):
-    ''' ch_rate ->  Cherenkov_photon production rate [1/m]
-    d_alpha [m]'''
     d_alpha = -np.log(np.random.uniform())/ch_rate
     return d_alpha
 
@@ -157,11 +155,11 @@ def simulate_response(
     muon_support,
     muon_direction,
     opening_angle,
-    nsb_rate_per_pixel=35e6,
-    event_id=0,
-    arrival_time_std=500e-12,
-    ch_rate=3,
-    fact_aperture_radius=3.93/2
+    nsb_rate_per_pixel,
+    event_id,
+    arrival_time_std,
+    ch_rate,
+    fact_aperture_radius
 ):
     """
     fact_aperture_radius:
