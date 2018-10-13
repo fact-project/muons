@@ -17,7 +17,7 @@ import photon_stream as ps
 
 
 def run(job):
-    muons.muon_ring_fuzzyness.run_job(
+    muons.muon_ring_fuzzyness.muon_ring_fuzzyness.run_job(
         inpath=job["input_path"], outpath=job["output_path"])
 
 
@@ -27,7 +27,7 @@ def main():
         muon_dir = arguments['--muon_dir']
         output_dir = arguments['--output_dir']
         suffix = arguments['--suffix']
-        jobs = muons.muon_ring_fuzzyness.create_jobs(
+        jobs = muons.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
             muon_dir,
             output_dir,
             suffix)
