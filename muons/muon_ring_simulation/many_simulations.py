@@ -1,6 +1,7 @@
 import numpy as np
 import photon_stream as ps
 from . import ring_simulation as rs
+import os
 
 
 def draw_position_on_aperture_plane(max_aperture_radius):
@@ -71,15 +72,19 @@ def create_jobs(
 
 
 def run_job(job):
+    outpath = job["outpath"]
     event = rs.simulate_response(
         muon_support=job["muon_support"],
         muon_direction=job["muon_direction"],
         opening_angle=job["opening_angle"],
         nsb_rate_per_pixel=job["nsb_rate_per_pixel"],
-        event_id=["event_id"],
-        arrival_time_std=["arrival_time_std"],
-        ch_rate=["ch_rate"],
-        fact_aperture_radius=["fact_aperture_radius"]
+        event_id=job["event_id"],
+        arrival_time_std=job["arrival_time_std"],
+        ch_rate=job["ch_rate"],
+        fact_aperture_radius=job["fact_aperture_radius"]
     )
-    with open(outpath + str(event_id) + ".sim.phs", "ab") as fout:
+    filename =  str(event_id) + ".sim.phs"
+    filepath = os.path.join(outpath, filename)
+    print(filepath)
+    with open(filepath, "ab") as fout:
         ps.io.binary.append_event_to_file(event, fout)

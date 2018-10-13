@@ -19,7 +19,7 @@ def casual_trajectory(support_vector, direction_vector, muon_travel_dist=1000):
 
 
 def position_on_ray(support, direction, alpha):
-    return support + alpha * direction
+    return support + np.multiply(alpha,direction)
 
 
 def get_d_alpha(ch_rate):
@@ -34,8 +34,8 @@ def emit_photons(muon_support, muon_direction, opening_angle, ch_rate):
     photon_emission_pos = []
     photon_directions = []
     u, v = get_u_v(muon_direction)
+    d_alpha = get_d_alpha(ch_rate)
     while True:
-        d_alpha = get_d_alpha(ch_rate)
         path_length += d_alpha
         ch_emission_position = position_on_ray(
             muon_support,
@@ -96,7 +96,7 @@ def mask_for_photons_in_aperture_radius(
 def perfect_imaging(
         photon_emission_positions,
         photon_directions,
-        aperture_radius=3
+        aperture_radius
 ):
     intersection_points = draw_ch_photon_on_ground(
         photon_emission_positions,
