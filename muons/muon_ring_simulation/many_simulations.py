@@ -32,16 +32,26 @@ def draw_azimuth(low=0, high=2*np.pi, size=1):
 
 
 def get_trajectory(max_inclination, max_aperture_radius):
+    max_inclination = np.deg2rad(max_inclination)
     inclination = draw_inclination(high=max_inclination)
     azimuth = draw_azimuth()
-    muon_direction = rs.pol2cart(1, azimuth, inclination)
+    muon_direction_ground = rs.pol2cart(1, azimuth, inclination)
     theta, b = draw_position_on_aperture_plane(max_aperture_radius)
-    muon_support = rs.pol2cart(b, theta, 0.5*np.pi)
-    return muon_support, muon_direction
+    muon_support_ground = rs.pol2cart(b, theta, 0.5*np.pi)
+    return muon_support_ground, muon_direction_ground
+
+
+def casual_trajectory(
+    muon_support_ground,
+    muon_direction_ground,
+    muon_travel_dist=1000
+):
+    casual_muon_direction = -muon_direction_ground
+    casual_muon_support = muon_travel_dist*muon_direction_ground + muon_support_ground
+    return casual_muon_support, casual_muon_direction
 
 
 def create_jobs(
-    outpath,
     number_of_muons,
     max_inclination,
     max_aperture_radius,
@@ -49,33 +59,37 @@ def create_jobs(
     nsb_rate_per_pixel,
     arrival_time_std,
     ch_rate,
-    fact_aperture_radius
+    fact_aperture_radius,
+    random_seed
 ):
     jobs = []
     for event_id in range(number_of_muons):
         job = {}
-        muon_support, muon_direction = get_trajectory(
+        muon_support_ground, muon_direction_ground = get_trajectory(
             max_inclination,
             max_aperture_radius
         )
-        job["muon_support"] = muon_support
-        job["muon_direction"] = muon_direction
+        casual_muon_support, casual_muon_direction = casual_trajectory(
+            muon_support_ground,
+            muon_direction_ground
+        )
+        job["casual_muon_support"] = casual_muon_support
+        job["casual_muon_direction"] = casual_muon_direction
         job["event_id"] = event_id
         job["nsb_rate_per_pixel"] = nsb_rate_per_pixel
         job["ch_rate"] = ch_rate
         job["opening_angle"] = opening_angle
         job["fact_aperture_radius"] = fact_aperture_radius
         job["arrival_time_std"] = arrival_time_std
-        job["outpath"] = outpath
+        job["random_seed"] = random_seed
         jobs.append(job)
     return jobs
 
 
 def run_job(job):
-    outpath = job["outpath"]
     event = rs.simulate_response(
-        muon_support=job["muon_support"],
-        muon_direction=job["muon_direction"],
+        casual_muon_support=job["casual_muon_support"],
+        casual_muon_direction=job["casual_muon_direction"],
         opening_angle=job["opening_angle"],
         nsb_rate_per_pixel=job["nsb_rate_per_pixel"],
         event_id=job["event_id"],
@@ -83,8 +97,4 @@ def run_job(job):
         ch_rate=job["ch_rate"],
         fact_aperture_radius=job["fact_aperture_radius"]
     )
-    filename =  str(event_id) + ".sim.phs"
-    filepath = os.path.join(outpath, filename)
-    print(filepath)
-    with open(filepath, "ab") as fout:
-        ps.io.binary.append_event_to_file(event, fout)
+    return event

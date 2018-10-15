@@ -12,12 +12,6 @@ def pol2cart(r, azimuth, inclination):
     return np.array([float(x), float(y), float(z)])
 
 
-def casual_trajectory(support_vector, direction_vector, muon_travel_dist=1000):
-    direction_casual = -direction_vector
-    support_casual = muon_travel_dist*direction_vector + support_vector
-    return support_casual, direction_casual
-
-
 def position_on_ray(support, direction, alpha):
     return support + np.multiply(alpha,direction)
 
@@ -27,19 +21,19 @@ def get_d_alpha(ch_rate):
     return d_alpha
 
 
-def emit_photons(muon_support, muon_direction, opening_angle, ch_rate):
-    muon_support = np.array(muon_support)
-    muon_direction = np.array(muon_direction)
+def emit_photons(casual_muon_support, casual_muon_direction, opening_angle, ch_rate):
+    casual_muon_support = np.array(casual_muon_support)
+    casual_muon_direction = np.array(casual_muon_direction)
     path_length = 0
     photon_emission_pos = []
     photon_directions = []
-    u, v = get_u_v(muon_direction)
-    d_alpha = get_d_alpha(ch_rate)
+    u, v = get_u_v(casual_muon_direction)
     while True:
+        d_alpha = get_d_alpha(ch_rate)
         path_length += d_alpha
         ch_emission_position = position_on_ray(
-            muon_support,
-            muon_direction,
+            casual_muon_support,
+            casual_muon_direction,
             path_length
             )
         if ch_emission_position[2] <= 0:
@@ -49,7 +43,7 @@ def emit_photons(muon_support, muon_direction, opening_angle, ch_rate):
             opening_angle,
             u,
             v,
-            muon_direction)
+            casual_muon_direction)
         photon_directions.append(direction_of_photon)
     return np.array(photon_emission_pos), np.array(photon_directions)
 
@@ -63,17 +57,17 @@ def get_u_v(direction):
     return np.array(u), v
 
 
-def draw_direction_of_cherenkov_photon(opening_angle, u, v, muon_direction):
+def draw_direction_of_cherenkov_photon(opening_angle, u, v, casual_muon_direction):
     azimuth = np.random.uniform(
         low=0,
         high=2*np.pi)
     position_on_ring = np.cos(azimuth)*u + np.sin(azimuth)*v
     dist_on_mu_path = 1 / np.tan(opening_angle)
-    cherenkov_ph_dir = dist_on_mu_path*muon_direction + position_on_ring
+    cherenkov_ph_dir = dist_on_mu_path*casual_muon_direction + position_on_ring
     return cherenkov_ph_dir/np.linalg.norm(cherenkov_ph_dir)
 
 
-def draw_ch_photon_on_ground(
+def project_ch_photon_on_ground(
     photon_emission_positions,
     photon_directions
 ):
@@ -98,7 +92,7 @@ def perfect_imaging(
         photon_directions,
         aperture_radius
 ):
-    intersection_points = draw_ch_photon_on_ground(
+    intersection_points = project_ch_photon_on_ground(
         photon_emission_positions,
         photon_directions
     )
@@ -152,8 +146,8 @@ def create_raw_photon_stream(pixel_CHIDs, arrival_times, nsb_rate_per_pixel):
 
 
 def simulate_response(
-    muon_support,
-    muon_direction,
+    casual_muon_support,
+    casual_muon_direction,
     opening_angle,
     nsb_rate_per_pixel,
     event_id,
@@ -177,9 +171,10 @@ def simulate_response(
       publisher={Elsevier}
     }
     """
+    opening_angle = np.deg2rad(opening_angle)
     ch_sup, ch_dir = emit_photons(
-        muon_support,
-        muon_direction,
+        casual_muon_support,
+        casual_muon_direction,
         opening_angle,
         ch_rate)
     photons_cx_cy = perfect_imaging(
@@ -203,6 +198,7 @@ def simulate_response(
         nsb_rate_per_pixel)
     event = ps.Event()
     event.photon_stream = phs
+    event.photon_stream.saturated_pixels = np.zeros(0, dtype=np.uint16)
     event.zd = np.float32(0.0)
     event.az = np.float32(0.0)
     sim = ps.simulation_truth.SimulationTruth()
