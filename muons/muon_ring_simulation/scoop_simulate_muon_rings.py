@@ -55,7 +55,6 @@ def main():
         os.rename(filepath + ".temp", filepath)
     except docopt.DocoptExit as e:
         print(e)
-    return 0
 
 
 if __name__ == "__main__":
