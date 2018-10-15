@@ -22,6 +22,8 @@ import muons
 import photon_stream as ps
 import numpy as np
 import msgpack_numpy as mn
+import os
+
 
 def main():
     try:
@@ -43,14 +45,17 @@ def main():
             muons.muon_ring_simulation.many_simulations.run_job,
             jobs))
         simTruthPath = "".join([arguments["--outpath"],".simulationtruth.msg"])
-        with open(simTruthPath, "wb") as fout:
+        with open(simTruthPath + ".temp", "wb") as fout:
             fout.write(mn.packb(jobs))
         filepath = arguments["--outpath"]
-        with open(filepath, "wb") as fout:
+        with open(filepath + ".temp", "wb") as fout:
             for event in events:
                 ps.io.binary.append_event_to_file(event, fout)
+        os.rename(simTruthPath + ".temp", simTruthPath)
+        os.rename(filepath + ".temp", filepath)
     except docopt.DocoptExit as e:
         print(e)
+    return 0
 
 
 if __name__ == "__main__":
