@@ -1,5 +1,5 @@
 import numpy as np
-from . import ring_simulation as rs
+from muons.muon_ring_simulation import ring_simulation as rs
 import photon_stream as ps
 from scipy import stats
 
@@ -13,7 +13,7 @@ def test_do_not_raise_exception():
         np.deg2rad(1.2),
         ch_rate=1
     )
-    xys = rs.draw_ch_photon_on_ground(photon_pos, photon_dir)
+    xys = rs.project_ch_photon_on_ground(photon_pos, photon_dir)
     np.testing.assert_almost_equal(xys[:, 2], 0, 3)
 
 
@@ -28,7 +28,7 @@ def test_simple_photons():
         [0, 0, -1],
         [0, 0, -1],
         [0, 0, -1]])
-    xys = rs.draw_ch_photon_on_ground(photon_pos, photon_dir)
+    xys = rs.project_ch_photon_on_ground(photon_pos, photon_dir)
     assert xys.shape == (4, 3)
     np.testing.assert_array_almost_equal(xys[0, :], [0, 0, 0], decimal=6)
     np.testing.assert_array_almost_equal(xys[1, :], [1, 0, 0], decimal=6)
@@ -64,8 +64,8 @@ def test_emit_photons():
     np.testing.assert_almost_equal(
         len(
             rs.emit_photons(
-                muon_support=[0, 1.5, 3000],
-                muon_direction=[0, 0, -1],
+                casual_muon_support=[0, 1.5, 3000],
+                casual_muon_direction=[0, 0, -1],
                 opening_angle=np.deg2rad(1.2),
                 ch_rate=3)[0]
         ),
@@ -79,7 +79,7 @@ def test_draw_direction_for_cherenkov_photon1():
             opening_angle=np.deg2rad(1.2),
             u=np.array([1, 0, 0]),
             v=np.array([0, 1, 0]),
-            muon_direction=np.array([0, 0, -1])
+            casual_muon_direction=np.array([0, 0, -1])
     )
     np.testing.assert_almost_equal(
         np.arccos(np.dot(x, np.array([0, 0, -1]))),
@@ -93,7 +93,7 @@ def test_draw_direction_for_cherenkov_photon2():
             opening_angle=np.deg2rad(0.01),
             u=np.array([1, 0, 0]),
             v=np.array([0, 1, 0]),
-            muon_direction=np.array([0, 0, -1])
+            casual_muon_direction=np.array([0, 0, -1])
         ),
         [0, 0, -1],
         3
@@ -130,26 +130,6 @@ def test_get_u_v3():
     )
 
 
-def test_casaul_trajectory1():
-    np.testing.assert_equal(
-        rs.casual_trajectory(
-            support_vector=np.array([0, 0, 0]),
-            direction_vector=np.array([0, 0, 1])
-        )[1],
-        [0, 0, -1]
-    )
-
-
-def test_casaul_trajectory2():
-    np.testing.assert_equal(
-        rs.casual_trajectory(
-            np.array([0, 0, 0]),
-            np.array([0, 0, 1])
-        )[0],
-        [0, 0, 1000]
-    )
-
-
 def test_position_on_ray():
     np.testing.assert_equal(
         rs.position_on_ray(
@@ -157,22 +137,6 @@ def test_position_on_ray():
             direction=np.array([0, 0, 1]),
             alpha=1000),
         [0, 0, 1000]
-    )
-
-
-def test_draw_ch_photon_on_ground():
-    np.testing.assert_equal(
-        rs.draw_ch_photon_on_ground(
-            photon_emission_positions=np.array([
-                np.array([0, 0, 1000]),
-                np.array([0, 0, 0])
-            ]),
-            photon_directions=np.array([
-                np.array([0, 0, -1]),
-                np.array([-1, -1, -1])
-            ])
-        ),
-        np.array([np.array([0, 0, 0]), np.array([0, 0, 0])])
     )
 
 
@@ -208,7 +172,8 @@ def test_perfect_imaging():
                     [0, 1, -1],
                     [5, 4, -1]
                 ]
-            )
+            ),
+            aperture_radius = 4
         ),
         np.array(
             [[0, 0], [1000, -1], [1, 0], [0, 1]]
@@ -229,4 +194,20 @@ def test_create_raw_photon_stream():
         number_photons,
         expected_photon_number,
         -2
+    )
+
+
+def test_project_ch_photon_on_ground():
+    np.testing.assert_equal(
+        rs.project_ch_photon_on_ground(
+            photon_emission_positions=np.array([
+                np.array([0, 0, 1000]),
+                np.array([0, 0, 0])
+            ]),
+            photon_directions=np.array([
+                np.array([0, 0, -1]),
+                np.array([-1, -1, -1])
+            ])
+        ),
+        np.array([np.array([0, 0, 0]), np.array([0, 0, 0])])
     )

@@ -34,8 +34,6 @@ def test_ring_overlapp():
     assert overlapp == 0.0
 
 
-@pytest.mark.slow
-@pytest.mark.filterwarnings("error")
 def test_muon_detection():
 
     np.random.seed(seed=1)

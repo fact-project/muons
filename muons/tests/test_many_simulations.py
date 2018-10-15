@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats
-from . import many_simulations as ms
+from muons.muon_ring_simulation import many_simulations as ms
 
 
 def test_draw_inclination():
@@ -42,4 +42,24 @@ def test_draw_azimuth():
         uni,
         1,
         7
+    )
+
+
+def test_casaul_trajectory1():
+    np.testing.assert_equal(
+        ms.casual_trajectory(
+            muon_support_ground=np.array([0, 0, 0]),
+            muon_direction_ground=np.array([0, 0, 1])
+        )[1],
+        [0, 0, -1]
+    )
+
+
+def test_casaul_trajectory2():
+    np.testing.assert_equal(
+        ms.casual_trajectory(
+            muon_support_ground=np.array([0, 0, 0]),
+            muon_direction_ground=np.array([0, 0, 1])
+        )[0],
+        [0, 0, 1000]
     )
