@@ -1,11 +1,11 @@
 import photon_stream as ps
-import muons
 import numpy as np
 import os
 import json
 from pathlib import Path
 import glob
 import fact
+from .. import extraction
 
 
 def standard_deviation(point_cloud, muon_props):
@@ -52,8 +52,8 @@ def run_job(inpath, outpath):
     for event in run:
         clusters = ps.PhotonStreamCluster(event.photon_stream)
         random_state = np.random.get_state()
-        np.random.seed(event.observation_info.event)
-        muon_props = muons.extraction.detection(event, clusters)
+        np.random.seed(event.photon_stream.number_photons)
+        muon_props = extraction.detection(event, clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             std_photons_on_ring = muon_ring_std_event(clusters, muon_props)
