@@ -23,7 +23,7 @@ setup(
         'scikit-image',
         'pyfact',
         'pandas',
-        'photon_stream'
+        'photon_stream',
         'msgpack_numpy',
     ],
     entry_points={'console_scripts': [
