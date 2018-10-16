@@ -13,7 +13,7 @@ def pol2cart(r, azimuth, inclination):
 
 
 def position_on_ray(support, direction, alpha):
-    return support + np.multiply(alpha,direction)
+    return support + np.multiply(alpha, direction)
 
 
 def get_d_alpha(ch_rate):
@@ -21,7 +21,12 @@ def get_d_alpha(ch_rate):
     return d_alpha
 
 
-def emit_photons(casual_muon_support, casual_muon_direction, opening_angle, ch_rate):
+def emit_photons(
+    casual_muon_support,
+    casual_muon_direction,
+    opening_angle,
+    ch_rate
+):
     casual_muon_support = np.array(casual_muon_support)
     casual_muon_direction = np.array(casual_muon_direction)
     path_length = 0
@@ -57,7 +62,12 @@ def get_u_v(direction):
     return np.array(u), v
 
 
-def draw_direction_of_cherenkov_photon(opening_angle, u, v, casual_muon_direction):
+def draw_direction_of_cherenkov_photon(
+    opening_angle,
+    u,
+    v,
+    casual_muon_direction
+):
     azimuth = np.random.uniform(
         low=0,
         high=2*np.pi)

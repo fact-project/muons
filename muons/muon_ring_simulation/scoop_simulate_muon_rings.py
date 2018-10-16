@@ -28,7 +28,7 @@ import os
 def main():
     try:
         arguments = docopt.docopt(__doc__)
-        rndm_seed = seed=int(arguments['--random_seed'])
+        rndm_seed = seed = int(arguments['--random_seed'])
         np.random.seed(seed=rndm_seed)
         jobs = muons.muon_ring_simulation.many_simulations.create_jobs(
             number_of_muons=int(arguments['--number_of_muons']),
@@ -39,14 +39,19 @@ def main():
             arrival_time_std=float(arguments['--arrival_time_std']),
             ch_rate=float(arguments['--ch_rate']),
             fact_aperture_radius=float(arguments['--fact_aperture_radius']),
-            random_seed = rndm_seed
+            random_seed=rndm_seed
         )
         events = list(scoop.futures.map(
             muons.muon_ring_simulation.many_simulations.run_job,
             jobs))
-        simTruthPath = "".join([arguments["--outpath"],".simulationtruth.msg"])
-        with open(simTruthPath + ".temp", "wb") as fout:
-            fout.write(mn.packb(jobs))
+        simTruthPath = "".join(
+            [arguments["--outpath"],
+            ".simulationtruth.csv"]
+        )
+        muons.muon_ring_simulation.many_simulations.write_to_csv(
+            simTruthPath+".temp",
+            jobs
+        )
         filepath = arguments["--outpath"]
         with open(filepath + ".temp", "wb") as fout:
             for event in events:
