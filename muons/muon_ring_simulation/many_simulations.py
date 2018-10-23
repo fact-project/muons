@@ -10,8 +10,8 @@ def draw_position_on_aperture_plane(max_aperture_radius):
         high=2 * np.pi)
     b = np.random.uniform(
         low=0,
-        high=max_aperture_radius)
-    return theta, b
+        high=1)
+    return theta, np.sqrt(b)*max_aperture_radius
 
 
 def draw_inclination(low=0, high=np.pi/2, size=1):
@@ -63,7 +63,8 @@ def create_jobs(
     arrival_time_std,
     ch_rate,
     fact_aperture_radius,
-    random_seed
+    random_seed,
+    point_spread_function_std,
 ):
     jobs = []
     for event_id in range(number_of_muons):
@@ -85,6 +86,8 @@ def create_jobs(
         job["fact_aperture_radius"] = fact_aperture_radius
         job["arrival_time_std"] = arrival_time_std
         job["random_seed"] = random_seed
+        job["point_spread_function_std"] = point_spread_function_std
+        job["muon_support_ground"] = muon_support_ground
         jobs.append(job)
     return jobs
 
@@ -98,7 +101,8 @@ def run_job(job):
         event_id=job["event_id"],
         arrival_time_std=job["arrival_time_std"],
         ch_rate=job["ch_rate"],
-        fact_aperture_radius=job["fact_aperture_radius"]
+        fact_aperture_radius=job["fact_aperture_radius"],
+        point_spread_function_std = job["point_spread_function_std"]
     )
     return event
 
@@ -117,7 +121,10 @@ def write_to_csv(simTruthPath, simulationTruths):
         h += "opening_angle,"
         h += "fact_aperture_radius,"
         h += "arrival_time_std,"
-        h += "random_seed\n"
+        h += "random_seed,"
+        h += "point_spread_function_std,"
+        h += "muon_support_ground0,"
+        h += "muon_support_ground1\n"
         fout.write(h)
         for sT in simulationTruths:
             s = "{:f},{:f},{:f},".format(
@@ -130,8 +137,12 @@ def write_to_csv(simTruthPath, simulationTruths):
                 sT["casual_muon_direction"][2])
             s +="{:d},".format(sT["event_id"])
             s +="{:f},".format(sT["nsb_rate_per_pixel"])
+            s +="{:f},".format(sT["ch_rate"])
             s +="{:f},".format(sT["opening_angle"])
             s +="{:f},".format(sT["fact_aperture_radius"])
             s +="{:f},".format(sT["arrival_time_std"])
-            s +="{:d}\n".format(sT["random_seed"])
+            s +="{:d},".format(sT["random_seed"])
+            s +="{:f},".format(sT["point_spread_function_std"])
+            s +="{:f},".format(sT["muon_support_ground"][0])
+            s +="{:f}\n".format(sT["muon_support_ground"][1])
             fout.write(s)

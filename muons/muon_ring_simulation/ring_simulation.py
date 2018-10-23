@@ -120,6 +120,13 @@ def create_fact_pixel_tree():
     return scipy.spatial.KDTree(np.c_[x_angle, y_angle])
 
 
+def artificial_point_spread_function(number_photons, standard_dev):
+    return np.random.normal(
+        loc=0,
+        scale=standard_dev,
+        size=(number_photons, 2))
+
+
 def assign_to_pixels(
     photons_cx_cy,
     pixel_position_tree,
@@ -163,7 +170,8 @@ def simulate_response(
     event_id,
     arrival_time_std,
     ch_rate,
-    fact_aperture_radius
+    fact_aperture_radius,
+    point_spread_function_std
 ):
     """
     fact_aperture_radius:
@@ -191,8 +199,11 @@ def simulate_response(
         ch_sup,
         ch_dir,
         aperture_radius=fact_aperture_radius)
+    fuzz_cx_cy = photons_cx_cy + artificial_point_spread_function(
+        number_photons=photons_cx_cy.shape[0],
+        standard_dev=point_spread_function_std)
     inside_pixels, ch_CHIDs = assign_to_pixels(
-        photons_cx_cy,
+        fuzz_cx_cy,
         create_fact_pixel_tree())
     ch_CHIDs = ch_CHIDs[inside_pixels]
     arrival_times = arrival_times_for_cherenkov_photons_from_muon(

@@ -211,3 +211,22 @@ def test_project_ch_photon_on_ground():
         ),
         np.array([np.array([0, 0, 0]), np.array([0, 0, 0])])
     )
+
+
+def test_artificial_point_spread_function():
+    psf = rs.artificial_point_spread_function(
+        number_photons=1000,
+        standard_dev=0)
+    assert psf.shape[0] == 1000
+    assert psf.shape[1] == 2
+    np.testing.assert_equal(psf, np.zeros(shape=(1000, 2)))
+    
+    psf = rs.artificial_point_spread_function(
+        number_photons=1000,
+        standard_dev=1)
+    assert psf.shape[0] == 1000
+    assert psf.shape[1] == 2
+    np.testing.assert_almost_equal(np.std(psf[:, 0]), 1.0, 1)
+    np.testing.assert_almost_equal(np.std(psf[:, 1]), 1.0, 1)
+
+
