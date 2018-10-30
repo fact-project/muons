@@ -36,8 +36,8 @@ def main():
     output = scoopDictionary["--outpath"].strip("\n")
     for i in range(steps):
         scoopList = [
-            "python", "-m", "scoop",
-            "scoop_simulate_muon_rings.py"
+            "python", "-m", "scoop", "--hostfile",
+            "scoop_hosts.txt", "scoop_simulate_muon_rings.py"
         ]
         dirname = "_".join(["iterStep", str(i)])
         outpath = os.path.join(output, dirname)
