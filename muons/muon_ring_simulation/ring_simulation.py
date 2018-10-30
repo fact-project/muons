@@ -189,7 +189,6 @@ def simulate_response(
       publisher={Elsevier}
     }
     """
-    opening_angle = np.deg2rad(opening_angle)
     ch_sup, ch_dir = emit_photons(
         casual_muon_support,
         casual_muon_direction,

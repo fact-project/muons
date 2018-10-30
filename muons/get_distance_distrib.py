@@ -3,8 +3,6 @@ import photon_stream as ps
 from .detection import detection
 import os
 
-rad2deg = np.rad2deg(1)
-
 
 def extract_muons_from_run(
     input_path,
@@ -17,9 +15,9 @@ def extract_muons_from_run(
         muon_features = detection(event, photon_clusters)
         if muon_features["is_muon"]:
             event_id = i
-            muon_ring_cx = muon_features['muon_ring_cx']*rad2deg
-            muon_ring_cy = muon_features['muon_ring_cy']*rad2deg
-            muon_ring_r = muon_features['muon_ring_r']*rad2deg
+            muon_ring_cx = muon_features['muon_ring_cx']
+            muon_ring_cy = muon_features['muon_ring_cy']
+            muon_ring_r = muon_features['muon_ring_r']
             mean_arrival_time_muon_cluster = muon_features[
                 'mean_arrival_time_muon_cluster'
             ]

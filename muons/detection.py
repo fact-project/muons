@@ -2,7 +2,7 @@ import numpy as np
 from skimage.measure import ransac
 from skimage.measure import CircleModel
 from scipy.ndimage import convolve
-
+from .hough_transform_detection import advanced_guess_with_hough
 from .tools import circle_overlapp
 from .tools import tight_circle_on_off_region
 from .tools import xy2polar
@@ -13,6 +13,9 @@ deg2rad = np.deg2rad(1)
 def detection(
     event,
     clusters,
+    hough_transform = True,
+    hough_epsilon = np.deg2rad(0.1111/2),
+    hough_uncertainty = np.deg2rad(1),
     initial_circle_model_min_samples=3,
     initial_circle_model_residual_threshold=0.25,
     initial_circle_model_max_trails=15,
@@ -69,13 +72,21 @@ def detection(
     cy = circle_model.params[1]
     r = circle_model.params[2]
 
+    if hough_transform is True:
+        cx, cy, r = advanced_guess_with_hough(
+            guessed_cx=cx, guessed_cy=cy, guessed_r=r,
+            point_cloud=full_clusters_fps[:, 0:2],
+            uncertainty=hough_uncertainty,
+            epsilon=hough_epsilon
+        )
+
     ret['muon_ring_cx'] = cx
     ret['muon_ring_cy'] = cy
     ret['muon_ring_r'] = r
 
     if r < min_muon_ring_radius or r > max_muon_ring_radius:
         return ret
-    
+
     muon_ring_overlapp_with_field_of_view = circle_overlapp(
         cx1=0.0,
         cy1=0.0,

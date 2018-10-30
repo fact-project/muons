@@ -58,7 +58,8 @@ def create_jobs(
     number_of_muons,
     max_inclination,
     max_aperture_radius,
-    opening_angle,
+    min_opening_angle,
+    max_opening_angle,
     nsb_rate_per_pixel,
     arrival_time_std,
     ch_rate,
@@ -69,6 +70,7 @@ def create_jobs(
     jobs = []
     for event_id in range(number_of_muons):
         job = {}
+        opening_angle = np.random.uniform(min_opening_angle, max_opening_angle)
         muon_support_ground, muon_direction_ground = get_trajectory(
             max_inclination,
             max_aperture_radius

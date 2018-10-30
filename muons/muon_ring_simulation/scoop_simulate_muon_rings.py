@@ -2,14 +2,15 @@
 Simulate muon rings
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: scoop_simulate_muon_rings.py --outpath=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS --opening_angle=ANGL [--nsb_rate_per_pixel=NBR] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT]
+Usage: scoop_simulate_muon_rings.py --outpath=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS [--min_opening_angle=ANGL] [--max_opening_angle=ANGL] [--nsb_rate_per_pixel=NBR] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT]
 
 Options:
     --outpath=DIR                      The output path for simulations
     --number_of_muons=NBR              Number of muons to be simulated
     --max_inclination=ANGL             Maximum inclination angle of muon direction vector in deg
     --max_aperture_radius=RDS          Maximum aperture radius of muon support vector in m
-    --opening_angle=ANGL               Opening angle of the Cherenkov cone in deg
+    --min_opening_angle=ANGL           [default: 0.4] Minimum opening angle of the Cherenkov cone in deg
+    --max_opening_angle=ANGL           [default: 1.6] Maximum opening angle of the Cherenkov cone in deg
     --nsb_rate_per_pixel=NBR           [default: 35e6] Nightsky background photon rate per pixel
     --arrival_time_std=STD             [default: 500e-12] Standard deviation of the arrival times of photons
     --ch_rate=CHR                      [default: 3.0] Rate of Cherenkov photons to be generated per meter
@@ -38,8 +39,10 @@ def main():
                 arguments['--max_inclination']),
             max_aperture_radius=float(
                 arguments['--max_aperture_radius']),
-            opening_angle=float(
-                arguments['--opening_angle']),
+            min_opening_angle=np.deg2rad(float(
+                arguments['--min_opening_angle'])),
+            max_opening_angle=np.deg2rad(float(
+                arguments['--max_opening_angle'])),
             nsb_rate_per_pixel=float(
                 arguments['--nsb_rate_per_pixel']),
             arrival_time_std=float(
