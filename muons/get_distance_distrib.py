@@ -49,6 +49,7 @@ def extract_muons_from_run(
         output_path+".temp",
         event_infos,
         delimiter=",",
+        comments='',
         header=headers
     )
     os.rename(output_path+".temp", output_path)
