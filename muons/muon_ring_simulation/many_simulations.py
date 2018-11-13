@@ -1,7 +1,5 @@
 import numpy as np
-import photon_stream as ps
 from . import ring_simulation as rs
-import os
 
 
 def draw_position_on_aperture_plane(max_aperture_radius):
@@ -104,7 +102,7 @@ def run_job(job):
         arrival_time_std=job["arrival_time_std"],
         ch_rate=job["ch_rate"],
         fact_aperture_radius=job["fact_aperture_radius"],
-        point_spread_function_std = job["point_spread_function_std"]
+        point_spread_function_std=job["point_spread_function_std"]
     )
     return event
 
@@ -137,14 +135,14 @@ def write_to_csv(simTruthPath, simulationTruths):
                 sT["casual_muon_direction"][0],
                 sT["casual_muon_direction"][1],
                 sT["casual_muon_direction"][2])
-            s +="{:d},".format(sT["event_id"])
-            s +="{:f},".format(sT["nsb_rate_per_pixel"])
-            s +="{:f},".format(sT["ch_rate"])
-            s +="{:f},".format(sT["opening_angle"])
-            s +="{:f},".format(sT["fact_aperture_radius"])
-            s +="{:f},".format(sT["arrival_time_std"])
-            s +="{:d},".format(sT["random_seed"])
-            s +="{:f},".format(sT["point_spread_function_std"])
-            s +="{:f},".format(sT["muon_support_ground"][0])
-            s +="{:f}\n".format(sT["muon_support_ground"][1])
+            s += "{:d},".format(sT["event_id"])
+            s += "{:f},".format(sT["nsb_rate_per_pixel"])
+            s += "{:f},".format(sT["ch_rate"])
+            s += "{:f},".format(sT["opening_angle"])
+            s += "{:f},".format(sT["fact_aperture_radius"])
+            s += "{:f},".format(sT["arrival_time_std"])
+            s += "{:d},".format(sT["random_seed"])
+            s += "{:f},".format(sT["point_spread_function_std"])
+            s += "{:f},".format(sT["muon_support_ground"][0])
+            s += "{:f}\n".format(sT["muon_support_ground"][1])
             fout.write(s)

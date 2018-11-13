@@ -40,7 +40,7 @@ def emit_photons(
             casual_muon_support,
             casual_muon_direction,
             path_length
-            )
+        )
         if ch_emission_position[2] <= 0:
             break
         photon_emission_pos.append(ch_emission_position)
@@ -54,7 +54,7 @@ def emit_photons(
 
 
 def get_u_v(direction):
-    dx, dy, dz = direction[0], direction[1], direction[2]
+    dx, dz = direction[0], direction[2]
     a = np.sqrt(1 / (1+((dx/dz)**2)))
     b = np.sqrt(1 - a**2)
     u = (a, 0, b)

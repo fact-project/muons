@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Call scoop for simulation muon rings for different point spread functions (PSF)
 Call with 'python'
@@ -14,6 +15,7 @@ import subprocess
 import docopt
 import numpy as np
 import os
+from shutil import copy
 
 
 def main():
@@ -30,31 +32,28 @@ def main():
     scoopDictionary = {}
     with open(preferencesFile_path) as fIn:
         for line in fIn:
-            (key, value) = line.split(": ")
+            (key, value) = line.split("= ")
             scoopDictionary[key] = value
     psf = float(scoopDictionary["--point_spread_function"].strip("\n"))
-    output = scoopDictionary["--outpath"].strip("\n")
-    for i in range(steps):
+    output = scoopDictionary["--output_dir"].strip("\n")
+    if not os.path.isdir(output):
+        os.mkdir(output)
+    copy(preferencesFile_path, output)
+    for i in range(steps+1):
         scoopList = [
             "python", "-m", "scoop", "--hostfile",
             "scoop_hosts.txt", "scoop_simulate_muon_rings.py"
         ]
         dirname = "_".join(["iterStep", str(i)])
-        outpath = os.path.join(output, dirname)
-        if not os.path.isdir(outpath):
-            os.makedirs(outpath)
-        filename = os.path.join(outpath, "simulations.sim.phs")
-        scoopDictionary["--outpath"] = filename
+        output_dir = os.path.join(output, dirname)
+        scoopDictionary["--output_dir"] = output_dir
         scoopDictionary["--point_spread_function"] = (
-            str(
-                (np.multiply(stepsize, i))
-            )
-        )
+            str((np.multiply(stepsize, i))))
         for key in scoopDictionary:
             scoopList.append(key)
             scoopList.append(scoopDictionary[key].rstrip('\n'))
         subprocess.call(scoopList)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

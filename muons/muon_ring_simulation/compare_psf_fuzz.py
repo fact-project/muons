@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Comparison of PSF and fuzziness
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
@@ -22,7 +23,7 @@ import numpy as np
 np.warnings.filterwarnings('ignore')
 
 
-def paths(simulation_dir, suffix = "**/*.sim.phs"):
+def paths(simulation_dir, suffix="**/psf*.sim.phs"):
     paths = []
     wild_card_path = os.path.join(simulation_dir, suffix)
     for path in glob.glob(wild_card_path, recursive=True):
@@ -60,7 +61,9 @@ def get_simTruth(simTruthPath, mu_event_ids):
 
 
 def with_one_PSF(inpath):
-    simTruthPath = "".join([inpath, ".simulationtruth.csv"])
+    splitInpath = inpath.split(".")
+    fileName_noSuffix = ".".join([splitInpath[0], splitInpath[1]])
+    simTruthPath = "".join([fileName_noSuffix, ".simulationtruth.csv"])
     average_fuzz, std_fuzz, detected_muonCount, mu_event_ids = (
         run_fuzz_job(inpath)
     )
@@ -74,6 +77,7 @@ def with_one_PSF(inpath):
     ]
     return event_info
 
+
 def main():
     try:
         arguments = docopt.docopt(__doc__)
@@ -82,9 +86,9 @@ def main():
         filename = arguments['--filename']
         jobs = paths(simulation_dir)
         events = list(scoop.futures.map(
-                with_one_PSF,
-                jobs
-            )
+            with_one_PSF,
+            jobs
+        )
         )
         header_list = list([
             "point_spread_function",
@@ -102,7 +106,6 @@ def main():
             comments='',
             header=headers
         )
-        
     except docopt.DocoptExit as e:
         print(e)
 

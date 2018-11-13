@@ -2,10 +2,10 @@
 Simulate muon rings
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: scoop_simulate_muon_rings.py --outpath=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS [--min_opening_angle=ANGL] [--max_opening_angle=ANGL] [--nsb_rate_per_pixel=NBR] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT]
+Usage: scoop_simulate_muon_rings.py --output_dir=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS [--min_opening_angle=ANGL] [--max_opening_angle=ANGL] [--nsb_rate_per_pixel=NBR] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT]
 
 Options:
-    --outpath=DIR                      The output path for simulations
+    --output_dir=DIR                   The output directory for simulations
     --number_of_muons=NBR              Number of muons to be simulated
     --max_inclination=ANGL             Maximum inclination angle of muon direction vector in deg
     --max_aperture_radius=RDS          Maximum aperture radius of muon support vector in m
@@ -23,14 +23,13 @@ import scoop
 import muons
 import photon_stream as ps
 import numpy as np
-import msgpack_numpy as mn
 import os
 
 
 def main():
     try:
         arguments = docopt.docopt(__doc__)
-        rndm_seed = seed = int(arguments['--random_seed'])
+        rndm_seed = int(arguments['--random_seed'])
         np.random.seed(seed=rndm_seed)
         jobs = muons.muon_ring_simulation.many_simulations.create_jobs(
             number_of_muons=int(
@@ -61,20 +60,30 @@ def main():
                 jobs
             )
         )
-        simTruthPath = "".join(
-            [arguments["--outpath"],
+        output_dir = arguments["--output_dir"]
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        simTruthFilename = "".join([
+            "psf_",
+            arguments["--point_spread_function_std"],
             ".simulationtruth.csv"]
         )
+        simTruthPath = os.path.join(output_dir, simTruthFilename)
         muons.muon_ring_simulation.many_simulations.write_to_csv(
             simTruthPath+".temp",
             jobs
         )
-        filepath = arguments["--outpath"]
-        with open(filepath + ".temp", "wb") as fout:
+        simulationFileName = "".join([
+            "psf_",
+            arguments["--point_spread_function_std"],
+            ".sim.phs"
+        ])
+        simulationPath = os.path.join(output_dir, simulationFileName)
+        with open(simulationPath + ".temp", "wb") as fout:
             for event in events:
                 ps.io.binary.append_event_to_file(event, fout)
         os.rename(simTruthPath + ".temp", simTruthPath)
-        os.rename(filepath + ".temp", filepath)
+        os.rename(simulationPath + ".temp", simulationPath)
     except docopt.DocoptExit as e:
         print(e)
 
