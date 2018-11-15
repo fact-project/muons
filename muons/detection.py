@@ -13,9 +13,9 @@ deg2rad = np.deg2rad(1)
 def detection(
     event,
     clusters,
-    hough_transform = True,
-    hough_epsilon = np.deg2rad(0.1111/2),
-    hough_uncertainty = np.deg2rad(1),
+    hough_transform=True,
+    hough_epsilon=np.deg2rad(0.1111/2),
+    hough_uncertainty=np.deg2rad(1),
     initial_circle_model_min_samples=3,
     initial_circle_model_residual_threshold=0.25,
     initial_circle_model_max_trails=15,
@@ -27,7 +27,8 @@ def detection(
     max_arrival_time_stddev=5e-9,
     min_overlap_of_muon_ring_with_field_of_view=0.2,
     min_muon_ring_radius=0.45,
-    max_muon_ring_radius=1.6):
+    max_muon_ring_radius=1.6
+):
     """
     Detects muon events.
     A dictionary of muon relevant features is returned.
@@ -62,7 +63,7 @@ def detection(
 
     with np.errstate(invalid='ignore'):
         circle_model, inliers = ransac(
-            data=full_clusters_fps[:, 0:2], # only cx and cy not the time
+            data=full_clusters_fps[:, 0:2],  # only cx and cy not the time
             model_class=CircleModel,
             min_samples=initial_circle_model_min_samples,
             residual_threshold=initial_circle_model_residual_threshold,
@@ -147,10 +148,10 @@ def detection(
     outer_off_density = onoff['outer_off'].sum()/onoff['area_outer_off']
 
     off_density = (outer_off_density + inner_off_density)/2
-    
+
     if off_density == 0:
         return ret
-    
+
     on_off_ratio = on_density/off_density
 
     ret['density_circle_model_on_off_ratio'] = on_off_ratio
@@ -164,7 +165,7 @@ def detection(
         return ret
 
     # ring population
-    #----------------
+    # ----------------
     xy_relative_to_ring_center = full_clusters_fps
     xy_relative_to_ring_center[:, 0] -= cx
     xy_relative_to_ring_center[:, 1] -= cy

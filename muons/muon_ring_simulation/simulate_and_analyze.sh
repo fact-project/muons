@@ -6,5 +6,4 @@ echo "Simulations with different point spread functions has finished!"
 simulation_directory=$(grep --only-matching \
     --perl-regex "(?<=--output_dir\=).*" ./preferences_file.csv)
 python -m scoop --hostfile scoop_hosts.txt ./compare_psf_fuzz.py \
-    --simulation_dir $simulation_directory --output_dir $simulation_directory \
-    --filename psf_fuzz.csv
+    --simulation_dir $simulation_directory --output_dir $simulation_directory

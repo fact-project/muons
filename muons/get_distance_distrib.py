@@ -45,12 +45,12 @@ def extract_muons_from_run(
             ])
             headers = ",".join(header)
             event_infos.append(event_info)
+    output_filename = "".join([output_path, "extracted_muons.csv"])
     np.savetxt(
-        output_path+".temp",
+        output_filename+".temp",
         event_infos,
         delimiter=",",
         comments='',
         header=headers
     )
-    os.rename(output_path+".temp", output_path)
-
+    os.rename(output_filename+".temp", output_filename)

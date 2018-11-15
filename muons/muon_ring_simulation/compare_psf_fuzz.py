@@ -1,14 +1,13 @@
 #!/usr/bin/python
 """
-Comparison of PSF and fuzziness
+Comparison of PSF and fuzzinessand reeconstruction of muon events runwise
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: compare_psf_fuzz.py --simulation_dir=DIR --output_dir=DIR --filename=NME
+Usage: compare_psf_fuzz.py --simulation_dir=DIR --output_dir=DIR
 
 Options:
     --simulation_dir=DIR    Directory of the simulations
     --output_dir=DIR        Directory for the output file
-    --filename=NME          Name of the output file
 """
 
 import docopt
@@ -36,6 +35,7 @@ def run_fuzz_job(inpath):
     run = ps.EventListReader(inpath)
     number_muons = 0
     mu_event_ids = []
+    reconstructed_muon_events = []
     for i, event in enumerate(run):
         clusters = ps.PhotonStreamCluster(event.photon_stream)
         random_state = np.random.get_state()
@@ -44,18 +44,70 @@ def run_fuzz_job(inpath):
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             event_id = i
+            reconstructed_muon_event = get_reconstructed_muons_info(
+                muon_props, event_id)
             std_photons_on_ring = mrf.muon_ring_std_event(
                 clusters, muon_props)
             results.append(std_photons_on_ring)
             number_muons += 1
             mu_event_ids.append(event_id)
+            reconstructed_muon_events.append(reconstructed_muon_event)
+    save_muon_events(reconstructed_muon_events, inpath)
     average_fuzz = float(np.average(results))
     std_fuzz = float(np.std(results))
     return average_fuzz, std_fuzz, number_muons, mu_event_ids
 
 
+def save_muon_events(reconstructed_muon_events, inpath):
+    directory_path = os.path.dirname(os.path.realpath(inpath))
+    output_path = os.path.join(
+        directory_path, "reconstructed_muon_events.csv")
+    header = list([
+        "event_id",
+        "muon_ring_cx",
+        "muon_ring_cy",
+        "muon_ring_r",
+        "mean_arrival_time_muon_cluster",
+        "muon_ring_overlapp_with_field_of_view",
+        "number_of_photons"
+    ])
+    headers = ",".join(header)
+    np.savetxt(
+        output_path+".temp",
+        reconstructed_muon_events,
+        delimiter=",",
+        comments='',
+        header=headers
+    )
+    os.rename(output_path+".temp", output_path)
+
+
+def get_reconstructed_muons_info(muon_props, event_id):
+    muon_ring_cx = muon_props['muon_ring_cx']
+    muon_ring_cy = muon_props['muon_ring_cy']
+    muon_ring_r = muon_props['muon_ring_r']
+    mean_arrival_time_muon_cluster = muon_props[
+        'mean_arrival_time_muon_cluster'
+    ]
+    muon_ring_overlapp_with_field_of_view = muon_props[
+        'muon_ring_overlapp_with_field_of_view'
+    ]
+    number_of_photons = muon_props['number_of_photons']
+    reconstructed_muon_event = [
+        event_id,
+        muon_ring_cx,
+        muon_ring_cy,
+        muon_ring_r,
+        mean_arrival_time_muon_cluster,
+        muon_ring_overlapp_with_field_of_view,
+        number_of_photons
+    ]
+    return reconstructed_muon_event
+
+
 def get_simTruth(simTruthPath, mu_event_ids):
     simulation_truth = pandas.read_csv(simTruthPath)
+
     point_spread_function = simulation_truth["point_spread_function_std"][0]
     return point_spread_function
 
@@ -83,7 +135,7 @@ def main():
         arguments = docopt.docopt(__doc__)
         simulation_dir = arguments['--simulation_dir']
         output_dir = arguments['--output_dir']
-        filename = arguments['--filename']
+        filename = "psf_fuzz.csv"
         jobs = paths(simulation_dir)
         events = list(scoop.futures.map(
             with_one_PSF,
