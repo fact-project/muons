@@ -1,5 +1,43 @@
-from astropy.modeling.functional_models import Ring2D
+import math
 import numpy as np
+
+
+def apply_triangular_evaluation(
+    r_photon, hough_epsilon, ring_radius, amplitude
+):
+    if (
+        r_photon > ring_radius-hough_epsilon and
+        r_photon < ring_radius+hough_epsilon
+    ):
+        abs_loc = abs(r_photon-ring_radius)
+        photon_contribution = amplitude*(
+            hough_epsilon-abs_loc)/(hough_epsilon)
+    else:
+        photon_contribution = 0
+    return photon_contribution
+
+
+def calculate_photon_distance(
+    ring_cx, ring_cy, photon_x, photon_y
+):
+    distance_vector = (photon_x-ring_cx, photon_y-ring_cy)
+    r_photon = math.sqrt(distance_vector[0]**2 + distance_vector[1]**2)
+    return r_photon
+
+
+def sum_photon_contributions(photon_positions, cx, cy, r, hough_epsilon):
+    total_amplitude = 0
+    for photon in photon_positions:
+        photon_x = photon[0]
+        photon_y = photon[1]
+        r_photon = calculate_photon_distance(
+            ring_cx=cx, ring_cy=cy,
+            photon_x=photon_x, photon_y=photon_y)
+        photon_contribution = apply_triangular_evaluation(
+            ring_radius=r, amplitude=1,
+            r_photon=r_photon, hough_epsilon=hough_epsilon)
+        total_amplitude += photon_contribution
+    return total_amplitude
 
 
 def hough_transform_ring(
@@ -7,7 +45,7 @@ def hough_transform_ring(
     cx_bin_centers,
     cy_bin_centers,
     r_bin_centers,
-    epsilon
+    hough_epsilon
 ):
     houghSpace = np.zeros(
         shape=(
@@ -18,18 +56,12 @@ def hough_transform_ring(
     for i_cx, cx in enumerate(cx_bin_centers):
         for i_cy, cy in enumerate(cy_bin_centers):
             for i_r, r in enumerate(r_bin_centers):
-                houghSpace[i_cx, i_cy, i_r] = sum(
-                    Ring2D.evaluate(
-                        x=point_positions[:, 0],
-                        y=point_positions[:, 1],
-                        x_0=cx,
-                        y_0=cy,
-                        amplitude=1,
-                        r_in=r - epsilon,
-                        width=2*epsilon
-                    )
-                )
+                houghSpace[i_cx, i_cy, i_r] = sum_photon_contributions(
+                    point_positions, cx, cy, r, hough_epsilon)
     return houghSpace
+
+
+# ---------------old--------------------------
 
 
 def get_bin_centers(

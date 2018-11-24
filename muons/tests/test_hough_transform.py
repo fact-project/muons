@@ -5,6 +5,7 @@ import numpy as np
 from muons.detection import detection
 import photon_stream as ps
 import muons.hough_transform_detection as ht
+import math
 
 def test_Ring2D():
     cx = 0.0367441420512955
@@ -98,14 +99,63 @@ def test_Ring2D():
     assert np.array(result).max() > 0
 
 
+def test_hough_transform_ring():
+    point_positions = np.array([
+        [2, 0, 10], [0, 2, 7], [-2, 0, 8], [0, -2, 7], [math.sqrt(2), math.sqrt(2), 6],
+        [math.sqrt(2), -math.sqrt(2), 5], [-math.sqrt(2), math.sqrt(2), 4],
+        [-math.sqrt(2), -math.sqrt(2), 3],
+    ])
+    cx_bin_centers = np.array(list(range(-3, 4)))
+    cy_bin_centers = np.array(list(range(-3, 4)))
+    r_bin_centers = np.array(list(range(5)))
+    epsilon = 0.5
+    houghSpace = ht.hough_transform_ring(
+        point_positions,
+        cx_bin_centers,
+        cy_bin_centers,
+        r_bin_centers,
+        epsilon
+    )
+    indices_of_maximum_value = np.unravel_index(
+        np.argmax(houghSpace), dims=houghSpace.shape)
+    assert indices_of_maximum_value == (3, 3, 2)
+
+
 def test_interpretHoughSpace():
     houghSpace = np.array([
         [np.array([0,1,2]), np.array([3,8,5]), np.array([6,7,4])],
         [np.array([0,1,2]), np.array([3,9,5]), np.array([6,7,4])],
         [np.array([0,1,2]), np.array([3,10,5]), np.array([6,7,4])]])
-    np.testing.assert_equal(
-        ht.interpretHoughSpace(houghSpace),
-        (2,1,1)
-    )
+    assert ht.interpretHoughSpace(houghSpace) == (2,1,1)
 
 
+def test_get_bin_centers():
+    c_x = 5
+    c_y = 5
+    r = 5
+    uncertainty = 10
+    cx_bin_centers, cy_bin_centers, r_bin_centers = ht.get_bin_centers( 
+        c_x, c_y, r, uncertainty)
+    assert cx_bin_centers.all() == np.array(list(range(11))).all()
+    assert cy_bin_centers.all() == np.array(list(range(11))).all()
+    assert r_bin_centers.all() == np.array(list(range(11))).all()
+
+
+def test_advanced_guess_with_hough():
+    guessed_cx = 1
+    guessed_cy = 1
+    guessed_r = 2
+    point_cloud  = np.array([
+        [2, 0, 10], [0, 2, 7], [-2, 0, 8], [0, -2, 7], [math.sqrt(2), math.sqrt(2), 6],
+        [math.sqrt(2), -math.sqrt(2), 5], [-math.sqrt(2), math.sqrt(2), 4],
+        [-math.sqrt(2), -math.sqrt(2), 3],
+    ])
+    uncertainty = 2
+    epsilon = 0.2
+    hough_cx, hough_cy, hough_r = ht.advanced_guess_with_hough(
+        guessed_cx, guessed_cy, guessed_r, point_cloud,
+        uncertainty, epsilon
+        )
+    assert hough_cx == 0
+    assert hough_cy == 0
+    assert hough_r == 2
