@@ -25,6 +25,7 @@ setup(
         'pandas',
         'photon_stream',
         'msgpack_numpy',
+        'circlehough',
     ],
     entry_points={'console_scripts': [
         'phs_extract_muons = ' +

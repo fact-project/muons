@@ -1,7 +1,6 @@
 from .detection_with_simple_ring_fit import detection_with_simple_ring_fit
-# from .hough_transform_detection import advanced_guess_with_hough
-from .make_triangular_distribution import advanced_guess_with_hough
 import numpy as np
+from circlehough.hough import advanced_guess_with_hough
 
 
 def detection(
@@ -47,7 +46,7 @@ def detection(
             i += 1
             previous_muon_features = muon_features.copy()
             muon_features = apply_hough(
-                muon_features, point_cloud,
+                muon_features, point_cloud[:,0:2],
                 hough_uncertainty, hough_epsilon
             )
             d_cx, d_cy, d_r = compare_old_new(
