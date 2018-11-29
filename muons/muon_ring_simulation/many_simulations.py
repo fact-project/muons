@@ -93,7 +93,7 @@ def create_jobs(
 
 
 def run_job(job):
-    event = rs.simulate_response(
+    pure_event, nsb_event = rs.simulate_response(
         casual_muon_support=job["casual_muon_support"],
         casual_muon_direction=job["casual_muon_direction"],
         opening_angle=job["opening_angle"],
@@ -104,7 +104,7 @@ def run_job(job):
         fact_aperture_radius=job["fact_aperture_radius"],
         point_spread_function_std=job["point_spread_function_std"]
     )
-    return event
+    return {"pure_event": pure_event, "nsb_event": nsb_event}
 
 
 def write_to_csv(simTruthPath, simulationTruths):

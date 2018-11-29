@@ -162,52 +162,7 @@ def create_raw_photon_stream(pixel_CHIDs, arrival_times, nsb_rate_per_pixel):
     return ps.representations.list_of_lists_to_raw_phs(lol)
 
 
-def simulate_response(
-    casual_muon_support,
-    casual_muon_direction,
-    opening_angle,
-    nsb_rate_per_pixel,
-    event_id,
-    arrival_time_std,
-    ch_rate,
-    fact_aperture_radius,
-    point_spread_function_std
-):
-    """
-    fact_aperture_radius:
-    @article{ahnen2016bokeh,
-      title={Bokeh mirror alignment for Cherenkov telescopes},
-      author={Ahnen, Max L and Baack,
-      D and Balbo, M and Bergmann,
-      M and Biland, Adrian and Blank,
-      M and Bretz, T and Bruegge,
-      KA and Buss, J and Domke, M and others},
-      journal={Astroparticle Physics},
-      volume={82},
-      pages={1--9},
-      year={2016},
-      publisher={Elsevier}
-    }
-    """
-    ch_sup, ch_dir = emit_photons(
-        casual_muon_support,
-        casual_muon_direction,
-        opening_angle,
-        ch_rate)
-    photons_cx_cy = perfect_imaging(
-        ch_sup,
-        ch_dir,
-        aperture_radius=fact_aperture_radius)
-    fuzz_cx_cy = photons_cx_cy + artificial_point_spread_function(
-        number_photons=photons_cx_cy.shape[0],
-        standard_dev=point_spread_function_std)
-    inside_pixels, ch_CHIDs = assign_to_pixels(
-        fuzz_cx_cy,
-        create_fact_pixel_tree())
-    ch_CHIDs = ch_CHIDs[inside_pixels]
-    arrival_times = arrival_times_for_cherenkov_photons_from_muon(
-        number_photons=ch_CHIDs.shape[0],
-        arrival_time_std=arrival_time_std)
+def create_event(arrival_times, ch_CHIDs, event_id, nsb_rate_per_pixel):
     arrival_times += 22e-9
     phs = ps.PhotonStream()
     phs.slice_duration = np.float32(
@@ -227,3 +182,40 @@ def simulate_response(
     sim.event = np.uint32(event_id)
     event.simulation_truth = sim
     return event
+
+
+def simulate_response(
+    casual_muon_support,
+    casual_muon_direction,
+    opening_angle,
+    nsb_rate_per_pixel,
+    event_id,
+    arrival_time_std,
+    ch_rate,
+    fact_aperture_radius,
+    point_spread_function_std
+):
+    ch_sup, ch_dir = emit_photons(
+        casual_muon_support,
+        casual_muon_direction,
+        opening_angle,
+        ch_rate)
+    photons_cx_cy = perfect_imaging(
+        ch_sup,
+        ch_dir,
+        aperture_radius=fact_aperture_radius)
+    fuzz_cx_cy = photons_cx_cy + artificial_point_spread_function(
+        number_photons=photons_cx_cy.shape[0],
+        standard_dev=point_spread_function_std)
+    inside_pixels, ch_CHIDs = assign_to_pixels(
+        fuzz_cx_cy,
+        create_fact_pixel_tree())
+    ch_CHIDs = ch_CHIDs[inside_pixels]
+    arrival_times = arrival_times_for_cherenkov_photons_from_muon(
+        number_photons=ch_CHIDs.shape[0],
+        arrival_time_std=arrival_time_std)
+    pure_event = create_event(
+        arrival_times, ch_CHIDs, event_id, 0)
+    nsb_event = create_event(
+        arrival_times, ch_CHIDs, event_id, nsb_rate_per_pixel)
+    return pure_event, nsb_event
