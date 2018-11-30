@@ -27,9 +27,8 @@ setup(
         'msgpack_numpy',
         'circlehough',
         'scoop',
-        'circlehough'
+        'circlehough',
     ],
-    dependency_links = ['git+https://github.com/Laurits7/circlehough/archive/master.tar.gz#egg=circlehough-0.0.1']
     entry_points={'console_scripts': [
         'phs_extract_muons = ' +
         'muons.isdc_production.worker_node_main:main', ]},
