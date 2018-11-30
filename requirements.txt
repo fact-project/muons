@@ -1,3 +1,3 @@
 https://github.com/fact-project/photon_stream/archive/master.tar.gz
-https://github.com/Laurits7/circlehough/archive/master.tar.gz
+git+https://github.com/Laurits7/circlehough/archive/master.tar.gz
 scoop
