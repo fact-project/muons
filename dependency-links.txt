@@ -1,2 +1,1 @@
-git+https://github.com/fact-project/photon_stream/archive/master.tar.gz#egg=photon_stream
 git+https://github.com/Laurits7/circlehough/archive/master.tar.gz#egg=circlehough
