@@ -28,6 +28,7 @@ setup(
         'circlehough',
         'scoop'
     ],
+    dependency_links = ['https://github.com/Laurits7/circlehough/archive/master.tar.gz']
     entry_points={'console_scripts': [
         'phs_extract_muons = ' +
         'muons.isdc_production.worker_node_main:main', ]},
