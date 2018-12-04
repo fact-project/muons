@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='muons',
@@ -8,10 +8,7 @@ setup(
     author=['Sebastian Achim Mueller', "Laurits Tani"],
     author_email='sebmuell@phys.ethz.ch',
     license='MIT',
-    packages=[
-        'muons',
-        'muons.isdc_production',
-    ],
+    packages=find_packages(),
     package_data={
         'muons': [
             'tests/resources/*', ]
