@@ -69,8 +69,11 @@ def main():
         if test_detection:
             save_file(
                 os.path.join(output_dir, "pure"), arguments, pure_events, jobs)
-        save_file(
-            os.path.join(output_dir), arguments, nsb_events, jobs)
+            save_file(
+                os.path.join(output_dir, "NSB"), arguments, nsb_events, jobs)
+        else:
+            save_file(
+                os.path.join(output_dir), arguments, nsb_events, jobs)
     except docopt.DocoptExit as e:
         print(e)
 
