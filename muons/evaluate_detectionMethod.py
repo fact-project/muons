@@ -2,11 +2,14 @@
 Call scoop for simulation muon rings for different point spread functions (PSF)
 Call with 'python'
 
-Usage: evaluate_detectionMethod.py --output_dir=DIR --number_of_muons=NBR
+Usage: evaluate_detectionMethod.py --output_dir=DIR --number_of_muons=INT [--different_nsb=BOOL] [--steps=INT] [--step_size=INT]
 
 Options:
     --output_dir=DIR            Directory of output
-    --number_of_muons=NBR       Number of muons to be simulated
+    --number_of_muons=INT       Number of muons to be simulated
+    --different_nsb=BOOL        [default: False] Whether to do analysis with different NSB
+    --steps=INT                 [default: 20] Number of steps to iterate with different NSB
+    --step_size=INT             [default: 10] Step size
 
 """
 import photon_stream as ps
@@ -29,6 +32,21 @@ def start_simulation(simulation_dir, number_of_muons):
         "--output_dir", str(simulation_dir), "--number_of_muons",
         str(number_of_muons), "--max_inclination", str(4.5),
         "--max_aperture_radius", str(4), "--test_detection", str(True)
+    ]
+    subprocess.call(scoopList)
+
+
+def start_simulation2(simulation_dir, number_of_muons, nsb_rate):
+    scoopList = [
+        "python", "-m", "scoop", "--hostfile",
+        os.path.join(os.getcwd(),"muon_ring_simulation/scoop_hosts.txt"),
+        os.path.join(
+                os.getcwd(),
+                "./muon_ring_simulation/scoop_simulate_muon_rings.py"),
+        "--output_dir", str(simulation_dir), "--number_of_muons",
+        str(number_of_muons), "--max_inclination", str(4.5),
+        "--max_aperture_radius", str(4), "--nsb_rate_per_pixel", str(nsb_rate),
+        "--test_detection", str(True)
     ]
     subprocess.call(scoopList)
 
@@ -192,7 +210,6 @@ def plot_sensitivity_precision(
     plt.close("all")
 
 
-
 def main(
     output_dir, number_of_muons
 ):
@@ -210,10 +227,85 @@ def main(
         number_of_muons, all_photons_run, pure_cherenkov_run_photons, nsb_run_found_photons)
     file_out = os.path.join(output_dir,"precision_results.csv")
     save_to_file(file_out, events)
-    avg_precision, std_precision, avg_sensitivity, std_sensitivity, precisions, sensitivities = analyze(file_out)
+    avg_precision, std_precision, avg_sensitivity, std_sensitivity, precisions, sensitivities = analyze(fle_out)
     plot_sensitivity_precision(
             avg_precision, std_precision, avg_sensitivity,
             std_sensitivity, precisions, sensitivities, output_dir)
+
+
+def plot_different_NSB(plot_out, NSB_rates, precisions, sensitivities):
+    fig, ax = plt.subplots()
+    plt.scatter(NSB_rates, precisions, color = "k")
+    plt.xlabel("NSB_rate /Hz/pixel")
+    fig.suptitle("Precision")
+    plt.ylabel("precision")
+    plt.legend(fancybox= True, loc='lower right')
+    plt.savefig(plot_out+"/NSB_precision.png")
+    plt.close("all")
+    fig, ax = plt.subplots()
+    plt.scatter(NSB_rates, sensitivities, color = "k")
+    plt.xlabel("NSB_rate /Hz/pixel")
+    fig.suptitle("Sensitivity")
+    plt.ylabel("sensitivity")
+    plt.legend(fancybox= True, loc='lower right')
+    plt.savefig(plot_out+"/NSB_sensitivity.png")
+    plt.close("all")
+
+
+def main2(
+    output_dir,
+    number_of_muons,
+    steps,
+    step_size,
+    darkNight_NSB=35e6
+):
+    simulation_dir = os.path.join(output_dir, "simulation")
+    precisions = []
+    sensitivities = []
+    NSB_rates = []
+    for i in range(1, steps+1):
+        print("step", i)
+        NSB_rate = darkNight_NSB * i * step_size
+        simulation_step_dir = os.path.join(simulation_dir, "step"+ str(i))
+        if not os.path.isdir(simulation_step_dir):
+            os.makedirs(simulation_step_dir)
+        start_simulation2(simulation_step_dir, number_of_muons, NSB_rate)
+        pure_cherenkov_events_path = os.path.join(
+            simulation_step_dir, "pure", "psf_0.sim.phs")
+        events_with_nsb_path = os.path.join(
+            simulation_step_dir, "NSB", "psf_0.sim.phs")
+        pure_cherenkov_run, nsb_run = read_runs(
+            pure_cherenkov_events_path, events_with_nsb_path)
+        all_photons_run, pure_cherenkov_run_photons, nsb_run_found_photons = do_clustering(
+            pure_cherenkov_run, nsb_run)
+        events = true_false_decisions(
+            number_of_muons, all_photons_run,
+            pure_cherenkov_run_photons, nsb_run_found_photons)
+        avg_precision = mean(events[6])
+        avg_sensitivity = mean(events[7])
+        NSB_rates.append(NSB_rate)
+        precisions.append(avg_precision)
+        sensitivities.append(avg_sensitivity)
+    plot_different_NSB(plot_out, NSB_rates, precisions, sensitivities)
+    save_to_file2(output_dir, NSB_rates, precisions, sensitivities)
+
+
+def save_to_file2(file_out, NSB_rates, precisions, sensitivities):
+    events = [NSB_rates, precisions, sensitivities]
+    header = list([
+        "NSB_rate",
+        "precision",
+        "sensitivity"
+    ])
+    headers = ",".join(header)
+    np.savetxt(
+        file_out,
+        events,
+        fmt='%.5f',
+        delimiter=",",
+        comments='',
+        header=headers
+    )
 
 
 if __name__ == "__main__":
@@ -221,8 +313,14 @@ if __name__ == "__main__":
         arguments = docopt.docopt(__doc__)
         number_of_muons = int(arguments['--number_of_muons'])
         output_dir = arguments['--output_dir']
+        different_nsb = bool(arguments['--different_nsb'])
+        steps = int(arguments['--steps'])
+        step_size = int(arguments['--step_size'])
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
-        main(output_dir, number_of_muons)
+        if different_nsb:
+            main2(output_dir, number_of_muons, steps, step_size)
+        else:
+            main(output_dir, number_of_muons)
     except docopt.DocoptExit as e:
         print(e)

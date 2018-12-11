@@ -19,6 +19,7 @@ import photon_stream as ps
 import pandas
 import glob
 import numpy as np
+import re
 np.warnings.filterwarnings('ignore')
 
 
@@ -33,6 +34,10 @@ def paths(simulation_dir, suffix="**/psf*.sim.phs"):
 def run_detection(inpath):
     run = ps.EventListReader(inpath)
     arguments = docopt.docopt(__doc__)
+    path = os.path.normpath(inpath)
+    split_path = path.split(os.sep)
+    oa_name = split_path[5]
+    oa = re.split('_',oa_name)[3]
     number_of_muons = arguments['--number_of_muons']
     found_muons = 0
     for event in run:
@@ -40,7 +45,7 @@ def run_detection(inpath):
         muon_props = detection(event, clusters)
         if muon_props["is_muon"]:
             found_muons += 1
-    return found_muons, number_of_muons
+    return oa, found_muons, number_of_muons
 
 
 def main():
@@ -57,6 +62,7 @@ def main():
             jobs
         ))
         header_list = list([
+            "opening_angle",
             "detected_muons",
             "simulated_muons"
         ])
