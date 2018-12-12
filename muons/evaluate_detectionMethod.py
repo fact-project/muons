@@ -20,6 +20,7 @@ import docopt
 import pandas
 from statistics import mean
 import matplotlib.pyplot as plt
+import glob
 
 
 def start_simulation(simulation_dir, number_of_muons):
@@ -264,12 +265,14 @@ def main2(
     sensitivities = []
     NSB_rates = []
     for i in range(1, steps+1):
-        print("step", i)
         NSB_rate = darkNight_NSB * i * step_size
-        simulation_step_dir = os.path.join(simulation_dir, "step"+ str(i))
+        simulation_step_dir = os.path.join(simulation_dir, str("{:.2e}".format(NSB_rate)))
         if not os.path.isdir(simulation_step_dir):
             os.makedirs(simulation_step_dir)
         start_simulation2(simulation_step_dir, number_of_muons, NSB_rate)
+    print("simulations done")
+    wild_card_path = os.path.join(simulation_dir, "*")
+    for simulation_step_dir in glob.glob(wild_card_path):
         pure_cherenkov_events_path = os.path.join(
             simulation_step_dir, "pure", "psf_0.sim.phs")
         events_with_nsb_path = os.path.join(
@@ -281,6 +284,7 @@ def main2(
         events = true_false_decisions(
             number_of_muons, all_photons_run,
             pure_cherenkov_run_photons, nsb_run_found_photons)
+        print("Run done")
         avg_precision = mean(events[6])
         avg_sensitivity = mean(events[7])
         NSB_rates.append(NSB_rate)
