@@ -43,7 +43,7 @@ def run_fuzz_job(inpath):
         cherenkov_clusters = cherenkov_point_cloud[cherenkov_cluster_mask]
         point_positions = cherenkov_clusters[:,0:2]
         np.random.seed(event.photon_stream.number_photons)
-        muon_props = detection(event, clusters)
+        muon_props = detection(event, photon_clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             event_id = i
