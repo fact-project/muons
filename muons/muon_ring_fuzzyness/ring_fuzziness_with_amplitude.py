@@ -104,8 +104,8 @@ def run_job(inpath, outpath):
     os.makedirs(outdir, exist_ok=True)
     with open(outpath + ".temp", "wt") as fout:
         out = {
-            "average_amplitude": float(np.average(results)),
-            "amplitude_std": float(np.std(results)),
+            "average_fuzz": float(np.average(results)),
+            "stf_fuzz": float(np.std(results)),
             "number_muons": number_muons,
         }
         fout.write(json.dumps(out))

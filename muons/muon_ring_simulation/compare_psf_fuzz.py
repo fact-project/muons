@@ -12,7 +12,7 @@ Options:
 
 import docopt
 import scoop
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrf
 from muons.detection import detection
 import os
 import photon_stream as ps
