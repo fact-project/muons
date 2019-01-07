@@ -13,7 +13,7 @@ Options:
 import docopt
 import scoop
 from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
-from muons import extraction
+from muons.detection import detection
 import os
 import photon_stream as ps
 import pandas
@@ -40,7 +40,7 @@ def run_fuzz_job(inpath):
         clusters = ps.PhotonStreamCluster(event.photon_stream)
         random_state = np.random.get_state()
         np.random.seed(event.photon_stream.number_photons)
-        muon_props = extraction.detection(event, clusters)
+        muon_props = detection(event, clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             event_id = i

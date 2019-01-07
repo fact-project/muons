@@ -57,7 +57,7 @@ def detection(
                 d_cx <= np.deg2rad(0.05) and
                 d_cy <= np.deg2rad(0.05) and
                 d_r <= np.deg2rad(0.03) and
-                i == 6
+                i >= 6
             ):
                 break
     return muon_features
