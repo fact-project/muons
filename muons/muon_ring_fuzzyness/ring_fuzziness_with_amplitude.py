@@ -78,6 +78,15 @@ def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
     return jobs
 
 
+def muon_ring_std_event(clusters, muon_props):
+    full_cluster_mask = clusters.labels >= 0
+    number_of_photons = full_cluster_mask.sum()
+    flat_photon_stream = clusters.point_cloud
+    point_cloud = flat_photon_stream[full_cluster_mask]
+    real_std = standard_deviation(point_cloud, muon_props)
+    return real_std
+
+
 def run_job(inpath, outpath):
     results = []
     run = ps.EventListReader(inpath)
