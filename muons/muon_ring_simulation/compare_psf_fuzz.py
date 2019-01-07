@@ -37,17 +37,23 @@ def run_fuzz_job(inpath):
     mu_event_ids = []
     reconstructed_muon_events = []
     for i, event in enumerate(run):
-        clusters = ps.PhotonStreamCluster(event.photon_stream)
-        random_state = np.random.get_state()
+        photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
+        cherenkov_cluster_mask = photon_clusters.labels>=0
+        cherenkov_point_cloud = photon_clusters.point_cloud
+        cherenkov_clusters = cherenkov_point_cloud[cherenkov_cluster_mask]
+        point_positions = cherenkov_clusters[:,0:2]
         np.random.seed(event.photon_stream.number_photons)
         muon_props = detection(event, clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             event_id = i
+            cx = muon_props["muon_ring_cx"]
+            cy = muon_props["muon_ring_cy"]
+            r = muon_props["muon_ring_r"]
             reconstructed_muon_event = get_reconstructed_muons_info(
                 muon_props, event_id)
             normed_amplitude = mrf.evaluate_ring(
-                clusters, muon_props)
+                point_positions, cx, cy, r)
             results.append(normed_amplitude)
             number_muons += 1
             mu_event_ids.append(event_id)
