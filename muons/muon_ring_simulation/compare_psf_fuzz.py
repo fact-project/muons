@@ -46,9 +46,9 @@ def run_fuzz_job(inpath):
             event_id = i
             reconstructed_muon_event = get_reconstructed_muons_info(
                 muon_props, event_id)
-            std_photons_on_ring = mrf.muon_ring_std_event(
+            normed_amplitude = mrf.evaluate_ring(
                 clusters, muon_props)
-            results.append(std_photons_on_ring)
+            results.append(normed_amplitude)
             number_muons += 1
             mu_event_ids.append(event_id)
             reconstructed_muon_events.append(reconstructed_muon_event)
