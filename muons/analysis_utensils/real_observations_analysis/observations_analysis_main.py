@@ -12,6 +12,7 @@ Options:
 import subprocess
 import os.path
 from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+import docopt
 
 
 def main():
