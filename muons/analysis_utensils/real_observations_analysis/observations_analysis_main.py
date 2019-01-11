@@ -69,12 +69,15 @@ def do_calculations(arguments):
 def plot(arguments):
     output_dir = arguments['--output_dir']
     method = arguments['--method']
+    filePath = os.path.normpath(os.path.abspath(mrf.__file__))
+    parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     filePath = os.path.normpath(os.path.abspath(__file__))
     directory = os.path.normpath(os.path.join(filePath, os.pardir))
     amplitude_dir = os.path.join(output_dir, "amplitude")
     fuzz_dir = os.path.join(output_dir, "fuzz")
     file_call = os.path.join(directory, "merge_fuzz_and_plot_nightwise.py")
     epochFile_path = os.path.join(directory, "epoch_file.csv")
+    hostfile = os.path.join(parentDir, "scoop_hosts.txt")
     #kas peab veel enne seda kõik mergema nightwise?? või võib kohe kasutada seda?
     scoopList_amplitude = [
         "python", "-m", "scoop", "--hostfile",
