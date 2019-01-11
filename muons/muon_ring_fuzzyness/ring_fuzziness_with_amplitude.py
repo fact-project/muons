@@ -63,7 +63,7 @@ def apply_triangular_evaluation(
     return point_contribution
 
 
-def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
+def create_jobs(muon_dir, output_dir, method, suffix=".phs.jsonl.gz"):
     jobs = []
     wild_card_path = os.path.join(muon_dir, "*", "*", "*", "*"+suffix)
     for path in glob.glob(wild_card_path):
