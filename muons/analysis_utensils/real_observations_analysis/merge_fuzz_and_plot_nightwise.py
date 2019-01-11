@@ -116,7 +116,6 @@ def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha):
     y_p = np.subtract(avg_fz_deg, std_fz_deg)
     y_m = np.add(avg_fz_deg, std_fz_deg)
     plt.rcParams.update({'font.size': 15})
-    plt.figure(figsize=(16, 9))
     for i in range(len(alpha) - 1):
         check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
         if not check:
