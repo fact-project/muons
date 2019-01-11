@@ -7,6 +7,7 @@ import glob
 import fact
 from .. import extraction
 import warnings
+import muons
 warnings.filterwarnings("ignore")
 
 
