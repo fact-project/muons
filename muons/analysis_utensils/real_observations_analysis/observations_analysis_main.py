@@ -88,13 +88,13 @@ def plot(arguments):
         "python", file_call, "--merged_nightwise",
         amplitude_dir, "--plot_directory", output_dir,
         "--path_to_epoch_file", epochFile_path,
-        "--method", method
+        "--method", "amplotude"
     ]
     subprocessCall_fuzz = [
         "python", file_call, "--merged_nightwise",
         fuzz_dir, "--plot_directory", output_dir,
         "--path_to_epoch_file", epochFile_path,
-        "--method", method
+        "--method", "fuzz"
     ]
     if method == "amplitude":
         subprocess.call(scoopList_amplitude)
