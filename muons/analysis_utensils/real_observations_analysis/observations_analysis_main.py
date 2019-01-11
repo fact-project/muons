@@ -63,7 +63,7 @@ def do_calculations(arguments):
             input_dir, "--output_dir", fuzz_out
         ]
         subprocess.call(scoopList_fuzz)
-        subprocess.call(scoopList2)
+        subprocess.call(scoopList_amplitude)
 
 
 def plot(arguments):
