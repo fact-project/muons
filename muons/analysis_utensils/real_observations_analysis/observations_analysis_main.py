@@ -55,12 +55,12 @@ def do_calculations(arguments):
         scoopList_fuzz = [
             "python", "-m", "scoop", "--hostfile",
             hostfile, fuzz_file_call, "--muon_dir",
-            input_dir, "--output_dir", amplitude_out
+            input_dir, "--output_dir", fuzz_out
         ]
         scoopList_amplitude = [
             "python", "-m", "scoop", "--hostfile",
             hostfile, amplitude_file_call, "--muon_dir",
-            input_dir, "--output_dir", fuzz_out
+            input_dir, "--output_dir", amplitude_out
         ]
         subprocess.call(scoopList_fuzz)
         subprocess.call(scoopList_amplitude)
