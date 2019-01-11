@@ -15,7 +15,6 @@ Options:
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
 import pandas as pd
 import glob
 import json
@@ -26,7 +25,6 @@ import docopt
 import csv
 import warnings
 warnings.filterwarnings("ignore")
-matplotlib.use('Agg')
 
 
 # write an array of data
@@ -156,6 +154,7 @@ def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha):
     plt.ylabel("fuzz / deg")
     plt.legend(fancybox= True)
     plt.savefig(plt_dir + "/fuzziness_over_time.png", dpi = 120)
+    plt.close()
 
 
 def plot_epoch(x, linestyle, color, linewidth, comment):
