@@ -82,17 +82,14 @@ def plot(arguments):
     fuzz_dir = os.path.join(output_dir, "fuzz")
     file_call = os.path.join(directory, "merge_fuzz_and_plot_nightwise.py")
     epochFile_path = os.path.join(directory, "epoch_file.csv")
-    hostfile = os.path.join(parentDir, "scoop_hosts.txt")
     #kas peab veel enne seda kõik mergema nightwise?? või võib kohe kasutada seda?
-    scoopList_amplitude = [
-        "python", "-m", "scoop", "--hostfile",
-        hostfile, file_call, "--merged_nightwise",
+    subprocessCall_amplitude = [
+        "python", file_call, "--merged_nightwise",
         amplitude_dir, "--plot_directory", output_dir,
         "--path_to_epoch_file", epochFile_path
     ]
-    scoopList_fuzz = [
-        "python", "-m", "scoop", "--hostfile",
-        hostfile, file_call, "--merged_nightwise",
+    subprocessCall_fuzz = [
+        "python", file_call, "--merged_nightwise",
         fuzz_dir, "--plot_directory", output_dir,
         "--path_to_epoch_file", epochFile_path
     ]
@@ -101,8 +98,8 @@ def plot(arguments):
     elif method == "fuzz":
         subprocess.call(scoopList_fuzz)
     elif method == "both":
-        subprocess.call(scoopList_amplitude)
-        subprocess.call(scoopList_fuzz)
+        subprocess.call(subprocessCall_fuzz)
+        subprocess.call(subprocessCall_amplitude)
 
 
 def do_distribution_analysis(arguments):
