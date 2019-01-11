@@ -2,12 +2,13 @@
 Muon ring fuzziness
 Call with 'python'
 
-Usage: merge_fuzz_and_plot_nightwise.py --merged_nightwise=DIR --plot_directory=DIR --path_to_epoch_file=PTH [--min_alpha=FLT]
+Usage: merge_fuzz_and_plot_nightwise.py --merged_nightwise=DIR --plot_directory=DIR --path_to_epoch_file=PTH --method=NME --min_alpha=FLT]
 
 Options:
     --merged_nightwise=DIR      Directory of merged nightwise fuzziness
     --plot_directory=DIR        Directory of the outputted plot
     --path_to_epoch_file=PTH    Path to the epoch file
+    --method=NME                Name of the used method
     --min_alpha=FLT             [default: 0.1] Minimum transparency for plotting
 
 """
@@ -96,7 +97,7 @@ def night_wise(muon_fuzz):
 
 
 # plot data nightwise
-def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha):
+def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha, method):
     avg_fz_rad, std_fz_rad, night, muon_nr = night_wise(muon_fuzz)
     unix_time = []
     max_m_count = (np.amax(muon_nr))
@@ -155,7 +156,8 @@ def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha):
     plt.grid(alpha = 0.2, axis = "y" , color = "k")
     plt.ylabel("fuzz / deg")
     plt.legend(fancybox= True)
-    plt.savefig(plt_dir + "/fuzziness_over_time.png", dpi = 120)
+    fig_name = plt_dir + "/fuzziness_over_time_" + str(method) + ".png"
+    plt.savefig(fig_name, dpi = 120)
     plt.close()
 
 
@@ -193,6 +195,6 @@ if __name__ == '__main__':
         min_alpha = float(arguments["--min_alpha"])
         path_to_epoch_file = arguments["--path_to_epoch_file"]
         muon_fuzz = reduction(merged_nightwise)
-        plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha)
+        plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha, method)
     except docopt.DocoptExit as e:
         print(e)
