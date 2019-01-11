@@ -1,3 +1,15 @@
+"""
+Collect ring features from different run files and plot them for ringM and Hough
+Call with 'python -m scoop --hostfile scoop_hosts.txt'
+
+Usage: scoop_real_distributions.py --hough_dir=DIR --ringM_dir=DIR --plot_out=DIR
+
+Options:
+    --hough_dir=DIR      The location of muon data
+    --ringM_dir=DIR      The output of caluculated fuzzyness
+    --plot_out=DIR       Direcotry for plots
+"""
+
 import os
 import glob
 import numpy as np
@@ -64,3 +76,14 @@ def main(hough_dir, ringM_dir, plot_out):
         os.mkdir(ringM_plotOut)
     plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
     compare_rs(hough_rs, ringM_rs, plot_out)
+
+
+if __name__=='__main__':
+    try:
+        arguments = docopt.docopt(__doc__)
+        hough_dir = arguments['--hough_dir']
+        ringM_dir = arguments['--ringM_dir']
+        plot_out = arguments['--plot_out']
+        main(hough_dir, ringM_dir, plot_out)
+    except docopt.DocoptExit as e:
+        print(e)

@@ -200,7 +200,7 @@ def confusionMatrix_opening_angle(
     thrown_opening_angle = np.rad2deg(
         simulation_truth.loc[muevents, "opening_angle"])
     reconstructed_opening_angle = np.rad2deg(extracted_muons["muon_ring_r"])
-    bin_edges = np.linspace(0, 1.8, num=100)
+    bin_edges = np.linspace(0, 1.6, num=100)
     bin_counts = np.histogram2d(
         reconstructed_opening_angle, thrown_opening_angle, bins=[
             bin_edges, bin_edges])[0]

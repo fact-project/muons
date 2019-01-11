@@ -48,7 +48,8 @@ def main():
     plot_psf_fuzz_call = [
         "python", "plot_psf_fuzz.py", "--psf_fuzz_csv_path",
         psf_fuzz_csv_path, "--plot_dir", simulation_dir,
-        "--preferences_filePath", preferences_filePath
+        "--preferences_filePath", preferences_filePath,
+        "--fuzz_parameter", "response"
     ]
     subprocess.call(plot_psf_fuzz_call)
 
