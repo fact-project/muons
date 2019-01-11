@@ -5,8 +5,7 @@ import json
 from pathlib import Path
 import glob
 import fact
-# from .. import extraction
-from muons import extraction
+from .. import extraction
 
 
 def evaluate_ring(
@@ -105,7 +104,7 @@ def run_job(inpath, outpath):
     with open(outpath + ".temp", "wt") as fout:
         out = {
             "average_fuzz": float(np.average(results)),
-            "stf_fuzz": float(np.std(results)),
+            "std_fuzz": float(np.std(results)),
             "number_muons": number_muons,
         }
         fout.write(json.dumps(out))

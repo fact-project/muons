@@ -20,10 +20,15 @@ def main():
         arguments = docopt.docopt(__doc__)
     except docopt.DocoptExit as e:
         print(e)
+    print("################ Start fuzziness calculation ################")
     do_calculations(arguments)
+    print("################ Finished fuzziness calculation ################")
+    print("################ Start fuzziness plotting ################")
     plot(arguments)
+    print("################ Finished fuzziness plotting ################")
+    print("################ Start distribution analysis ################")
     do_distribution_analysis(arguments)
-
+    print("################ Finished distribution analysis ################")
 
 
 def do_calculations(arguments):
