@@ -1,12 +1,12 @@
 """
 Call with 'python'
 
-Usage: observations_analysis_main.py --input_dir=DIR --output_dir=DIR --method=NME
+Usage: observations_analysis_main.py --input_dir=DIR --output_dir=DIR [--method=NME]
 
 Options:
     --input_dir=DIR         Directory of the input files
     --output_dir=DIR        Directory of the output files
-    --method=NME            Name of the method to be used in the analysis (options: amplitude, fuzz or both)
+    --method=NME            [default: both] Name of the method to be used in the analysis (options: amplitude, fuzz or both)
 """
 
 import subprocess
@@ -39,37 +39,43 @@ def do_calculations(arguments):
     filePath = os.path.normpath(os.path.abspath(mrf.__file__))
     parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     amplitude_file_call = os.path.join(parentDir, "scoop_fuzz_amplitude.py")
-    amplitude_out = os.path.join(output_dir, "amplitude")
     fuzz_file_call = os.path.join(parentDir, "scoop_muon_fuzz.py")
-    fuzz_out = os.path.join(output_dir, "fuzz")
     hostfile = os.path.join(parentDir, "scoop_hosts.txt")
-    if method == "amplitude":
-        scoopList = [
-            "python", "-m", "scoop", "--hostfile",
-            hostfile, amplitude_file_call, "--muon_dir",
-            input_dir, "--output_dir", amplitude_out
-        ]
-        subprocess.call(scoopList)
-    elif method == "fuzz":
-        scoopList = [
-            "python", "-m", "scoop", "--hostfile",
-            hostfile, fuzz_file_call, "--muon_dir",
-            input_dir, "--output_dir", fuzz_out
-        ]
-        subprocess.call(scoopList)
-    elif method == "both":
-        scoopList_fuzz = [
-            "python", "-m", "scoop", "--hostfile",
-            hostfile, fuzz_file_call, "--muon_dir",
-            input_dir, "--output_dir", fuzz_out
-        ]
-        scoopList_amplitude = [
-            "python", "-m", "scoop", "--hostfile",
-            hostfile, amplitude_file_call, "--muon_dir",
-            input_dir, "--output_dir", amplitude_out
-        ]
-        subprocess.call(scoopList_fuzz)
-        subprocess.call(scoopList_amplitude)
+    methodList = ["ringM", "hough"]
+    for extraction in methodList:
+        amplitude_out = os.path.join(output_dir, extraction, "amplitude")
+        fuzz_out = os.path.join(output_dir, extraction, "fuzz")
+        if method == "amplitude":
+            scoopList = [
+                "python", "-m", "scoop", "--hostfile",
+                hostfile, amplitude_file_call, "--muon_dir",
+                input_dir, "--output_dir", amplitude_out,
+                "--method", extraction
+            ]
+            subprocess.call(scoopList)
+        elif method == "fuzz":
+            scoopList = [
+                "python", "-m", "scoop", "--hostfile",
+                hostfile, fuzz_file_call, "--muon_dir",
+                input_dir, "--output_dir", fuzz_out,
+                "--method", extraction
+            ]
+            subprocess.call(scoopList)
+        elif method == "both":
+            scoopList_fuzz = [
+                "python", "-m", "scoop", "--hostfile",
+                hostfile, fuzz_file_call, "--muon_dir",
+                input_dir, "--output_dir", fuzz_out,
+                "--method", extraction
+            ]
+            scoopList_amplitude = [
+                "python", "-m", "scoop", "--hostfile",
+                hostfile, amplitude_file_call, "--muon_dir",
+                input_dir, "--output_dir", amplitude_out,
+                "--method", extraction
+            ]
+            subprocess.call(scoopList_fuzz)
+            subprocess.call(scoopList_amplitude)
 
 
 def plot(arguments):
@@ -79,31 +85,34 @@ def plot(arguments):
     parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     filePath = os.path.normpath(os.path.abspath(__file__))
     directory = os.path.normpath(os.path.join(filePath, os.pardir))
-    amplitude_dir = os.path.join(output_dir, "amplitude")
-    fuzz_dir = os.path.join(output_dir, "fuzz")
     file_call = os.path.join(directory, "merge_fuzz_and_plot_nightwise.py")
     epochFile_path = os.path.join(directory, "epoch_file.csv")
-    subprocessCall_amplitude = [
-        "python", file_call, "--merged_nightwise",
-        amplitude_dir, "--plot_directory", output_dir,
-        "--path_to_epoch_file", epochFile_path,
-        "--method", "amplitude"
-    ]
-    subprocessCall_fuzz = [
-        "python", file_call, "--merged_nightwise",
-        fuzz_dir, "--plot_directory", output_dir,
-        "--path_to_epoch_file", epochFile_path,
-        "--method", "fuzz"
-    ]
-    if method == "amplitude":
-        subprocess.call(scoopList_amplitude)
-    elif method == "fuzz":
-        subprocess.call(scoopList_fuzz)
-    elif method == "both":
-        subprocess.call(subprocessCall_fuzz)
-        subprocess.call(subprocessCall_amplitude)
-    subprocess.call(["rm", "-r", str(amplitude_dir)])
-    subprocess.call(["rm", "-r", str(fuzz_dir)])
+    methodList = ["ringM", "hough"]
+    for extraction in methodList:
+        amplitude_out = os.path.join(output_dir, extraction, "amplitude")
+        fuzz_out = os.path.join(output_dir, extraction, "fuzz")
+        plot_out = os.path.join(output_dir, extraction)
+        subprocessCall_amplitude = [
+            "python", file_call, "--merged_nightwise",
+            amplitude_out, "--plot_directory", plot_out,
+            "--path_to_epoch_file", epochFile_path,
+            "--method", "amplitude"
+        ]
+        subprocessCall_fuzz = [
+            "python", file_call, "--merged_nightwise",
+            fuzz_out, "--plot_directory", plot_out,
+            "--path_to_epoch_file", epochFile_path,
+            "--method", "fuzz"
+        ]
+        if method == "amplitude":
+            subprocess.call(scoopList_amplitude)
+        elif method == "fuzz":
+            subprocess.call(scoopList_fuzz)
+        elif method == "both":
+            subprocess.call(subprocessCall_fuzz)
+            subprocess.call(subprocessCall_amplitude)
+        subprocess.call(["rm", "-r", str(amplitude_dir)])
+        subprocess.call(["rm", "-r", str(fuzz_dir)])
 
 
 def do_distribution_analysis(arguments):
