@@ -39,7 +39,7 @@ def main():
         jobs = muons.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
             muon_dir,
             output_dir,
-            method,
+            detection,
             suffix)
         job_return_codes = list(scoop.futures.map(run, jobs))
     except docopt.DocoptExit as e:

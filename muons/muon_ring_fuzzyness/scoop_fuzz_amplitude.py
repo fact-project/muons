@@ -40,7 +40,7 @@ def main():
         jobs = rfwa.create_jobs(
             muon_dir,
             output_dir,
-            method,
+            detection,
             suffix)
         job_return_codes = list(scoop.futures.map(run, jobs))
     except docopt.DocoptExit as e:
