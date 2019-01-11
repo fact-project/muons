@@ -15,6 +15,7 @@ Options:
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 import pandas as pd
 import glob
 import json
@@ -23,8 +24,10 @@ import time
 from datetime import datetime
 import docopt
 import csv
-
+import warnings
+warnings.filterwarnings("ignore")
 matplotlib.use('Agg')
+
 
 # write an array of data
 def reduce_unsorted(muon_fuzz_dir):

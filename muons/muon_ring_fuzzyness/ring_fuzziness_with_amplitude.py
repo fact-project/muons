@@ -6,6 +6,8 @@ from pathlib import Path
 import glob
 import fact
 from .. import extraction
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def evaluate_ring(

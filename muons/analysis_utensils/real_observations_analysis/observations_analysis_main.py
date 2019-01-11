@@ -13,7 +13,8 @@ import subprocess
 import os.path
 from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 import docopt
-
+import warnings
+warnings.filterwarnings("ignore")
 
 def main():
     try:
