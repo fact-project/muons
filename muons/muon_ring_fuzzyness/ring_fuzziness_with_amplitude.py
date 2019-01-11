@@ -94,10 +94,10 @@ def run_job(inpath, outpath, method=False):
         random_state = np.random.get_state()
         np.random.seed(event.photon_stream.number_photons)
         if not callable(method):
-            muon_props = extraction.detection(event, clusters)
+            muon_props = extraction.detection(event, photon_clusters)
             print("##########")
         else:
-            muon_props = method(event, clusters)
+            muon_props = method(event, photon_clusters)
         muon_props = extraction.detection(event, photon_clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
