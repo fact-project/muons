@@ -111,8 +111,8 @@ def plot(arguments):
         elif method == "both":
             subprocess.call(subprocessCall_fuzz)
             subprocess.call(subprocessCall_amplitude)
-        subprocess.call(["rm", "-r", str(amplitude_dir)])
-        subprocess.call(["rm", "-r", str(fuzz_dir)])
+        subprocess.call(["rm", "-r", str(amplitude_out)])
+        subprocess.call(["rm", "-r", str(fuzz_out)])
 
 
 def do_distribution_analysis(arguments):
