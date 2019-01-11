@@ -24,6 +24,7 @@ from datetime import datetime
 import docopt
 import csv
 
+matplotlib.use('Agg')
 
 # write an array of data
 def reduce_unsorted(muon_fuzz_dir):

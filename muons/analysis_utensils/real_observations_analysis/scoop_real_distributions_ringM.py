@@ -12,7 +12,7 @@ import photon_stream as ps
 import os
 import glob
 import matplotlib.pyplot as plt
-from muons.detection_with_simple_ring_fit import detection_with_simple_ring_fit
+from muons.detection_with_simple_ring_fit import detection_with_simple_ring_fit as detection
 import numpy as np
 import docopt
 import fact
