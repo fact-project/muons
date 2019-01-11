@@ -33,7 +33,7 @@ def main():
         method = arguments['--method']
         if method == "hough":
             detection = muons.detection
-        elif if method == "ringM":
+        elif method == "ringM":
             detection = (
                 muons.detection_with_simple_ring_fit.detection_with_simple_ring_fit)
         jobs = muons.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
