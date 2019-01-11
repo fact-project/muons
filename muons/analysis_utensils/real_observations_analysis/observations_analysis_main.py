@@ -107,7 +107,10 @@ def do_distribution_analysis(arguments):
     output_dir = arguments['--output_dir']
     ringM_fileCall = "scoop_real_distributions_ringM.py"
     hough_fileCall = "scoop_real_distributions.py"
+    filePath = os.path.normpath(os.path.abspath(mrf.__file__))
+    parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     ringM_out = os.path.join(output_dir, "ringM_distribution")
+    hostfile = os.path.join(parentDir, "scoop_hosts.txt")
     scoopList_ringM = [
         "python", "-m", "scoop", "--hostfile",
         hostfile, ringM_fileCall, "--muon_dir",
