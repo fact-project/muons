@@ -157,9 +157,9 @@ def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha, method):
     plt.grid(alpha = 0.2, axis = "y" , color = "k")
     plt.ylabel("fuzz / deg")
     plt.legend(fancybox= True)
-    fig_name = plt_dir + "/fuzziness_over_time_" + str(method) + ".png"
-    plt.savefig(fig_name, dpi = 120)
-    plt.close()
+    fig_name = "fuzziness_over_time_" + str(method) + ".png"
+    fig_path = os.path.join(plt_dir, fig_name)
+    plt.savefig(fig_path, dpi = 120)
 
 
 def plot_epoch(x, linestyle, color, linewidth, comment):
