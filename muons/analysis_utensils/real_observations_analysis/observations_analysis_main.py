@@ -104,7 +104,7 @@ def plot(arguments):
 
 def do_distribution_analysis(arguments):
     input_dir = arguments['--input_dir']
-    output_dir = argument['--output_dir']
+    output_dir = arguments['--output_dir']
     ringM_fileCall = "scoop_real_distributions_ringM.py"
     hough_fileCall = "scoop_real_distributions.py"
     ringM_out = os.path.join(output_dir, "ringM_distribution")
