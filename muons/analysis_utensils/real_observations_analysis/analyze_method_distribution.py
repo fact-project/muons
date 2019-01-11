@@ -1,8 +1,8 @@
 """
 Collect ring features from different run files and plot them for ringM and Hough
-Call with 'python -m scoop --hostfile scoop_hosts.txt'
+Call with 'python'
 
-Usage: scoop_real_distributions.py --hough_dir=DIR --ringM_dir=DIR --plot_out=DIR
+Usage: analyze_method_distribution.py --hough_dir=DIR --ringM_dir=DIR --plot_out=DIR
 
 Options:
     --hough_dir=DIR      The location of muon data
