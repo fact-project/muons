@@ -68,7 +68,7 @@ if __name__=='__main__':
         muon_dir = arguments['--muon_dir']
         output_dir = arguments['--output_dir']
         if not os.path.isdir(output_dir):
-            os.path.mkdir(output_dir)
+            os.makedirs(output_dir)
         jobs = create_jobs(muon_dir, output_dir)
         job_return_codes = list(scoop.futures.map(run_job, jobs))
     except docopt.DocoptExit as e:
