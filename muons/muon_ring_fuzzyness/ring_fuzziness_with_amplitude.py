@@ -75,6 +75,7 @@ def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
             run=fact_path["run"],
             suffix=".muon.fuzz.jsonl",
             prefix=output_dir)
+        job["method"] = method
         jobs.append(job)
     return jobs
 
