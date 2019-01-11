@@ -83,7 +83,6 @@ def plot(arguments):
     fuzz_dir = os.path.join(output_dir, "fuzz")
     file_call = os.path.join(directory, "merge_fuzz_and_plot_nightwise.py")
     epochFile_path = os.path.join(directory, "epoch_file.csv")
-    #kas peab veel enne seda kõik mergema nightwise?? või võib kohe kasutada seda?
     subprocessCall_amplitude = [
         "python", file_call, "--merged_nightwise",
         amplitude_dir, "--plot_directory", output_dir,
@@ -103,6 +102,8 @@ def plot(arguments):
     elif method == "both":
         subprocess.call(subprocessCall_fuzz)
         subprocess.call(subprocessCall_amplitude)
+    subprocess.call(["rm", "-r", str(amplitude_dir)])
+    subprocess.call(["rm", "-r", str(fuzz_dir)])
 
 
 def do_distribution_analysis(arguments):
@@ -135,7 +136,8 @@ def do_distribution_analysis(arguments):
         hough_out, "--ringM_dir", ringM_out,
         "--plot_out", plotOut_dir
     ]
-
+    subprocess.call(["rm", "-r", str(ringM_out)])
+    subprocess.call(["rm", "-r", str(hough_out)])
 
 
 if __name__ == "__main__":

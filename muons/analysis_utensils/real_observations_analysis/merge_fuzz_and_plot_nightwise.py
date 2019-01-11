@@ -195,6 +195,7 @@ if __name__ == '__main__':
         plt_dir = arguments["--plot_directory"]
         min_alpha = float(arguments["--min_alpha"])
         path_to_epoch_file = arguments["--path_to_epoch_file"]
+        method = arguments['--method']
         muon_fuzz = reduction(merged_nightwise)
         plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha, method)
     except docopt.DocoptExit as e:
