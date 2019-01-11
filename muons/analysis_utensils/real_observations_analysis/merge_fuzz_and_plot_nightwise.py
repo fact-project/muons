@@ -2,7 +2,7 @@
 Muon ring fuzziness
 Call with 'python'
 
-Usage: merge_fuzz_and_plot_nightwise.py --merged_nightwise=DIR --plot_directory=DIR --path_to_epoch_file=PTH --method=NME --min_alpha=FLT]
+Usage: merge_fuzz_and_plot_nightwise.py --merged_nightwise=DIR --plot_directory=DIR --path_to_epoch_file=PTH --method=NME [--min_alpha=FLT]
 
 Options:
     --merged_nightwise=DIR      Directory of merged nightwise fuzziness
