@@ -156,7 +156,7 @@ def plot(muon_fuzz, plt_dir, path_to_epoch_file, min_alpha, method):
     plt.xlabel("unix time / s")
     plt.grid(alpha = 0.2, axis = "y" , color = "k")
     plt.ylabel("fuzz / deg")
-    plt.legend(fancybox= True)
+    plt.legend(fancybox= True, loc='upper right')
     fig_name = "fuzziness_over_time_" + str(method) + ".png"
     fig_path = os.path.join(plt_dir, fig_name)
     plt.savefig(fig_path, dpi = 120)
