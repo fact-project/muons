@@ -144,8 +144,8 @@ def do_distribution_analysis(arguments):
         hough_out, "--ringM_dir", ringM_out,
         "--plot_out", plotOut_dir
     ]
-    subprocess.call(["rm", "-r", str(ringM_out)])
-    subprocess.call(["rm", "-r", str(hough_out)])
+    # subprocess.call(["rm", "-r", str(ringM_out)])
+    # subprocess.call(["rm", "-r", str(hough_out)])
 
 
 if __name__ == "__main__":

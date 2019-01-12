@@ -9,7 +9,6 @@ Options:
     --ringM_dir=DIR      The output of caluculated fuzzyness
     --plot_out=DIR       Direcotry for plots
 """
-
 import os
 import glob
 import numpy as np
@@ -17,6 +16,7 @@ import matplotlib.pyplot as plt
 import pandas
 import warnings
 warnings.filterwarnings("ignore")
+
 
 def collect_items(method_dir):
     wild_card_path = os.path.join(method_dir, "*.csv")
