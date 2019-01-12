@@ -6,6 +6,9 @@ from pathlib import Path
 import glob
 import fact
 from .. import extraction
+import warnings
+import muons
+warnings.filterwarnings("ignore")
 
 
 def standard_deviation(point_cloud, muon_props):
@@ -29,7 +32,7 @@ def muon_ring_std_event(clusters, muon_props):
     return real_std
 
 
-def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
+def create_jobs(muon_dir, output_dir, method, suffix=".phs.jsonl.gz"):
     jobs = []
     wild_card_path = os.path.join(muon_dir, "*", "*", "*", "*"+suffix)
     for path in glob.glob(wild_card_path):
@@ -41,11 +44,12 @@ def create_jobs(muon_dir, output_dir, suffix=".phs.jsonl.gz"):
             run=fact_path["run"],
             suffix=".muon.fuzz.jsonl",
             prefix=output_dir)
+        job["method"] = method
         jobs.append(job)
     return jobs
 
 
-def run_job(inpath, outpath):
+def run_job(inpath, outpath, method=False):
     results = []
     run = ps.EventListReader(inpath)
     number_muons = 0
@@ -53,7 +57,10 @@ def run_job(inpath, outpath):
         clusters = ps.PhotonStreamCluster(event.photon_stream)
         random_state = np.random.get_state()
         np.random.seed(event.photon_stream.number_photons)
-        muon_props = extraction.detection(event, clusters)
+        if not callable(method):
+            muon_props = extraction.detection(event, clusters)
+        else:
+            muon_props = method(event, clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             std_photons_on_ring = muon_ring_std_event(clusters, muon_props)

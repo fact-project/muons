@@ -12,8 +12,8 @@ Options:
 
 import docopt
 import scoop
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
-from muons import extraction
+from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrf
+from muons.detection import detection
 import os
 import photon_stream as ps
 import pandas
@@ -37,18 +37,25 @@ def run_fuzz_job(inpath):
     mu_event_ids = []
     reconstructed_muon_events = []
     for i, event in enumerate(run):
-        clusters = ps.PhotonStreamCluster(event.photon_stream)
+        photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
+        cherenkov_cluster_mask = photon_clusters.labels>=0
+        cherenkov_point_cloud = photon_clusters.point_cloud
+        cherenkov_clusters = cherenkov_point_cloud[cherenkov_cluster_mask]
+        point_positions = cherenkov_clusters[:,0:2]
         random_state = np.random.get_state()
         np.random.seed(event.photon_stream.number_photons)
-        muon_props = extraction.detection(event, clusters)
+        muon_props = detection(event, photon_clusters)
         np.random.set_state(random_state)
         if muon_props["is_muon"]:
             event_id = i
+            cx = muon_props["muon_ring_cx"]
+            cy = muon_props["muon_ring_cy"]
+            r = muon_props["muon_ring_r"]
             reconstructed_muon_event = get_reconstructed_muons_info(
                 muon_props, event_id)
-            std_photons_on_ring = mrf.muon_ring_std_event(
-                clusters, muon_props)
-            results.append(std_photons_on_ring)
+            normed_amplitude = mrf.evaluate_ring(
+                point_positions, cx, cy, r)
+            results.append(normed_amplitude)
             number_muons += 1
             mu_event_ids.append(event_id)
             reconstructed_muon_events.append(reconstructed_muon_event)

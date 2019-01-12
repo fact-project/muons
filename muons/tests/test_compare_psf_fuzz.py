@@ -1,7 +1,8 @@
 import numpy as np
-from muons.muon_ring_simulation import compare_psf_fuzz as cpf
+from muons.analysis_utensils.simulation_utensils import compare_psf_fuzz as cpf
 import os
 dirname = os.path.dirname(__file__)
+
 
 def test_paths():
     simulation_dir = dirname

@@ -1,4 +1,4 @@
---output_dir= /home/titan/Desktop/test332
+--output_dir= /path/to/output/direcory
 --number_of_muons= 10
 --max_inclination= 4.5
 --max_aperture_radius= 4.0

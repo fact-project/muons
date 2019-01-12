@@ -2,7 +2,7 @@
 Muon ring fuzziness
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: scoop_muon_fuzz.py --muon_dir=DIR --output_dir=DIR [--suffix=SUF] [--method=NME]
+Usage: scoop_fuzz_amplitude.py --muon_dir=DIR --output_dir=DIR [--suffix=SUF] [--method=NME]
 
 Options:
     --muon_dir=DIR      The location of muon data
@@ -15,10 +15,11 @@ import scoop
 import os
 import muons
 import photon_stream as ps
+import muons.muon_ring_fuzzyness.ring_fuzziness_with_amplitude as rfwa
 
 
 def run(job):
-    muons.muon_ring_fuzzyness.muon_ring_fuzzyness.run_job(
+    rfwa.run_job(
         inpath=job["input_path"],
         outpath=job["output_path"],
         method=job["method"])
@@ -36,7 +37,7 @@ def main():
         elif method == "ringM":
             detection = (
                 muons.detection_with_simple_ring_fit.detection_with_simple_ring_fit)
-        jobs = muons.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
+        jobs = rfwa.create_jobs(
             muon_dir,
             output_dir,
             detection,
