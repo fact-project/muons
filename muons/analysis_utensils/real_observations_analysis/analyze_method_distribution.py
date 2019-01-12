@@ -69,13 +69,13 @@ def main(hough_dir, ringM_dir, plot_out):
     hough_plotOut = os.path.join(plot_out, "Hough")
     hough_plotOut = os.path.normpath(hough_plotOut)
     if not os.path.isdir(hough_plotOut):
-        os.mkdir(hough_plotOut)
+        os.makedirs(hough_plotOut)
     plot_distribution(hough_cxs, hough_cys, hough_rs, hough_plotOut)
     ringM_cx, ringM_cy, ringM_rs = collect_items(ringM_dir)
     ringM_plotOut = os.path.join(plot_out, "ringM")
     ringM_plotOut = os.path.normpath(ringM_plotOut)
     if not os.path.isdir(ringM_plotOut):
-        os.mkdir(ringM_plotOut)
+        os.makedirs(ringM_plotOut)
     plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
     compare_rs(hough_rs, ringM_rs, plot_out)
 
