@@ -48,7 +48,9 @@ def plot_distribution(cxs, cys, rs, plot_out):
         plt.hist(observable, histtype='step', color='k', bins=bin_count)
         plt.xlabel(name +" /deg")
         plt.ylabel("muon_count /1")
-        plt.savefig(plot_out + "/" + str(name) + "_histogram_real.png")
+        figname = str(name) + "_histogram_real.png"
+        plotPath = os.path.join(plot_out, figname)
+        plt.savefig(plotPath)
         plt.close("all")
 
 
@@ -65,6 +67,8 @@ def compare_rs(hough_rs, ringM_rs, plot_out):
 
 
 def main(hough_dir, ringM_dir, plot_out):
+    if not os.path.isdir(plot_out):
+        os.makedirs(plot_out)
     hough_cxs, hough_cys, hough_rs = collect_items(hough_dir)
     hough_plotOut = os.path.join(plot_out, "Hough")
     hough_plotOut = os.path.normpath(hough_plotOut)
