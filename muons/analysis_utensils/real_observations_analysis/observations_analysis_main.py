@@ -137,8 +137,7 @@ def do_distribution_analysis(arguments):
         input_dir, "--output_dir", hough_out
     ]
     subprocess.call(scoopList_hough)
-    analyze_fileCall = os.path.join(
-        output_dir, "analyze_method_distribution.py")
+    analyze_fileCall = "analyze_method_distribution.py"
     plotOut_dir = os.path.join(output_dir, "distribution_plots")
     scoopList_analyze = [
         "python", analyze_fileCall, "--hough_dir",
