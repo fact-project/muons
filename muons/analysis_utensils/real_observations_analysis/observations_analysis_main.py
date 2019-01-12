@@ -139,13 +139,14 @@ def do_distribution_analysis(arguments):
     subprocess.call(scoopList_hough)
     analyze_fileCall = "analyze_method_distribution.py"
     plotOut_dir = os.path.join(output_dir, "distribution_plots")
-    scoopList_analyze = [
+    analyze_call = [
         "python", analyze_fileCall, "--hough_dir",
         hough_out, "--ringM_dir", ringM_out,
         "--plot_out", plotOut_dir
     ]
-    # subprocess.call(["rm", "-r", str(ringM_out)])
-    # subprocess.call(["rm", "-r", str(hough_out)])
+    subprocess.call(analyze_call)
+    subprocess.call(["rm", "-r", str(ringM_out)])
+    subprocess.call(["rm", "-r", str(hough_out)])
 
 
 if __name__ == "__main__":
