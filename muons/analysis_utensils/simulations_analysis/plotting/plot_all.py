@@ -32,11 +32,11 @@ def main():
         print(e)
     for path in paths:
         directoryNames = path.split("/")
-        iterstep_dirName = directoryNames[-2]
+        iterstep_dirName = directoryNames[-3]
         pathDirectory = os.path.dirname(os.path.realpath(path))
         simulation_ParentDir = os.path.normpath(
             os.path.join(pathDirectory, os.pardir))
-        plotting_dir = os.path.join(simulation_ParentDir, iterstep_dirName)
+        plotting_dir = os.path.join(simulation_ParentDir, "Plots", iterstep_dirName)
         splitInpath = path.split(".")
         fileName_noSuffix = ".".join([splitInpath[0], splitInpath[1]])
         simTruthPath = "".join([fileName_noSuffix, ".simulationtruth.csv"])

@@ -1,15 +1,16 @@
 """
 Simulate and analyze fuzz vs PSF and effective_area vs opening_angle. Create 
 also the correct folder structure.
+Call with 'python'
 
-Usage: 'python'
-    simulate_and_find_effective_area_vs_oa.py --scoop_hostfilePath=NME [--maximum_PSF=INT] [--steps_fuzz_psf=INT] [--steps_oa=INT] [--job=NME]
+Usage:
+    analysis_main.py --scoop_hostfilePath=PTH [--maximum_PSF=INT] [--steps_fuzz_psf=INT] [--steps_oa=INT] [--job=NME]
 
 Options:
     --scoop_hostfilePath=PTH    Path to scoop_hosts.txt
     --maximum_PSF=INT           [default: 0.25] Maximum PSF to be simulated
     --steps_fuzz_psf=INT        [default: 20] Number of steps to reach maximum PSF
-    --steps_oa                  [default: 20] Number of steps in simulating opening angle.
+    --steps_oa=INT              [default: 20] Number of steps in simulating opening angle.
     --job=NME                   [default: both] what analysist to do. Options: PSF_fuzz or effectiveArea_oa
 """
 import subprocess
@@ -18,7 +19,7 @@ import pandas
 import docopt
 
 
- def read_preferencesFile():
+def read_preferencesFile():
     filePath = os.path.normpath(os.path.abspath(__file__))
     parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     preferencesFile_path = os.path.join(parentDir, "preferences_file.csv")
@@ -27,8 +28,7 @@ import docopt
         for line in fIn:
             (key, value) = line.split("= ")
             preferences[key] = value
-    outputs_parent = preferences['--output_dir'].strip('\n')
-    return outputs_parent, preferencesFile_path
+    return preferences, preferencesFile_path
 
 
 def run_multiple_PSF_simulation(
@@ -38,7 +38,7 @@ def run_multiple_PSF_simulation(
     print("###### Start simulations for multiple PSF #####")
     output_dir = os.path.join(output, "")
     maximum_PSF = arguments['--maximum_PSF']
-    steps = arguments['--steps']
+    steps = arguments['--steps_fuzz_psf']
     scriptName = "multiple_PSF.py"
     functionCall = [
         "python", scriptName, "--preferencesFile_path",
@@ -86,7 +86,7 @@ def analyze_effective_area_vs_opening_angle(
     analysis_scriptName = "compare_opening_angle.py"
     analyze_command = [
         "python", "-m", "scoop", "--hostfile", scoop_hosts,
-        analyze_command, "--simulation_dir", simulation_dir,
+        analyze_scriptName, "--simulation_dir", simulation_dir,
         "--output_dir", simulation_dir, "--number_of_muons",
         number_of_muons
     ]
@@ -114,7 +114,9 @@ def do_plotting(plot_all_path):
 def main():
     try:
         arguments = docopt.docopt(__doc__)
-        outputs_parent, preferencesFile_path = read_preferencesFile()
+        preferences, preferencesFile_path = read_preferencesFile()
+        outputs_parent = preferences['--output_dir'].strip('\n')
+        number_of_muons = preferences['--number_of_muons'].strip('\n')
         maximum_PSF = arguments["--maximum_PSF"]
         steps_fuzz_psf = arguments["--steps_fuzz_psf"]
         steps_oa = arguments["--steps_oa"]
@@ -122,7 +124,7 @@ def main():
         scoop_hosts = arguments["--scoop_hostfilePath"]
         output_dir_PSF_fuzz = os.path.join(
             outputs_parent, "PSF_fuzz_comparison")
-        effectiveArea_oa_output = ps.path.join(
+        effectiveArea_oa_output = os.path.join(
             outputs_parent, "effective_area_vs_oa")
         if job == "PSF_fuzz":
             run_multiple_PSF_simulation(
@@ -142,7 +144,7 @@ def main():
                 preferencesFile_path, arguments, output_dir_PSF_fuzz)
             run_PSF_fuzz_analysis(output_dir_PSF_fuzz, scoop_hosts)
             simulate_effective_area_vs_opening_angle(
-                preferences_file,
+                preferencesFile_path,
                 steps_oa,
                 effectiveArea_oa_output)
             analyze_effective_area_vs_opening_angle(
