@@ -12,7 +12,8 @@ Options:
 
 import docopt
 import scoop
-from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrf
+from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrfa
+from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 from muons.detection import detection
 import os
 import photon_stream as ps
@@ -31,7 +32,8 @@ def paths(simulation_dir, suffix="**/psf*.sim.phs"):
 
 
 def run_fuzz_job(inpath):
-    results = []
+    amplitude_results = []
+    fuzz_results = []
     run = ps.EventListReader(inpath)
     number_muons = 0
     mu_event_ids = []
@@ -53,15 +55,25 @@ def run_fuzz_job(inpath):
             r = muon_props["muon_ring_r"]
             reconstructed_muon_event = get_reconstructed_muons_info(
                 muon_props, event_id)
-            normed_amplitude = mrf.evaluate_ring(
+
+            normed_amplitude = mrfa.evaluate_ring(
                 point_positions, cx, cy, r)
-            results.append(normed_amplitude)
+            amplitude_results.append(normed_amplitude)
+
+            fuzziness = mrf.muon_ring_std_event(
+                clusters, muon_props)
+            fuzz_results.append(fuzziness)
+
             number_muons += 1
             mu_event_ids.append(event_id)
             reconstructed_muon_events.append(reconstructed_muon_event)
     save_muon_events(reconstructed_muon_events, inpath)
-    average_fuzz = float(np.average(results))
-    std_fuzz = float(np.std(results))
+    average_amplitude = float(np.average(amplitude_results))
+    amplitude_std = float(np.std(amplitude_results))
+    amplitude_dict = {}
+    average_fuzz = float(np.average(fuzz_results))
+    fuzz_std = float(np.std(fuzz_results))
+    fuzz_dict = {}
     return average_fuzz, std_fuzz, number_muons, mu_event_ids
 
 
@@ -114,7 +126,6 @@ def get_reconstructed_muons_info(muon_props, event_id):
 
 def get_simTruth(simTruthPath, mu_event_ids):
     simulation_truth = pandas.read_csv(simTruthPath)
-
     point_spread_function = simulation_truth["point_spread_function_std"][0]
     return point_spread_function
 
@@ -152,7 +163,7 @@ def main():
         header_list = list([
             "point_spread_function",
             "average_fuzz",
-            "std_fuzz",
+            "fuzz_std",
             "detected_muonCount"
         ])
         headers = ",".join(header_list)

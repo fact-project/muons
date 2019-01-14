@@ -7,10 +7,10 @@ Usage:
     analysis_main.py --scoop_hostfilePath=PTH [--maximum_PSF=INT] [--steps_fuzz_psf=INT] [--steps_oa=INT] [--job=NME]
 
 Options:
-    --scoop_hostfilePath=PTH    Path to scoop_hosts.txt
+    --scoop_hostfilePath=PTH    Path to scoop_hosts.txt file
     --maximum_PSF=INT           [default: 0.25] Maximum PSF to be simulated
-    --steps_fuzz_psf=INT        [default: 20] Number of steps to reach maximum PSF
-    --steps_oa=INT              [default: 20] Number of steps in simulating opening angle.
+    --steps_fuzz_psf=INT        [default: 10] Number of steps to reach maximum PSF
+    --steps_oa=INT              [default: 10] Number of steps in simulating opening angle.
     --job=NME                   [default: both] what analysist to do. Options: PSF_fuzz or effectiveArea_oa
 """
 import subprocess
@@ -34,27 +34,29 @@ def read_preferencesFile():
 def run_multiple_PSF_simulation(
     preferencesFile_path,
     arguments,
-    output):
+    output,
+    scoop_hostFile):
     print("###### Start simulations for multiple PSF #####")
-    output_dir = os.path.join(output, "")
+    output_dir = os.path.join(output, "simulation")
     maximum_PSF = arguments['--maximum_PSF']
     steps = arguments['--steps_fuzz_psf']
     scriptName = "multiple_PSF.py"
     functionCall = [
         "python", scriptName, "--preferencesFile_path",
         preferencesFile_path, "--maximum_PSF",
-        maximum_PSF, "--steps", steps,
-        "--output_dir", output_dir
+        maximum_PSF, "--steps", steps, "--scoop_hostFile",
+        scoop_hostFile, "--output_dir", output_dir
     ]
     subprocess.call(functionCall)
     print("##### Finished simulations #####")
 
 
-def run_PSF_fuzz_analysis(simulation_dir, scoop_hosts):
+def run_PSF_fuzz_analysis(output, scoop_hosts):
+    simulation_dir = os.path.join(output, "simulation")
     print("###### Start PSF_fuzz analysis #####")
     scriptName = "compare_psf_fuzz.py"
     functionCall = [
-        "python", "-m", "--hostfile", scoop_hosts,
+        "python", "-m", "scoop", "--hostfile", scoop_hosts,
         scriptName, "--simulation_dir", simulation_dir,
         "--output_dir", simulation_dir
     ]
@@ -65,13 +67,15 @@ def run_PSF_fuzz_analysis(simulation_dir, scoop_hosts):
 def simulate_effective_area_vs_opening_angle(
     preferences_file,
     steps,
-    output_dir
+    output_dir,
+    scoop_hosts
 ):
     print("##### Start simulation for different opening angle #####")
     simulation_scriptName = "multiple_openingAngle.py"
     simulation_command = [
         "python", simulation_scriptName, "--preferencesFile_path",
-        preferences_file, "--steps", steps, "--output_dir", output_dir
+        preferences_file, "--steps", steps, "--scoop_hostFile",
+        scoop_hosts, "--output_dir", output_dir
     ]
     subprocess.call(simulation_command)
     print("##### Finished simulations #####")
@@ -86,7 +90,7 @@ def analyze_effective_area_vs_opening_angle(
     analysis_scriptName = "compare_opening_angle.py"
     analyze_command = [
         "python", "-m", "scoop", "--hostfile", scoop_hosts,
-        analyze_scriptName, "--simulation_dir", simulation_dir,
+        analysis_scriptName, "--simulation_dir", simulation_dir,
         "--output_dir", simulation_dir, "--number_of_muons",
         number_of_muons
     ]
@@ -95,7 +99,7 @@ def analyze_effective_area_vs_opening_angle(
 
 
 def get_plotting_script_path():
-    filePath = os.path.normpath(os.path.abspath(mrf.__file__))
+    filePath = os.path.normpath(os.path.abspath(__file__))
     file_parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     simulation_analysis_dir = os.path.normpath(os.path.join(
         file_parentDir, os.pardir))
@@ -104,11 +108,10 @@ def get_plotting_script_path():
     return plot_all_path
 
 
-def do_plotting(plot_all_path):
+def do_plotting(plot_all_path, simulation_dir):
     plot_command = [
         "python", plot_all_path, "--simulation_dir", simulation_dir]
     subprocess.call(plot_command)
-
 
 
 def main():
@@ -128,25 +131,29 @@ def main():
             outputs_parent, "effective_area_vs_oa")
         if job == "PSF_fuzz":
             run_multiple_PSF_simulation(
-                preferencesFile_path, arguments, output_dir_PSF_fuzz)
+                preferencesFile_path, arguments,
+                output_dir_PSF_fuzz, scoop_hosts)
             run_PSF_fuzz_analysis(output_dir_PSF_fuzz, scoop_hosts)
         elif job == "effectiveArea_oa":
             simulate_effective_area_vs_opening_angle(
                 preferences_file,
                 steps_oa,
-                effectiveArea_oa_output)
+                effectiveArea_oa_output,
+                scoop_hosts)
             analyze_effective_area_vs_opening_angle(
                 scoop_hosts,
                 number_of_muons,
                 effectiveArea_oa_output)
         elif job == "both":
             run_multiple_PSF_simulation(
-                preferencesFile_path, arguments, output_dir_PSF_fuzz)
+                preferencesFile_path, arguments,
+                output_dir_PSF_fuzz, scoop_hosts)
             run_PSF_fuzz_analysis(output_dir_PSF_fuzz, scoop_hosts)
             simulate_effective_area_vs_opening_angle(
                 preferencesFile_path,
                 steps_oa,
-                effectiveArea_oa_output)
+                effectiveArea_oa_output,
+                scoop_hosts)
             analyze_effective_area_vs_opening_angle(
                 scoop_hosts,
                 number_of_muons,
@@ -154,7 +161,7 @@ def main():
         else:
             raise Exception('Wrong "--job" parameter')
         plot_all_path = get_plotting_script_path()
-        do_plotting(plot_all_path)
+        do_plotting(plot_all_path, output_dir_PSF_fuzz)
     except docopt.DocoptExit as e:
         print(e)
 

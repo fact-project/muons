@@ -289,9 +289,8 @@ def main(extracted_muons_path, simtruthpath, plot_out):
 try:
     arguments = docopt.docopt(__doc__)
     plot_dir = arguments['--plot_dir']
-    plot_out = os.path.join(plot_dir, "plots_comparison")
-    if not os.path.isdir(plot_out):
-        os.makedirs(plot_out)
+    if not os.path.isdir(plot_dir):
+        os.makedirs(plot_dir)
     input_file = open(arguments['--extracted_muons_path'], "r")
     reader_file = csv.reader(input_file)
     if len(list(reader_file)) < 2:
@@ -299,7 +298,7 @@ try:
     main(
         simtruthpath=arguments['--simTruthPath'],
         extracted_muons_path=arguments['--extracted_muons_path'],
-        plot_out=plot_out,
+        plot_out=plot_dir,
     )
 except docopt.DocoptExit as e:
     print(e)
