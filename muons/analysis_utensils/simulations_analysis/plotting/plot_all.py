@@ -31,7 +31,12 @@ def main():
     except docopt.DocoptExit as e:
         print(e)
     for path in paths:
-        plot_dir_fuzz = os.path.dirname(os.path.realpath(path))
+        directoryNames = path.split("/")
+        iterstep_dirName = directoryNames[-2]
+        pathDirectory = os.path.dirname(os.path.realpath(path))
+        simulation_ParentDir = os.path.normpath(
+            os.path.join(pathDirectory, os.pardir))
+        plotting_dir = os.path.join(simulation_ParentDir, iterstep_dirName)
         splitInpath = path.split(".")
         fileName_noSuffix = ".".join([splitInpath[0], splitInpath[1]])
         simTruthPath = "".join([fileName_noSuffix, ".simulationtruth.csv"])

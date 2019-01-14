@@ -291,7 +291,7 @@ try:
     plot_dir = arguments['--plot_dir']
     plot_out = os.path.join(plot_dir, "plots_comparison")
     if not os.path.isdir(plot_out):
-        os.mkdir(plot_out)
+        os.makedirs(plot_out)
     input_file = open(arguments['--extracted_muons_path'], "r")
     reader_file = csv.reader(input_file)
     if len(list(reader_file)) < 2:

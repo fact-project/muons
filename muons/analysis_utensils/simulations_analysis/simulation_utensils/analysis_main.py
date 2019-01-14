@@ -34,8 +34,9 @@ import docopt
 def run_multiple_PSF_simulation(
     preferencesFile_path,
     arguments,
-    output_dir):
+    output):
     print("###### Start simulations for multiple PSF #####")
+    output_dir = os.path.join(output, "")
     maximum_PSF = arguments['--maximum_PSF']
     steps = arguments['--steps']
     scriptName = "multiple_PSF.py"
@@ -103,8 +104,11 @@ def get_plotting_script_path():
     return plot_all_path
 
 
-def do_plotting():
-    dsasda
+def do_plotting(plot_all_path):
+    plot_command = [
+        "python", plot_all_path, "--simulation_dir", simulation_dir]
+    subprocess.call(plot_command)
+
 
 
 def main():

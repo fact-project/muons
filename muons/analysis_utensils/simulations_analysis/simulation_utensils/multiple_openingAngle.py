@@ -32,7 +32,8 @@ def main():
             output = scoopDictionary["--output_dir"].strip("\n")
         min_opening_angle = scoopDictionary["--min_opening_angle"].strip("\n")
         max_opening_angle = scoopDictionary["--max_opening_angle"].strip("\n")
-        stepsize = (float(max_opening_angle) - float(min_opening_angle))/int(steps)
+        stepsize = (
+            (float(max_opening_angle) - float(min_opening_angle))/int(steps))
         if not os.path.isdir(output):
             os.mkdir(output)
         copy(preferencesFile_path, output)
@@ -41,7 +42,8 @@ def main():
                 "python", "-m", "scoop", "--hostfile",
                 "scoop_hosts.txt", "scoop_simulate_muon_rings.py"
             ]
-            current_oa = round(float(min_opening_angle) + np.multiply(stepsize, i), 2)
+            current_oa = round(
+                float(min_opening_angle) + np.multiply(stepsize, i), 2)
             dirname = "_".join([
                 "opening_angle_",
                 str(current_oa)])
