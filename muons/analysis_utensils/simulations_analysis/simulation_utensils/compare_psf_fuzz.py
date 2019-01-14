@@ -61,7 +61,7 @@ def run_fuzz_job(inpath):
             amplitude_results.append(normed_amplitude)
 
             fuzziness = mrf.muon_ring_std_event(
-                clusters, muon_props)
+                phtoton_clusters, muon_props)
             fuzz_results.append(fuzziness)
 
             number_muons += 1
