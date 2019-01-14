@@ -3,11 +3,12 @@
 Call scoop for simulation muon rings for different point spread functions (PSF)
 Call with 'python'
 
-Usage: multiple_openingAngle.py --preferencesFile_path=DIR --steps=INT
+Usage: multiple_openingAngle.py --preferencesFile_path=DIR --steps=INT [--output_dir=DIR]
 
 Options:
     --preferencesFile_path=DIR          Path to the preferences file
     --steps=INT                         Number of steps to be iterated
+    --output_dir=DIR                    [default: False] Directory for the simulations
 """
 import subprocess
 import docopt
@@ -26,7 +27,9 @@ def main():
             for line in fIn:
                 (key, value) = line.split("= ")
                 scoopDictionary[key] = value
-        output = scoopDictionary["--output_dir"].strip("\n")
+        output = arguments['--output_dir']
+        if output == "False":
+            output = scoopDictionary["--output_dir"].strip("\n")
         min_opening_angle = scoopDictionary["--min_opening_angle"].strip("\n")
         max_opening_angle = scoopDictionary["--max_opening_angle"].strip("\n")
         stepsize = (float(max_opening_angle) - float(min_opening_angle))/int(steps)
