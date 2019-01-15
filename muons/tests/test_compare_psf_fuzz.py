@@ -6,10 +6,10 @@ dirname = os.path.dirname(__file__)
 
 
 def test_paths():
-    simulation_dir = dirname
+    test_dir = dirname
     suffix = "**/*.sim.phs"
     np.testing.assert_equal(
-        len(cpf.paths(simulation_dir, suffix)),
+        len(cpf.paths(test_dir, suffix)),
         1
     )
 
@@ -23,7 +23,7 @@ def test_get_simTruth1():
 
 def test_run_fuzz_job():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.run_fuzz_job(inpath)
+    returns = cpf.run_fuzz_job(inpath, extraction)
     np.testing.assert_equal(
         returns[2],
         10
@@ -32,7 +32,7 @@ def test_run_fuzz_job():
 
 def test_with_one_PSF1():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.with_one_PSF(inpath)
+    returns = cpf.with_one_PSF(inpath, extraction)
     np.testing.assert_equal(
         len(returns),
         4
@@ -41,23 +41,23 @@ def test_with_one_PSF1():
 
 def test_with_one_PSF2():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.with_one_PSF(inpath)
+    returns = cpf.with_one_PSF(inpath, extraction)
     assert len(np.array([returns[1]])) == 1
 
 
 def test_with_one_PSF3():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.with_one_PSF(inpath)
+    returns = cpf.with_one_PSF(inpath, extraction)
     assert len(np.array([returns[2]])) == 1
 
 
 def test_with_one_PSF4():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.with_one_PSF(inpath)
+    returns = cpf.with_one_PSF(inpath, extraction)
     assert len(np.array([returns[3]])) == 1
 
 
 def test_run_fuzz_job2():
     inpath = os.path.join(dirname, "resources/100simulations_psf0.0.sim.phs")
-    returns = cpf.run_fuzz_job(inpath)
+    returns = cpf.run_fuzz_job(inpath, extraction)
     assert returns[0] < 1
