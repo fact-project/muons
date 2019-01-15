@@ -229,14 +229,14 @@ def save_fuzz_file(arguments):
             iter_event_list = [events_std, events_response]
             filenames = [filename_std, filename_response]
             for filename, event_info in zip(filenames, iter_event_list):
-            file_out = os.path.join(output_dir, typeName, filename)
-            np.savetxt(
-                file_out,
-                events,
-                delimiter=",",
-                comments='',
-                header=headers
-                )
+                file_out = os.path.join(output_dir, typeName, filename)
+                np.savetxt(
+                    file_out,
+                    events,
+                    delimiter=",",
+                    comments='',
+                    header=headers
+                    )
     else:
         events = sorted(events)
         events_std = [
@@ -246,14 +246,14 @@ def save_fuzz_file(arguments):
         iter_event_list = [events_std, events_response]
         filenames = [filename_std, filename_response]
         for filename, event_info in zip(filenames, iter_event_list):
-        file_out = os.path.join(output_dir, filename)
-        np.savetxt(
-            file_out,
-            events,
-            delimiter=",",
-            comments='',
-            header=headers
-            )
+            file_out = os.path.join(output_dir, filename)
+            np.savetxt(
+                file_out,
+                events,
+                delimiter=",",
+                comments='',
+                header=headers
+                )
 
 
 def main():
