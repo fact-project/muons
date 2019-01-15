@@ -138,15 +138,19 @@ try:
     hough_psf_fuzz_csv_path = arguments['--hough_psf_fuzz_csv_path']
     fuzz_parameter = arguments['--fuzz_parameter']
     psf_fuzz_csv_path = arguments['--psf_fuzz_csv_path']
-    do_comparison = bool(arguments['--do_comparison'])
+    do_comparison = arguments['--do_comparison']
     plot_dir = arguments['--plot_dir']
+    psf_fuzz_csv_path_std = os.path.join(
+        psf_fuzz_csv_path, "std_psf.csv")
+    psf_fuzz_csv_path_amplitude = os.path.join(
+        psf_fuzz_csv_path, "amplitude_psf_csv")
     plot_out = os.path.join(plot_dir, "plots_psf_fuzz_effective_area")
     if not os.path.isdir(plot_out):
         os.makedirs(plot_out)
     preferences_filePath = arguments['--preferences_filePath']
     if fuzz_parameter == "both":
-        plot_psf_fuzz(psf_fuzz_csv_path, plot_out, "stdev")
-        plot_psf_fuzz(psf_fuzz_csv_path, plot_out, "response")
+        plot_psf_fuzz(psf_fuzz_csv_path_std, plot_out, "stdev")
+        plot_psf_fuzz(psf_fuzz_csv_path_amplitude, plot_out, "response")
     else:
         plot_psf_fuzz(psf_fuzz_csv_path, plot_out, fuzz_parameter)
     plot_effective_area_vs_psf(psf_fuzz_csv_path, plot_out, preferences_filePath)

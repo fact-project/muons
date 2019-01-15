@@ -53,15 +53,19 @@ def main():
             "--plot_dir", plotting_dir
         ]
         subprocess.call(plot_simulation_call)
-    psf_fuzz_csv_path = os.path.join(simulation_dir, "psf_fuzz.csv")
     preferences_filePath = os.path.join(simulation_dir,"preferences_file.csv")
     filePath = os.path.normpath(os.path.abspath(__file__))
     parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
     psf_fuzz_scriptPath = os.path.join(parentDir, "plot_psf_fuzz.py")
+    ringM_psf_fuzz_csv_path = os.path.join(simulation_dir, "ringM")
+    hough_psf_fuzz_csv_path = os.path.join(simulation_dir, "hough")
     plot_psf_fuzz_call = [
-        "python", psf_fuzz_scriptPath, "--psf_fuzz_csv_path",
-        psf_fuzz_csv_path, "--plot_dir", simulation_dir,
-        "--preferences_filePath", preferences_filePath
+        "python", psf_fuzz_scriptPath, "--psf_fuzz_csv_dir",
+        simulation_dir, "--plot_dir", simulation_dir,
+        "--preferences_filePath", preferences_filePath,
+        "--do_comparison", "True", "--ringM_psf_fuzz_csv_path",
+        ringM_psf_fuzz_csv_path, "--hough_psf_fuzz_csv_path",
+        hough_psf_fuzz_csv_path
     ]
     subprocess.call(plot_psf_fuzz_call)
 
