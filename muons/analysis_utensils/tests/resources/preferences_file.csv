@@ -1,0 +1,11 @@
+--number_of_muons= 30
+--max_inclination= 1.0
+--max_aperture_radius= 1.0
+--min_opening_angle= 0.4
+--max_opening_angle= 1.6
+--nsb_rate_per_pixel= 35e6
+--arrival_time_std= 500e-12
+--ch_rate= 3.0
+--fact_aperture_radius= 1.965
+--random_seed= 1
+--point_spread_function= 0
