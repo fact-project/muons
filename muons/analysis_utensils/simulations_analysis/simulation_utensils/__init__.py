@@ -1,1 +1,0 @@
-from . import compare_psf_fuzz

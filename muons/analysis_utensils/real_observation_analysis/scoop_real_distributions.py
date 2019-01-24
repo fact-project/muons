@@ -13,9 +13,13 @@ import os
 import glob
 import matplotlib.pyplot as plt
 from muons.detection import detection
+from muons.detection_with_simple_ring_fit import (
+    detection_with_simple_ring_fit as ringM_detection)
 import numpy as np
 import docopt
 import fact
+import muons.muon_ring_fuzzyness.ring_fuzziness_with_amplitude as rfwa
+import muons.muon_ring_fuzzyness.muon_ring_fuzzyness as mrf
 
 
 def create_jobs(muon_dir, output_dir):
@@ -34,22 +38,37 @@ def run_job(job):
     inpath = job["inpath"]
     output_dir = job["output_dir"]
     run = ps.EventListReader(inpath)
-    muon_ring_features = []
-    for event in run:
-        clusters = ps.PhotonStreamCluster(event.photon_stream)
-        muon_props = detection(event, clusters)
-        if muon_props["is_muon"]:
-            muon_ring_feature = [
-                muon_props["muon_ring_cx"],
-                muon_props["muon_ring_cy"],
-                muon_props["muon_ring_r"]
+    muon_ring_featuresR = []
+    muon_ring_featuresH = []
+    for event_id, event in enumerate(run):
+        photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
+        muon_propsR = ringM_detection(event, photon_clusters)
+        muon_propsH = detection(event, photon_clusters)
+        if muon_propsH["is_muon"]:
+            muon_ring_featureH = [
+                muon_propsH["muon_ring_cx"],
+                muon_propsH["muon_ring_cy"],
+                muon_propsH["muon_ring_r"]
             ]
-            muon_ring_features.append(muon_ring_feature)
+            muon_ring_featuresH.append(muon_ring_feature)
+        if muon_propsR["is_muon"]:
+            muon_ring_featureH = [
+                muon_propsR["muon_ring_cx"],
+                muon_propsR["muon_ring_cy"],
+                muon_propsR["muon_ring_r"]
+            ]
+            muon_ring_featuresR.append(muon_ring_feature)
     fact_path = fact.path.parse(inpath)
     night = fact_path["night"]
     run = fact_path["run"]
     filename = str(night) + "_" + str(run) + ".csv"
-    outpath = os.path.join(output_dir, filename)
+    save_to_file("ringM", filename, muon_ring_featuresR)
+    save_to_file("hough", filename, muon_ring_featuresH)
+    return muon_ring_featuresR, muon_ring_featuresH
+
+
+def save_to_file(method, filename, muon_ring_features):
+    outpath = os.path.join(output_dir, method, filename)
     header = list(["cx", "cy", "r"])
     headers = ",".join(header)
     np.savetxt(
@@ -59,7 +78,6 @@ def run_job(job):
         comments="",
         header=headers
         )
-    return muon_ring_features
 
 
 if __name__=='__main__':
