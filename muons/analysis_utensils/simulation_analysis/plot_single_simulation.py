@@ -116,7 +116,7 @@ class SingleSimulatonPlotting:
         self.create_step_histogram(r_t_sq, "blue", bin_edges, "thrown")
         self.create_step_histogram(r_d_sq, "red", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon impact radius / $m^2$")
+        plt.xlabel("muon impact radius / \$m^2\$")
         plt.ylabel("number of muons / 1")
         outpath = os.path.join(self.plot_out, "impact_r_sq.png")
         plt.savefig(outpath, bbox_inches="tight")
@@ -164,7 +164,7 @@ class SingleSimulatonPlotting:
         self.create_step_histogram(
             np.rad2deg(detected_r_sq), "red", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon $cx^2 + cy^2$ /$deg^2$")
+        plt.xlabel("muon \$cx^2 + cy^2\$ /\$deg^2\$")
         plt.ylabel("number of muons / 1")
         plotPath = os.path.join(self.plot_out, "cxcy_squared.png")
         plt.savefig(plotPath, bbox_inches="tight")

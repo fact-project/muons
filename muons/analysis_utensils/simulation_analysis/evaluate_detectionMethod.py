@@ -264,7 +264,7 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=prec_min,
             y2=prec_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / $\%$")
+        plt.ylabel(r"percentage / \$\%\$")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
         plt.suptitle(r"Precision")
@@ -282,7 +282,7 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=sens_min,
             y2=sens_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / $\%$")
+        plt.ylabel(r"percentage / \$\%\$")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
         plt.suptitle(r"Sensitivity")

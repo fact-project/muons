@@ -347,7 +347,7 @@ class PSF_FuzzAnalysis:
             fig.savefig(plot_outPath, bbox_inches="tight")
             plt.close("all")
         elif fuzz_parameter == "response":
-            ax.set_ylabel(r"response /$\%$")
+            ax.set_ylabel(r"response / \%")
             filename = "response_vs_psf.png"
             plot_outDir = os.path.join(
                 self.output_dir, "Plots",  extractionMethod)
@@ -417,7 +417,7 @@ class PSF_FuzzAnalysis:
         )
         ax.set_yscale('log')
         ax.set_xlabel(r"true point spread function /deg")
-        ax.set_ylabel(r"effective area /$m^2$")
+        ax.set_ylabel(r"effective area /\$m^2\$")
         ax.set_xlim(psf.min()-0.01, psf.max()+0.01)
         filename = "effective_area_vs_psf.png"
         plotDir = os.path.join(self.output_dir, "Plots", extractionMethod)
