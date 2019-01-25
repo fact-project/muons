@@ -146,26 +146,26 @@ def test_do_clustering2():
     assert len(results[0]) != 0
 
 
-# def test_true_false_decisions():
-#     dme = edM.DetectionMethodEvaluation(
-#         output_dir, 2, steps, step_size, scoop_hosts)
-#     p1 = np.array([1, 1, 2])
-#     p2 = np.array([1, 1, 1])
-#     p3 = np.array([2, 2, 2])
-#     p4 = np.array([4, 4, 4])
-#     p5 = np.array([5, 5, 5])
-#     all_photons_run = np.array(
-#         [np.array([p1, p2, p3, p4, p5]), np.array([p1, p2, p3, p4, p5])])
-#     pure_cherenkov_run_photons = np.array(
-#         [np.array([p2, p3, p4]), np.array([p2, p3, p4])])
-#     nsb_run_found_photons = np.array(
-#         [np.array([p1, p3, p4]), np.array([p1, p3, p4])])
-#     events = dme.true_false_decisions(
-#         all_photons_run, pure_cherenkov_run_photons, nsb_run_found_photons)
-#     np.testing.assert_almost_equal(
-#         events,
-#         [[3, 3, 2, 1, 1, 1, 200/3, 200/3], [3, 3, 2, 1, 1, 1, 200/3, 200/3]],
-#         5)
+def test_true_false_decisions():
+    dme = edM.DetectionMethodEvaluation(
+        output_dir, 2, steps, step_size, scoop_hosts)
+    p1 = np.array([1, 1, 2])
+    p2 = np.array([1, 1, 1])
+    p3 = np.array([2, 2, 2])
+    p4 = np.array([4, 4, 4])
+    p5 = np.array([5, 5, 5])
+    all_photons_run = np.array(
+        [np.array([p1, p2, p3, p4, p5]), np.array([p1, p2, p3, p4, p5])])
+    pure_cherenkov_run_photons = np.array(
+        [np.array([p2, p3, p4]), np.array([p2, p3, p4])])
+    nsb_run_found_photons = np.array(
+        [np.array([p1, p3, p4]), np.array([p1, p3, p4])])
+    events = dme.true_false_decisions(
+        all_photons_run, pure_cherenkov_run_photons, nsb_run_found_photons)
+    np.testing.assert_almost_equal(
+        events,
+        [[3, 3, 2, 1, 1, 1, 200/3, 200/3], [3, 3, 2, 1, 1, 1, 200/3, 200/3]],
+        5)
 
 
 def test_save_to_file():
@@ -211,16 +211,43 @@ def test_dummy_delete_files():
     shutil.rmtree(output_dir)
 
 
-# def test_one_nsb_rate():
-#     dme = edM.DetectionMethodEvaluation(
-#         output_dir, 100, steps, step_size, scoop_hosts)
-#     dme.one_nsb_rate(output_dir, 35e6)
-#     wild_card_path = os.path.join(output_dir, "*")
-#     i = 0
-#     for path in glob.glob(wild_card_path):
-#         i += 1
-#     assert i == 4
+def test_one_nsb_rate():
+    dme = edM.DetectionMethodEvaluation(
+        output_dir, 100, steps, step_size, scoop_hosts)
+    dme.one_nsb_rate(output_dir, 35e6)
+    wild_card_path = os.path.join(output_dir, "*")
+    i = 0
+    for path in glob.glob(wild_card_path):
+        i += 1
+    assert i == 4
 
 
-# def test_dummy_delete_files():
-#     shutil.rmtree(output_dir)
+def test_dummy_delete_files2():
+    shutil.rmtree(output_dir)
+
+
+def test_plot_different_NSB():
+    dme = edM.DetectionMethodEvaluation(
+        output_dir, 10, steps, step_size, scoop_hosts)
+    NSB_rates = [1, 2, 3]
+    precisions = [99, 98, 97]
+    sensitivities = [100, 50, 80]
+    muonCounts = [12, 12, 12]
+    dme.plot_different_NSB(NSB_rates, precisions, sensitivities, muonCounts)
+    number_of_elements = len(os.listdir(output_dir))
+    assert number_of_elements == 3
+
+def test_dummy_delete_files3():
+    shutil.rmtree(output_dir)
+
+
+def test_multiple_nsb_rates():
+    dme = edM.DetectionMethodEvaluation(
+        output_dir, 10, 5, 1.05, scoop_hosts)
+    dme.multiple_nsb_rates()
+    number_of_elements = len(os.listdir(output_dir))
+    assert number_of_elements == 7
+
+
+def test_dummy_delete_files4():
+    shutil.rmtree(output_dir)

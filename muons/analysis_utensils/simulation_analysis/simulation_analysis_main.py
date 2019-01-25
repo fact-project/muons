@@ -20,6 +20,7 @@ import docopt
 import effectiveArea_vs_openingAngle as eav
 import extractionMethod_evaluation as eme
 import psf_fuzz_analysis as pfa
+import evaluate_detectionMethod as edM
 
 
 def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
@@ -32,6 +33,9 @@ def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
     extMethod_dir = os.path.join(output_dir, "extractionMethod_evaluation")
     if not os.path.isdir(extMethod_dir):
         os.makedirs(extMethod_dir)
+    detectionMethod_dir = os.path.join(output_dir, "detectionMethod_evaluation")
+    if not os.path.isdir(detectionMethod_dir):
+        os.makedirs(detectionMethod_dir)
     simulationFileDir = os.path.join(fuzz_outDir, "simulations", "iterStep_0")
     simulationTruth_path = os.path.join(
         simulationFileDir, "psf_0.0.simulationtruth.csv")
@@ -47,7 +51,9 @@ def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
         simulationFile, simulationTruth_path, extMethod_dir
         )
     extraction.evaluate_methods()
-
+    detection = edM.DetectionMethodEvaluation(
+        detectionMethod_dir, 10000, self.steps, 1.15, scoop_hosts)
+    detection.multiple_nsb_rates()
 
 
 

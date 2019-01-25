@@ -5,6 +5,8 @@ import subprocess
 import docopt
 import pandas
 from statistics import mean
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import glob
 from numbers import Number
@@ -30,6 +32,7 @@ class DetectionMethodEvaluation:
             self.simulation_dir, "pure")
         self.nsb_dir = os.path.join(
             self.simulation_dir, "NSB")
+        self.create_outputDir()
 
 
     def check_input_correctness(self):
@@ -117,17 +120,17 @@ class DetectionMethodEvaluation:
         pure_cherenkov_run_photons,
         nsb_run_found_photons
     ):
-    ##### won't find correctly for some reason
         events = []
         for muon in range(len(all_photons_run)):
             true_positives = 0
             nsb_run_photons = len(nsb_run_found_photons[muon])
             pure_run_photons = len(pure_cherenkov_run_photons[muon])
             all_photons = len(all_photons_run[muon])
-            for nsb_photon in nsb_run_found_photons[muon]:
-                for pure_photon in pure_cherenkov_run_photons[muon]:
-                    if np.array_equal(pure_photon, nsb_photon):
+            for pure_photon in pure_cherenkov_run_photons[muon]:
+                for nsb_photon in nsb_run_found_photons[muon]:
+                    if np.isclose(nsb_photon,pure_photon, rtol=0,atol=1e-7).all():
                         true_positives += 1
+                        break
             false_positives = nsb_run_photons - true_positives
             false_negatives = pure_run_photons - true_positives
             true_negatives = (
@@ -197,50 +200,6 @@ class DetectionMethodEvaluation:
         }
 
 
-    def plot_sensitivity_precision(
-        self, results, output_dir
-    ):
-        nr_events = len(results['sensitivities'])
-        sens_max = results['avg_sensitivity'] + results['std_sensitivity']
-        sens_min = results['avg_sensitivity'] - results['std_sensitivity']
-        prec_max = results['avg_precision'] + results['std_precision']
-        prec_min = results['avg_precision'] - results['std_precision']
-        plt.scatter(
-            np.arange(nr_events), results['precisions'], s=8, color = 'red')
-        plt.axhline(
-            results['avg_precision'], label=r"average precision", color='k')
-        plt.fill_between(
-            x=np.arange(nr_events), y1=prec_min,
-            y2=prec_max, alpha=0.3, color='gray')
-        plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / $\%$")
-        plt.ylim([0, 100])
-        plt.xlim([0, nr_events-1])
-        plt.suptitle(r"Precision")
-        plt.legend(fancybox= True, loc='lower right')
-        plot_out = os.path.join(output_dir, "precision.png")
-        plt.savefig(plot_out, bbox_inches='tight')
-        plt.close("all")
-        plt.scatter(
-            np.arange(nr_events),
-            results['sensitivities'], s=8, color = 'red')
-        plt.axhline(
-            results['avg_sensitivity'],
-            label=r"average sensitivity", color='k')
-        plt.fill_between(
-            x=np.arange(nr_events), y1=sens_min,
-            y2=sens_max, alpha=0.3, color='gray')
-        plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / $\%$")
-        plt.ylim([0, 100])
-        plt.xlim([0, nr_events-1])
-        plt.suptitle(r"Sensitivity")
-        plt.legend(fancybox= True, loc='lower right')
-        plot_out = os.path.join(output_dir, "sensitivity.png")
-        plt.savefig(plot_out, bbox_inches='tight')
-        plt.close("all")
-
-
     def one_nsb_rate(
         self, output_dir, nsb_rate
     ):
@@ -263,35 +222,98 @@ class DetectionMethodEvaluation:
         self.save_to_file(file_out, events)
         results = self.analyze(file_out)
         self.plot_sensitivity_precision(results, output_dir)
+        return results
 
 
+    def multiple_nsb_rates(self):
+        dark_night_nsb_rate = 35e6
+        sensitivities = []
+        precisions = []
+        nsb_rates = []
+        muonCounts = []
+        for i in range(self.steps):
+            print(i)
+            nsb_rate = dark_night_nsb_rate * self.step_size**i
+            outDir = os.path.join(self.output_dir, '{:.2e}'.format(nsb_rate))
+            if not os.path.isdir(outDir):
+                os.makedirs(outDir)
+            result = self.one_nsb_rate(outDir, nsb_rate)
+            sensitivities.append(result['avg_sensitivity'])
+            precisions.append(result['avg_precision'])
+            nsb_rates.append(nsb_rate)
+            muonCount = len(result['precisions'])
+            muonCounts.append(muonCount)
+        self.plot_different_NSB(nsb_rates, precisions, sensitivities, muonCounts)
 
 
+    """ ################ Plotting ##########################"""
 
+    def plot_sensitivity_precision(
+        self, results, output_dir
+    ):
+        nr_events = len(results['sensitivities'])
+        sens_max = results['avg_sensitivity'] + results['std_sensitivity']
+        sens_min = results['avg_sensitivity'] - results['std_sensitivity']
+        prec_max = results['avg_precision'] + results['std_precision']
+        prec_min = results['avg_precision'] - results['std_precision']
+        plt.scatter(
+            np.arange(nr_events), results['precisions'], s=8, color = 'red')
+        plt.axhline(
+            results['avg_precision'], label=r"average precision", color='k')
+        plt.fill_between(
+            x=np.arange(nr_events), y1=prec_min,
+            y2=prec_max, alpha=0.3, color='gray')
+        plt.xlabel(r"event id")
+        plt.ylabel(r"percentage / $\%$")
+        plt.ylim([0, 101])
+        plt.xlim([0, nr_events])
+        plt.suptitle(r"Precision")
+        plt.legend(fancybox= True, loc='lower right')
+        plot_out = os.path.join(output_dir, "precision.png")
+        plt.savefig(plot_out, bbox_inches='tight')
+        plt.close("all")
+        plt.scatter(
+            np.arange(nr_events),
+            results['sensitivities'], s=8, color = 'red')
+        plt.axhline(
+            results['avg_sensitivity'],
+            label=r"average sensitivity", color='k')
+        plt.fill_between(
+            x=np.arange(nr_events), y1=sens_min,
+            y2=sens_max, alpha=0.3, color='gray')
+        plt.xlabel(r"event id")
+        plt.ylabel(r"percentage / $\%$")
+        plt.ylim([0, 101])
+        plt.xlim([0, nr_events])
+        plt.suptitle(r"Sensitivity")
+        plt.legend(fancybox= True, loc='lower right')
+        plot_out = os.path.join(output_dir, "sensitivity.png")
+        plt.savefig(plot_out, bbox_inches='tight')
+        plt.close("all")
 
-"""
 
     def plot_different_NSB(
-        self, plot_out, NSB_rates, precisions, sensitivities
+        self, NSB_rates, precisions, sensitivities, muonCounts
     ):
         fig, ax = plt.subplots()
-        plt.scatter(NSB_rates, precisions, color = "k")
-        plt.xlabel("NSB_rate /Hz/pixel")
-        fig.suptitle("Precision")
-        plt.ylabel("precision")
+        plt.errorbar(
+            NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
+            color = "k", label=r"average precision", fmt=".")
+        plt.xlabel(r"NSB rate /Hz/pixel")
+        fig.suptitle(r"Precision")
+        plt.ylabel(r"precision")
         plt.legend(fancybox= True, loc='lower right')
-        plt.savefig(plot_out+"/NSB_precision.png")
+        plt.savefig(os.path.join(self.output_dir, "NSB_precision.png"))
         plt.close("all")
         fig, ax = plt.subplots()
-        plt.scatter(NSB_rates, sensitivities, color = "k")
-        plt.xlabel("NSB_rate /Hz/pixel")
-        fig.suptitle("Sensitivity")
-        plt.ylabel("sensitivity")
+        plt.errorbar(
+            NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
+            color = "k", label=r"average sensitivity", fmt=".")
+        plt.xlabel(r"NSB rate /Hz/pixel")
+        fig.suptitle(r"Sensitivity")
+        plt.ylabel(r"sensitivity")
         plt.legend(fancybox= True, loc='lower right')
-        plt.savefig(plot_out+"/NSB_sensitivity.png")
+        filename = "NSB_sensitivity.png"
+        plotPath = os.path.join(self.output_dir, filename)
+        plt.savefig(plotPath, bbox_inches='tight')
         plt.close("all")
-
-
-"""
-
-

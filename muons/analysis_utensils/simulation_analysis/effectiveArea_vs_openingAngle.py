@@ -12,6 +12,8 @@ import photon_stream as ps
 from muons.detection import detection
 from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 import glob
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 

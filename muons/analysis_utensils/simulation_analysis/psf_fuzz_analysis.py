@@ -12,6 +12,8 @@ from muons.detection_with_simple_ring_fit import (
     detection_with_simple_ring_fit as ringM)
 import photon_stream as ps
 import glob
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
