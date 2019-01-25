@@ -417,7 +417,7 @@ class PSF_FuzzAnalysis:
         )
         ax.set_yscale('log')
         ax.set_xlabel(r"true point spread function /deg")
-        ax.set_ylabel(r"effective area /\$m^2\$")
+        ax.set_ylabel(r"effective area / $m^2$")
         ax.set_xlim(psf.min()-0.01, psf.max()+0.01)
         filename = "effective_area_vs_psf.png"
         plotDir = os.path.join(self.output_dir, "Plots", extractionMethod)

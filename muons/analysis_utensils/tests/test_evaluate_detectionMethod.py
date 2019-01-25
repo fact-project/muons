@@ -235,7 +235,7 @@ def test_plot_different_NSB():
     muonCounts = [12, 12, 12]
     dme.plot_different_NSB(NSB_rates, precisions, sensitivities, muonCounts)
     number_of_elements = len(os.listdir(output_dir))
-    assert number_of_elements == 3
+    assert number_of_elements == 2
 
 def test_dummy_delete_files3():
     shutil.rmtree(output_dir)
