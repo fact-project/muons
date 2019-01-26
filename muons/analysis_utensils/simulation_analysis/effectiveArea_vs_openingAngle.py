@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('agg')
 import subprocess
 import docopt
 import numpy as np

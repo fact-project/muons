@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('agg')
 import numpy as np
 import photon_stream as ps
 from muons.detection import detection
@@ -10,8 +12,6 @@ parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
 scriptDir = os.path.normpath(os.path.join(parentDir, os.pardir))
 sys.path.insert(0, scriptDir)
 import plot_single_simulation as pss
-import matplotlib
-matplotlib.use('Agg')
 
 
 

@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('agg')
 import photon_stream as ps
 import numpy as np
 import os
@@ -5,8 +7,6 @@ import subprocess
 import docopt
 import pandas
 from statistics import mean
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import glob
 from numbers import Number
