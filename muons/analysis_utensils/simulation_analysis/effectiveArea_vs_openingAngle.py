@@ -228,14 +228,17 @@ class EffectiveArea_vs_OpeningAngle:
     def plot_effective_area_vs_opening_angle(
         self,
         opening_angle,
-        effective_area
+        effective_area,
+        detected_muonCount
     ):
-        plt.scatter(opening_angle, effective_area)
+        stepSize = self.calculate_stepSize()
+        plt.errorbar(
+            opening_angle, effective_area, xerr=stepSize/2,
+            yerr=effective_area*(1/np.sqrt(detected_muonCount)))
         plt.grid()
         plt.xlim(opening_angle.min()-0.1, opening_angle.max() + 0.1)
         plt.xlabel("openingAngle /deg")
         plt.ylabel("effectiveArea")
-        plt.yscale('log')
         plotPath = os.path.join(
             self.output_dir, "effective_area_vs_opening_angle.png")
         plt.savefig(plotPath, bbox_inches="tight")
@@ -249,7 +252,7 @@ class EffectiveArea_vs_OpeningAngle:
         effective_area = self.calculate_effective_area(
             area, detected_muonCount, simulated_muonCount)
         self.plot_effective_area_vs_opening_angle(
-            opening_angle, effective_area)
+            opening_angle, effective_area, detected_muonCount)
 
 
 

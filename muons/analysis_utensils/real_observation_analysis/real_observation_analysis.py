@@ -344,6 +344,7 @@ class RealObservationAnalysis:
         fig_name = "fuzziness_over_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
         plt.savefig(fig_path, dpi = 120)
+        plt.close("all")
 
 
     def plot_epoch(self, x, linestyle, color, linewidth, comment):
@@ -388,6 +389,7 @@ class RealObservationAnalysis:
                 if not os.path.isdir(plot_outDir):
                     os.makedirs(plot_outDir)
                 self.plot(muon_fuzz, plot_outDir)
+                self.plot_psf_vs_time(muon_fuzz, plot_outDir)
 
 
     """ ############## Distribution analysis ################## """
@@ -462,6 +464,55 @@ class RealObservationAnalysis:
             os.makedirs(ringM_plotOut)
         self.plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
         self.compare_rs(hough_rs, ringM_rs, plot_out)
+
+
+    """ Plot PSF vs time using the relation from the simulations """
+#### only test_phase
+    def plot_psf_vs_time(self, muon_fuzz, plt_dir):
+        avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
+        dataFrame = pandas.read_csv("/home/titan/Desktop/functionFit.csv")
+        a = dataFrame["x^3"][0]
+        b = dataFrame["x^2"][0]
+        c = dataFrame["x"][0]
+        d = dataFrame["const"][0]
+        unix_time = []
+        avg_fz_deg = np.rad2deg(avg_fz_rad)
+        std_fz_deg = np.rad2deg(std_fz_rad)
+        psf = a*(avg_fz_deg**3) + b*(avg_fz_deg**2) + c*(avg_fz_deg) + d
+        for dt in night:
+            dto = datetime.strptime(str(dt), "%Y%m%d")
+            unix_time.append(dto.timestamp())
+        plt.errorbar(unix_time, psf, yerr=std_fz_deg/np.sqrt(muon_nr))
+        first_night = datetime.fromtimestamp(np.min(unix_time))
+        last_night = datetime.fromtimestamp(np.max(unix_time))
+        first_year = first_night.year
+        last_year = last_night.year
+        years = np.arange(first_year, last_year + 1)
+        year_time_stamps = []
+        for year in years:
+            year_time_stamps.append(
+                datetime(year=year, month=1, day=1).timestamp()
+            )
+        for year_time_stamp in year_time_stamps:
+            plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
+        plt.axvspan(
+            1420113600, 1432123200, color='r',
+            alpha=0.3, label='faulty electronics')
+        dict_list = self.read_epoch_file()
+        for preference in dict_list:
+            x = preference["x"]
+            linestyle = preference["linestyle"]
+            color = preference["color"]
+            linewidth = preference["linewidth"]
+            comment = preference["comment"]
+            self.plot_epoch(x, linestyle, color, linewidth, comment)
+        plt.xlabel("unix time / s")
+        plt.grid(alpha = 0.2, axis = "y" , color = "k")
+        plt.ylabel("reconstructed PSF / deg")
+        plt.legend(fancybox= True, loc='upper right')
+        fig_name = "psf_vs_time.png"
+        fig_path = os.path.join(plt_dir, fig_name)
+        plt.savefig(fig_path, dpi = 120, bbox_inches='tight')
 
 
     """ ################## Analysis main ################## """
