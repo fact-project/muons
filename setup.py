@@ -23,7 +23,8 @@ setup(
         'photon_stream',
         'msgpack_numpy',
         'circlehough',
-        'scoop'
+        'scoop',
+        'numpy>=1.15.0'
     ],
     entry_points={'console_scripts': [
         'phs_extract_muons = ' +

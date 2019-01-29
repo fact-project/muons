@@ -259,12 +259,12 @@ class EffectiveArea_vs_OpeningAngle:
     """ ################### Main call ############################"""
 
 
-    def remove_simulation_folder(self):
-        shutil.rmtree(self.simulation_dir)
+    # def remove_simulation_folder(self):
+    #     shutil.rmtree(self.simulation_dir)
 
 
     def investigate_effectiveArea_vs_openingAngle(self):
         self.run_multiple_openingAngle_simulations()
         self.call_scoop_for_analyzing()
         self.plotting_main()
-        self.remove_simulation_folder()
+        # self.remove_simulation_folder()

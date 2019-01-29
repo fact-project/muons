@@ -312,8 +312,9 @@ def test_plot_effective_area_vs_opening_angle():
         output_dir)
     opening_angle = np.array([0.4, 0.8, 1.2, 1.6])
     effective_area = np.array([8, 12, 14, 16])
+    detected_muonCount = np.array([10, 9, 8, 7])
     EvO.plot_effective_area_vs_opening_angle(
-        opening_angle, effective_area)
+        opening_angle, effective_area, detected_muonCount)
     path_to_plot = os.path.join(
         output_dir, "effective_area_vs_opening_angle.png")
     if os.path.exists(path_to_plot):
