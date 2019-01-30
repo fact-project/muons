@@ -24,7 +24,7 @@ import evaluate_detectionMethod as edM
 
 
 def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
-    oa_outDir = os.path.join(output_dir, "effectiveArea_vs_openingAngle")
+    oa_outDir = os.path.join(output_dir, "acceptance_vs_openingAngle")
     if not os.path.isdir(oa_outDir):
         os.makedirs(oa_outDir)
     fuzz_outDir = os.path.join(output_dir, "psf_fuzz_analysis")
@@ -40,16 +40,15 @@ def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
     simulationTruth_path = os.path.join(
         simulationFileDir, "psf_0.0.simulationtruth.csv")
     simulationFile = os.path.join(simulationFileDir, "psf_0.0.sim.phs")
-    oa = eav.EffectiveArea_vs_OpeningAngle(
+    oa = eav.Acceptance_vs_OpeningAngle(
         scoop_hosts, preferencesFile, steps, oa_outDir)
-    oa.investigate_effectiveArea_vs_openingAngle()
+    oa.investigate_acceptance_vs_openingAngle()
     fuzz = pfa.PSF_FuzzAnalysis(
         preferencesFile, maximum_PSF,
         steps, scoop_hosts, fuzz_outDir)
     fuzz.call_all()
     extraction = eme.ExtractionMethod_Evaluation(
-        simulationFile, simulationTruth_path, extMethod_dir
-        )
+        simulationFile, simulationTruth_path, extMethod_dir)
     extraction.evaluate_methods()
     detection = edM.DetectionMethodEvaluation(
         detectionMethod_dir, 10000, steps, 1.15, scoop_hosts)
