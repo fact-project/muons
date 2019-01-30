@@ -17,7 +17,7 @@ import os
 filePath = os.path.normpath(os.path.abspath(__file__))
 fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
 import docopt
-import effectiveArea_vs_openingAngle as eav
+import acceptance_vs_openingAngle as eav
 import extractionMethod_evaluation as eme
 import psf_fuzz_analysis as pfa
 import evaluate_detectionMethod as edM

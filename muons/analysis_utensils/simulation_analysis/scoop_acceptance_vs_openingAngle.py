@@ -19,7 +19,7 @@ filePath = os.path.normpath(os.path.abspath(__file__))
 parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
 scriptDir = os.path.normpath(os.path.join(parentDir, os.pardir))
 sys.path.insert(0, scriptDir)
-import effectiveArea_vs_openingAngle as evo
+import acceptance_vs_openingAngle as evo
 
 def run_all_jobs(
     simulation_dir,
@@ -28,13 +28,12 @@ def run_all_jobs(
     steps,
     output_dir
 ):
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
         output_dir)
-
-    filename = "effective_area_vs_oa.csv"
+    filename = "acceptance_vs_oa.csv"
     jobs = EvO.create_jobs_for_scoop()
     events = list(scoop.futures.map(EvO.run_detection, jobs))
     header_list = list([

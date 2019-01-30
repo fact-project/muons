@@ -232,7 +232,7 @@ def test_save_muon_events():
     assert existing == True
 
 
-def test_using_hough_extraction():
+def test_extraction():
     Analysis = pfa.PSF_FuzzAnalysis(
         preferencesFile, maximum_PSF, steps, scoop_hosts, output_dir)
     simulationFile = os.path.join(
@@ -250,30 +250,7 @@ def test_using_hough_extraction():
         "muon_ring_overlapp_with_field_of_view": 3,
         "number_of_photons": 3
     }
-    returns = Analysis.using_hough_extraction(
-        muon_props, photon_clusters, event_id)
-    assert len(returns) == 3
-
-
-def test_using_ringM_extraction():
-    Analysis = pfa.PSF_FuzzAnalysis(
-        preferencesFile, maximum_PSF, steps, scoop_hosts, output_dir)
-    simulationFile = os.path.join(
-        fileDir, "resources", "100simulations_psf0.0.sim.phs")
-    run = ps.EventListReader(simulationFile)
-    event_id = 3
-    for i, event in enumerate(run):
-        if i == event_id:
-            photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
-    muon_props = {
-        "muon_ring_cx": 0,
-        "muon_ring_cy": 0,
-        "muon_ring_r": 1,
-        "mean_arrival_time_muon_cluster": 2,
-        "muon_ring_overlapp_with_field_of_view": 3,
-        "number_of_photons": 3
-    }
-    returns = Analysis.using_ringM_extraction(
+    returns = Analysis.extraction(
         muon_props, photon_clusters, event_id)
     assert len(returns) == 3
 
@@ -486,14 +463,14 @@ def test_plot_absolute_detected_muons():
     assert existing == True
 
 
-def test_plot_effective_area_vs_psf():
+def test_plot_acceptance_vs_psf():
     Analysis = pfa.PSF_FuzzAnalysis(
         preferencesFile, maximum_PSF, steps, scoop_hosts, output_dir)
     psf_fuzz_csv_path = os.path.join(
         fileDir, "resources", "response_fuzzResults.csv")
-    Analysis.plot_effective_area_vs_psf(psf_fuzz_csv_path, "ringM")
+    Analysis.plot_acceptance_vs_psf(psf_fuzz_csv_path, "ringM")
     plotPath = os.path.join(
-        output_dir, "Plots", "ringM", "effective_area_vs_psf.png")
+        output_dir, "Plots", "ringM", "acceptance_vs_psf.png")
     existing = False
     if os.path.exists(plotPath):
         existing = True

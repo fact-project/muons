@@ -9,7 +9,7 @@ parentDir = os.path.normpath(os.path.join(
     fileDir, os.pardir))
 scriptDir = os.path.join(parentDir, "simulation_analysis")
 sys.path.insert(0, scriptDir)
-import effectiveArea_vs_openingAngle as evo
+import acceptance_vs_openingAngle as evo
 
 
 scoop_hosts = os.path.join(fileDir, "resources", "scoop_hosts.txt")
@@ -21,7 +21,7 @@ simulationDir = os.path.join(output_dir, "simulations")
 
 def test_check_if_correct_variables_with_correct_variables():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             scoop_hosts,
             preferencesFile,
             steps,
@@ -35,7 +35,7 @@ def test_check_if_correct_variables_with_correct_variables():
 
 def test_check_if_correct_variables_wrong_scoop_hosts():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             3,
             preferencesFile,
             steps,
@@ -49,7 +49,7 @@ def test_check_if_correct_variables_wrong_scoop_hosts():
 
 def test_check_if_correct_variables_wrong_scoop_hosts():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             "/foo/bar/",
             preferencesFile,
             steps,
@@ -63,7 +63,7 @@ def test_check_if_correct_variables_wrong_scoop_hosts():
 
 def test_check_if_correct_variables_wrong_preferencesFile():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             scoop_hosts,
             3,
             steps,
@@ -77,7 +77,7 @@ def test_check_if_correct_variables_wrong_preferencesFile():
 
 def test_check_if_correct_variables_wrong_preferencesFile():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             scoop_hosts,
             "/foo/bar",
             steps,
@@ -91,7 +91,7 @@ def test_check_if_correct_variables_wrong_preferencesFile():
 
 def test_check_if_correct_variables_wrong_steps():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             scoop_hosts,
             preferencesFile,
             "steps",
@@ -105,7 +105,7 @@ def test_check_if_correct_variables_wrong_steps():
 
 def test_check_if_correct_variables_wrong_ouput_dir():
     try:
-        EvO = evo.EffectiveArea_vs_OpeningAngle(
+        EvO = evo.Acceptance_vs_OpeningAngle(
             scoop_hosts,
             preferencesFile,
             steps,
@@ -118,7 +118,7 @@ def test_check_if_correct_variables_wrong_ouput_dir():
 
 
 def test_read_preferencesFile_keys():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -129,7 +129,7 @@ def test_read_preferencesFile_keys():
 
 
 def test_read_preferencesFile_values():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -140,7 +140,7 @@ def test_read_preferencesFile_values():
 
 
 def test_calculate_stepSize():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -151,7 +151,7 @@ def test_calculate_stepSize():
 
 
 def test_create_outputDir_and_copy_preferencesFile():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -165,7 +165,7 @@ def test_create_outputDir_and_copy_preferencesFile():
 
 
 def test_get_scoop_simulation_scriptPath():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -178,7 +178,7 @@ def test_get_scoop_simulation_scriptPath():
 
 
 def test_calculate_current_openingAngle():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -189,7 +189,7 @@ def test_calculate_current_openingAngle():
 
 
 def test_run_single_simulation_with_fixed_openingAngle():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -204,7 +204,7 @@ def test_run_single_simulation_with_fixed_openingAngle():
 
 
 def test_run_multiple_openingAngle_simulations():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -218,7 +218,7 @@ def test_run_multiple_openingAngle_simulations():
 
 
 def test_create_jobs_for_scoop():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -228,7 +228,7 @@ def test_create_jobs_for_scoop():
 
 
 def test_run_detection_finding_oa():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -240,22 +240,22 @@ def test_run_detection_finding_oa():
 
 
 def test_call_scoop_for_analyzing():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
         output_dir)
     EvO.call_scoop_for_analyzing()
-    effectiveArea_vs_openingAngle_csvPath = os.path.join(
-        simulationDir, "effective_area_vs_oa.csv")
+    Acceptance_vs_openingAngle_csvPath = os.path.join(
+        simulationDir, "acceptance_vs_oa.csv")
     existing = False
-    if os.path.exists(effectiveArea_vs_openingAngle_csvPath):
+    if os.path.exists(Acceptance_vs_openingAngle_csvPath):
         existing = True
     assert existing == True
 
 
 def test_read_openingAngle_dataFrame_check_muonCount():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -266,7 +266,7 @@ def test_read_openingAngle_dataFrame_check_muonCount():
 
 
 def test_read_openingAngle_dataFrame_check_openingAngle():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -277,7 +277,7 @@ def test_read_openingAngle_dataFrame_check_openingAngle():
 
 
 def test_find_area():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -290,8 +290,8 @@ def test_find_area():
     )
 
 
-def test_calculate_effective_area():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+def test_calculate_acceptance():
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -299,31 +299,34 @@ def test_calculate_effective_area():
     area = 1
     detected_muonCount = 10
     simulated_muonCount = 10
-    effective_area = EvO.calculate_effective_area(
+    acceptance = EvO.calculate_acceptance(
         area, detected_muonCount, simulated_muonCount)
-    assert effective_area == area
+    np.testing.assert_almost_equal(
+        acceptance,
+        0,
+        5)
 
 
-def test_plot_effective_area_vs_opening_angle():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+def test_plot_acceptance_vs_opening_angle():
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
         output_dir)
     opening_angle = np.array([0.4, 0.8, 1.2, 1.6])
-    effective_area = np.array([8, 12, 14, 16])
+    acceptance = np.array([8, 12, 14, 16])
     detected_muonCount = np.array([10, 9, 8, 7])
-    EvO.plot_effective_area_vs_opening_angle(
-        opening_angle, effective_area, detected_muonCount)
+    EvO.plot_acceptance_vs_opening_angle(
+        opening_angle, acceptance, detected_muonCount)
     path_to_plot = os.path.join(
-        output_dir, "effective_area_vs_opening_angle.png")
+        output_dir, "acceptance_vs_opening_angle.png")
     if os.path.exists(path_to_plot):
         existing = True
     assert existing == True
 
 
 def test_plotting_main():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
@@ -331,37 +334,24 @@ def test_plotting_main():
     EvO.plotting_main()
     existing = False
     path_to_plot = os.path.join(
-        output_dir, "effective_area_vs_opening_angle.png")
+        output_dir, "acceptance_vs_opening_angle.png")
     if os.path.exists(path_to_plot):
         existing = True
     assert existing == True
 
 
-def test_remove_simulation_folder():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
+def test_investigate_Acceptance_vs_openingAngle():
+    EvO = evo.Acceptance_vs_OpeningAngle(
         scoop_hosts,
         preferencesFile,
         steps,
         output_dir)
-    EvO.remove_simulation_folder()
-    existing = True
-    if not os.path.isdir(simulationDir):
-        existing = False
-    assert existing == False
-
-
-def test_investigate_effectiveArea_vs_openingAngle():
-    EvO = evo.EffectiveArea_vs_OpeningAngle(
-        scoop_hosts,
-        preferencesFile,
-        steps,
-        output_dir)
-    EvO.investigate_effectiveArea_vs_openingAngle()
+    EvO.investigate_acceptance_vs_openingAngle()
     wild_card_path = os.path.join(output_dir, "*")
     i = 0
     for path in glob.glob(wild_card_path):
         i += 1
-    assert i == 1
+    assert i == 2
 
 
 def test_dummy_delete_files():

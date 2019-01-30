@@ -177,27 +177,15 @@ class PSF_FuzzAnalysis:
         )
 
 
-    def using_hough_extraction(self, muon_propsH, photon_clusters, event_id):
-        normed_responseH, fuzziness_stdParamH = (
-            self.get_fuzziness_parameters(photon_clusters, muon_propsH))
-        reconstructed_muon_eventH = self.get_reconstructed_muons_info(
-            muon_propsH, event_id)
+    def extraction(self, muon_props, photon_clusters, event_id):
+        normed_response, fuzziness_stdParam = (
+            self.get_fuzziness_parameters(photon_clusters, muon_props))
+        reconstructed_muon_event = self.get_reconstructed_muons_info(
+            muon_props, event_id)
         return (
-            normed_responseH,
-            fuzziness_stdParamH,
-            reconstructed_muon_eventH
-        )
-
-
-    def using_ringM_extraction(self, muon_propsR, photon_clusters, event_id):
-        normed_responseR, fuzziness_stdParamR = (
-            self.get_fuzziness_parameters(photon_clusters, muon_propsR))
-        reconstructed_muon_eventR = self.get_reconstructed_muons_info(
-            muon_propsR, event_id)
-        return (
-            normed_responseR,
-            fuzziness_stdParamR,
-            reconstructed_muon_eventR
+            normed_response,
+            fuzziness_stdParam,
+            reconstructed_muon_event
         )
 
 
@@ -261,14 +249,14 @@ class PSF_FuzzAnalysis:
             muon_propsR = ringM(event, photon_clusters)
             muon_propsH = hough(event, photon_clusters)
             if muon_propsH['is_muon']:
-                houghResults = self.using_hough_extraction(
+                houghResults = self.extraction(
                     muon_propsH, photon_clusters, event_id)
                 reconstructed_muon_eventsH.append(houghResults[2])
                 response_resultsH.append(houghResults[0])
                 fuzz_resultsH.append(houghResults[1])
                 number_muonsH += 1
             if muon_propsR['is_muon']:
-                ringM_results = self.using_ringM_extraction(
+                ringM_results = self.extraction(
                     muon_propsR, photon_clusters, event_id)
                 reconstructed_muon_eventsR.append(ringM_results[2])
                 response_resultsR.append(ringM_results[0])
@@ -392,7 +380,7 @@ class PSF_FuzzAnalysis:
         plt.close("all")
 
 
-    def plot_effective_area_vs_psf(
+    def plot_acceptance_vs_psf(
         self,
         psf_fuzz_csv_path,
         extractionMethod
@@ -405,21 +393,24 @@ class PSF_FuzzAnalysis:
         simulated_muonCount = int(preferences_dataFrame[1][0])
         detected_muonCount = np.array(psf_fuzz_df.detected_muonCount)
         psf = np.rad2deg(psf_fuzz_df["point_spread_function"])
-        aperture_radius = float(preferences_dataFrame[1][3])
+        aperture_radius = float(preferences_dataFrame[1][2])
+        inclination_angle = np.deg2rad(float(preferences_dataFrame[1][1]))
+        solid_angle = 2*np.pi*(1-np.cos(inclination_angle))
         area = np.pi * np.square(aperture_radius)
-        effective_area = np.divide(detected_muonCount, simulated_muonCount) * area
+        acceptance = np.divide(
+            detected_muonCount, simulated_muonCount) * area * solid_angle
         fig = plt.figure()
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
         ax.errorbar(
-            psf, effective_area, xerr=stepSize/2,
-            yerr=effective_area/np.sqrt(detected_muonCount),
+            psf, acceptance, xerr=stepSize/2,
+            yerr=acceptance/np.sqrt(detected_muonCount),
             fmt=".", color="k"
         )
         ax.set_yscale('log')
         ax.set_xlabel(r"true point spread function /deg")
-        ax.set_ylabel(r"effective area / $m^2$")
+        ax.set_ylabel(r"acceptance / $m^2 * sr$")
         ax.set_xlim(psf.min()-0.01, psf.max()+0.01)
-        filename = "effective_area_vs_psf.png"
+        filename = "acceptance_vs_psf.png"
         plotDir = os.path.join(self.output_dir, "Plots", extractionMethod)
         if not os.path.isdir(plotDir):
             os.makedirs(plotDir)
@@ -487,7 +478,7 @@ class PSF_FuzzAnalysis:
             self.plot_psf_fuzz(path, fuzzParameter, extractionMethod)
             self.plot_absolute_detected_muons(
                 path, extractionMethod)
-            self.plot_effective_area_vs_psf(path, extractionMethod)
+            self.plot_acceptance_vs_psf(path, extractionMethod)
             Fitting = CurveFitting(
                 path, fuzzParameter, extractionMethod, self.output_dir)
             Fitting.plot_curve_fit()
@@ -558,8 +549,7 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
-        d = self.popt[3]
-        return (a*(x**3) + b*(x**2) + c*x + d)
+        return (a*(x**2) + b*x + c)
 
 
     def plot_curve_fit(self):
@@ -588,12 +578,11 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
-        d = self.popt[3]
         filename = "_".join([self.fuzzParameter, "function_fit.csv"])
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
-        header = list(["x^3", "x^2", "x", "const"])
-        values = [a, b, c, d]
+        header = list(["x^2", "x", "const"])
+        values = [a, b, c]
         headers = ",".join(header)
         np.savetxt(
             fOut,

@@ -17,7 +17,7 @@ import glob
 import matplotlib.pyplot as plt
 
 
-class EffectiveArea_vs_OpeningAngle:
+class Acceptance_vs_OpeningAngle:
 
     """Simulate, analyze and plot effective areas vs opening angle"""
 
@@ -186,7 +186,7 @@ class EffectiveArea_vs_OpeningAngle:
         filePath = os.path.normpath(os.path.abspath(__file__))
         currentDirectory = os.path.normpath(os.path.join(filePath, os.pardir))
         scoop_scriptName = os.path.join(
-            currentDirectory, "scoop_effectiveArea_vs_openingAngle.py")
+            currentDirectory, "scoop_acceptance_vs_openingAngle.py")
         commandList = [
             "python", "-m", "scoop", "--hostfile",
             self.scoop_hosts, scoop_scriptName, "--simulation_dir",
@@ -200,9 +200,9 @@ class EffectiveArea_vs_OpeningAngle:
     """ ################# Plotting ########################## """
 
     def read_openingAngle_dataFrame(self):
-        filename = "effective_area_vs_oa.csv"
-        effective_area_oa_csvPath = os.path.join(self.simulation_dir, filename)
-        dataFrame = pandas.read_csv(effective_area_oa_csvPath)
+        filename = "acceptance_vs_oa.csv"
+        acceptance_oa_csvPath = os.path.join(self.simulation_dir, filename)
+        dataFrame = pandas.read_csv(acceptance_oa_csvPath)
         opening_angle = dataFrame['opening_angle'].values
         detected_muonCount = dataFrame['detected_muons'].values
         simulated_muonCount = dataFrame['simulated_muons'].values
@@ -215,32 +215,37 @@ class EffectiveArea_vs_OpeningAngle:
         return area
 
 
-    def calculate_effective_area(
+    def calculate_acceptance(
         self,
         area,
         detected_muonCount,
         simulated_muonCount):
-        effective_area = (
-            np.divide(detected_muonCount, simulated_muonCount) * area)
-        return effective_area
+        inclination_angle = np.deg2rad(
+            np.float(self.preferences['--max_inclination']))
+        solid_angle = 2*np.pi*(1-np.cos(inclination_angle))
+        acceptance = (
+            np.divide(
+                detected_muonCount, simulated_muonCount) * area * solid_angle)
+        return acceptance
 
 
-    def plot_effective_area_vs_opening_angle(
+    def plot_acceptance_vs_opening_angle(
         self,
         opening_angle,
-        effective_area,
+        acceptance,
         detected_muonCount
     ):
         stepSize = self.calculate_stepSize()
         plt.errorbar(
-            opening_angle, effective_area, xerr=stepSize/2,
-            yerr=effective_area*(1/np.sqrt(detected_muonCount)))
+            opening_angle, acceptance, xerr=stepSize/2,
+            yerr=acceptance*(1/np.sqrt(detected_muonCount)),
+            fmt='.')
         plt.grid()
         plt.xlim(opening_angle.min()-0.1, opening_angle.max() + 0.1)
         plt.xlabel("openingAngle /deg")
-        plt.ylabel("effectiveArea")
+        plt.ylabel("acceptance")
         plotPath = os.path.join(
-            self.output_dir, "effective_area_vs_opening_angle.png")
+            self.output_dir, "acceptance_vs_opening_angle.png")
         plt.savefig(plotPath, bbox_inches="tight")
         plt.close("all")
 
@@ -249,10 +254,10 @@ class EffectiveArea_vs_OpeningAngle:
         opening_angle, detected_muonCount, simulated_muonCount = (
             self.read_openingAngle_dataFrame())
         area = self.find_area()
-        effective_area = self.calculate_effective_area(
+        acceptance = self.calculate_acceptance(
             area, detected_muonCount, simulated_muonCount)
-        self.plot_effective_area_vs_opening_angle(
-            opening_angle, effective_area, detected_muonCount)
+        self.plot_acceptance_vs_opening_angle(
+            opening_angle, acceptance, detected_muonCount)
 
 
 
@@ -263,7 +268,7 @@ class EffectiveArea_vs_OpeningAngle:
     #     shutil.rmtree(self.simulation_dir)
 
 
-    def investigate_effectiveArea_vs_openingAngle(self):
+    def investigate_acceptance_vs_openingAngle(self):
         self.run_multiple_openingAngle_simulations()
         self.call_scoop_for_analyzing()
         self.plotting_main()

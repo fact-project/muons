@@ -1,5 +1,5 @@
 --number_of_muons= 30
---max_inclination= 1.0
+--max_inclination= 0.0
 --max_aperture_radius= 1.0
 --min_opening_angle= 0.4
 --max_opening_angle= 1.6
