@@ -52,7 +52,7 @@ def main(output_dir, scoop_hosts, preferencesFile, steps, maximum_PSF):
         )
     extraction.evaluate_methods()
     detection = edM.DetectionMethodEvaluation(
-        detectionMethod_dir, 10000, self.steps, 1.15, scoop_hosts)
+        detectionMethod_dir, 10000, steps, 1.15, scoop_hosts)
     detection.multiple_nsb_rates()
 
 
