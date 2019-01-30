@@ -89,7 +89,7 @@ class SingleSimulatonPlotting:
             difference, color = 'k', histtype='step', bins=100,
             label='reconstructed minus true'
             )
-        plt.xlabel("Difference /deg")
+        plt.xlabel("true minus reconstructed opening angle /deg")
         plt.ylabel("Muon count /1")
         plt.legend(loc="upper right", fontsize='small')
         figName = "r_difference_gauss.png"
@@ -231,8 +231,8 @@ class SingleSimulatonPlotting:
             bin_edges_axis1=bin_edges,
             ax=ax_oa)
         fig_oa.colorbar(im, ax=ax_oa)
-        ax_oa.set_xlabel(r"reconstructed muons oa /deg")
-        ax_oa.set_ylabel(r"true muons oa /deg")
+        ax_oa.set_xlabel(r"reconstructed muons opening angle /deg")
+        ax_oa.set_ylabel(r"true muons opening angle /deg")
         plotPath = os.path.join(self.plot_out, "confusionMatrix_oa.png")
         fig_oa.savefig(plotPath, bbox_inches="tight")
         plt.close("all")
