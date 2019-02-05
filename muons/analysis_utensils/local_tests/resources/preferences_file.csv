@@ -1,7 +1,6 @@
---output_dir= /path/to/output/direcory
---number_of_muons= 10
---max_inclination= 4.5
---max_aperture_radius= 4.0
+--number_of_muons= 30
+--max_inclination= 0.0
+--max_aperture_radius= 1.0
 --min_opening_angle= 0.4
 --max_opening_angle= 1.6
 --nsb_rate_per_pixel= 35e6

@@ -54,9 +54,9 @@ def main():
             fact_aperture_radius=float(
                 arguments['--fact_aperture_radius']),
             random_seed=rndm_seed,
-            point_spread_function_std=float(
+            point_spread_function_std=np.deg2rad(float(
                 arguments['--point_spread_function_std'])
-        )
+        ))
         events = list(
             scoop.futures.map(
                 muons.muon_ring_simulation.many_simulations.run_job,
