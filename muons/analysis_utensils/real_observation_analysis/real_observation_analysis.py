@@ -189,11 +189,10 @@ class RealObservationAnalysis:
 
 
     def get_scoopScript_path(self):
-        # filePath = os.path.normpath(os.path.abspath(__file__))
-        # parentDir = os.path.normpath(os.path.join(
-        #     filePath, os.pardir))
-        parentDir = os.getcwd()
-        # scriptDir = os.path.join(parentDir, "real_observation_analysis")
+        filePath = os.path.normpath(os.path.abspath(__file__))
+        parentDir = os.path.normpath(os.path.join(
+            filePath, os.pardir))
+        scriptDir = os.path.join(parentDir, "real_observation_analysis")
         scoopScriptPath = os.path.join(
             parentDir, "scoop_real_distributions.py")
         return scoopScriptPath

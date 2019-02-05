@@ -84,6 +84,28 @@ class DetectionMethodEvaluation:
         subprocess.call(scoopList)
 
 
+    def cut_hist(self, nsb_cherenkov_photon_stream):
+        cherenkov_photons = []
+        r = np.sqrt(
+            nsb_cherenkov_photon_stream[:,0]**2
+            + nsb_cherenkov_photon_stream[:,1]**2
+        )
+        r_stedev = np.std(r)
+        r_average = np.average(r)
+        t_stdev = np.std(nsb_cherenkov_photon_stream[:,2])
+        t_average = np.average(nsb_cherenkov_photon_stream[:,2])
+        for photon in nsb_cherenkov_photon_stream:
+            photon_r = np.sqrt(photon[0]**2 + photon[1]**2)
+            if not (photon_r > r_average + 1.95*r_stedev) and not (
+                photon_r < r_average - 1.95*r_stedev
+            ):
+                if not (photon[2] > t_average + 1.95*t_stdev) and not (
+                    photon[2] < t_average - 1.95*t_stdev
+                ):
+                    cherenkov_photons.append(photon)
+        return cherenkov_photons
+
+
     def do_clustering(
         self,
         pure_cherenkov_events_path,
@@ -94,6 +116,7 @@ class DetectionMethodEvaluation:
         nsb_run = ps.EventListReader(events_with_nsb_path)
         nsb_run_found_photons = []
         pure_cherenkov_run_photons = []
+        cut_cherenkov = []
         all_photons_run = []
         for event in nsb_run:
             photon_clusters = ps.PhotonStreamCluster(event.photon_stream)
@@ -101,6 +124,8 @@ class DetectionMethodEvaluation:
             nsb_cherenkov_photon_stream = photon_clusters.point_cloud
             nsb_cherenkov_ps = nsb_cherenkov_photon_stream[
             cherenkov_cluster_mask]
+            cherenkov_photons = self.cut_hist(nsb_cherenkov_ps)
+            cut_cherenkov.append(cherenkov_photons)
             nsb_run_found_photons.append(nsb_cherenkov_ps[:, 0:3])
             all_photons = event.photon_stream.point_cloud
             all_photons_run.append(all_photons)
@@ -110,7 +135,8 @@ class DetectionMethodEvaluation:
         return (
             all_photons_run,
             pure_cherenkov_run_photons,
-            nsb_run_found_photons
+            nsb_run_found_photons,
+            cut_cherenkov
         )
 
 
@@ -126,11 +152,13 @@ class DetectionMethodEvaluation:
             nsb_run_photons = len(nsb_run_found_photons[muon])
             pure_run_photons = len(pure_cherenkov_run_photons[muon])
             all_photons = len(all_photons_run[muon])
-            for pure_photon in pure_cherenkov_run_photons[muon]:
-                for nsb_photon in nsb_run_found_photons[muon]:
+            for nsb_photon in nsb_run_found_photons[muon]:
+                for pure_photon in pure_cherenkov_run_photons[muon]:
                     if np.isclose(nsb_photon,pure_photon, rtol=0,atol=1e-7).all():
                         true_positives += 1
                         break
+            if true_positives > pure_run_photons:
+                true_positives = pure_run_photons
             false_positives = nsb_run_photons - true_positives
             false_negatives = pure_run_photons - true_positives
             true_negatives = (
@@ -217,12 +245,21 @@ class DetectionMethodEvaluation:
             clustering_results[0],
             clustering_results[1],
             clustering_results[2])
+        events_cut = self.true_false_decisions(
+            clustering_results[0],
+            clustering_results[1],
+            clustering_results[3])
+        filename_cut = "cut_precision_results.csv"
         filename = "precision_results.csv"
         file_out = os.path.join(output_dir, filename)
+        file_out_cut = os.path.join(output_dir, filename_cut)
         self.save_to_file(file_out, events)
+        self.save_to_file(file_out_cut, events_cut)
         results = self.analyze(file_out)
-        self.plot_sensitivity_precision(results, output_dir)
-        return results
+        results_cut = self.analyze(file_out_cut)
+        self.plot_sensitivity_precision(results, output_dir, "noCut")
+        self.plot_sensitivity_precision(results_cut, output_dir, "cut")
+        return results, results_cut
 
 
     def multiple_nsb_rates(self):
@@ -230,27 +267,39 @@ class DetectionMethodEvaluation:
         sensitivities = []
         precisions = []
         nsb_rates = []
+        sensitivities_cut = []
+        precisions_cut = []
         muonCounts = []
         for i in range(self.steps):
-            print(i)
             nsb_rate = dark_night_nsb_rate * self.step_size**i
             outDir = os.path.join(self.output_dir, '{:.2e}'.format(nsb_rate))
             if not os.path.isdir(outDir):
                 os.makedirs(outDir)
-            result = self.one_nsb_rate(outDir, nsb_rate)
-            sensitivities.append(result['avg_sensitivity'])
-            precisions.append(result['avg_precision'])
+            results, results_cut = self.one_nsb_rate(outDir, nsb_rate)
+            sensitivities.append(results['avg_sensitivity'])
+            precisions.append(results['avg_precision'])
+            sensitivities_cut.append(results_cut['avg_sensitivity'])
+            precisions_cut.append(results_cut['avg_precision'])
             nsb_rates.append(nsb_rate)
-            muonCount = len(result['precisions'])
+            muonCount = len(results['precisions'])
             muonCounts.append(muonCount)
-        self.plot_different_NSB(nsb_rates, precisions, sensitivities, muonCounts)
+        self.plot_different_NSB(
+            nsb_rates, precisions_cut, sensitivities_cut, muonCounts, "cut")
+        self.plot_different_NSB(
+            nsb_rates, precisions, sensitivities, muonCounts, "noCut")
+        self.plot_different_NSB_sens_prec(nsb_rates, precisions, sensitivities, 
+            precisions_cut, sensitivities_cut, muonCounts
+        )
 
 
     """ ################ Plotting ##########################"""
 
     def plot_sensitivity_precision(
-        self, results, output_dir
+        self, results, output_dir, method
     ):
+        output_dirP = os.path.join(output_dir, method)
+        if not os.path.isdir(output_dirP):
+            os.makedirs(output_dirP)
         nr_events = len(results['sensitivities'])
         sens_max = results['avg_sensitivity'] + results['std_sensitivity']
         sens_min = results['avg_sensitivity'] - results['std_sensitivity']
@@ -267,9 +316,8 @@ class DetectionMethodEvaluation:
         plt.ylabel(r"percentage / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
-        plt.suptitle(r"Precision")
         plt.legend(fancybox= True, loc='lower right')
-        plot_out = os.path.join(output_dir, "precision.png")
+        plot_out = os.path.join(output_dirP, "precision.png")
         plt.savefig(plot_out, bbox_inches='tight')
         plt.close("all")
         plt.scatter(
@@ -285,35 +333,70 @@ class DetectionMethodEvaluation:
         plt.ylabel(r"percentage / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
-        plt.suptitle(r"Sensitivity")
         plt.legend(fancybox= True, loc='lower right')
-        plot_out = os.path.join(output_dir, "sensitivity.png")
+        plot_out = os.path.join(output_dirP, "sensitivity.png")
         plt.savefig(plot_out, bbox_inches='tight')
         plt.close("all")
 
 
     def plot_different_NSB(
-        self, NSB_rates, precisions, sensitivities, muonCounts
+        self, NSB_rates, precisions, sensitivities, muonCounts, method
     ):
-        fig, ax = plt.subplots()
         plt.errorbar(
             NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
             color = "k", label=r"average precision", fmt=".")
         plt.xlabel(r"NSB rate /Hz/pixel")
-        fig.suptitle(r"Precision")
-        plt.ylabel(r"precision")
+        plt.ylabel(r"precision /\%")
         plt.legend(fancybox= True, loc='lower right')
-        plt.savefig(os.path.join(self.output_dir, "NSB_precision.png"))
+        plt.ylim([0,110])
+        plt.savefig(
+            os.path.join(self.output_dir, method+"_NSB_precision.png"),
+            bbox_inches='tight')
         plt.close("all")
-        fig, ax = plt.subplots()
         plt.errorbar(
             NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
             color = "k", label=r"average sensitivity", fmt=".")
         plt.xlabel(r"NSB rate /Hz/pixel")
-        fig.suptitle(r"Sensitivity")
-        plt.ylabel(r"sensitivity")
+        plt.ylim([0,110])
+        plt.ylabel(r"sensitivity /\%")
         plt.legend(fancybox= True, loc='lower right')
-        filename = "NSB_sensitivity.png"
+        filename = "_".join([method, "NSB_sensitivity.png"])
+        plotPath = os.path.join(self.output_dir, filename)
+        plt.savefig(plotPath, bbox_inches='tight')
+        plt.close("all")
+
+
+    def plot_different_NSB_sens_prec(
+        self, NSB_rates,
+        precisions, sensitivities,
+        precisions_cut, sensitivities_cut,
+        muonCounts
+    ):
+        plt.errorbar(
+            NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
+            label=r"average precision", fmt=".", alpha=0.5)
+        plt.errorbar(
+            NSB_rates, precisions_cut, yerr=precisions_cut/np.sqrt(muonCounts),
+            label=r"average precision", fmt=".", alpha=0.5)
+        plt.xlabel(r"NSB rate /Hz/pixel")
+        plt.ylabel(r"precision /\%")
+        plt.legend(fancybox= True, loc='lower right')
+        plt.ylim([0,110])
+        plt.savefig(
+            os.path.join(self.output_dir, "both_NSB_precision.png"),
+            bbox_inches='tight')
+        plt.close("all")
+        plt.errorbar(
+            NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
+            label=r"average sensitivity", fmt=".", alpha=0.5)
+        plt.errorbar(
+            NSB_rates, sensitivities_cut, yerr=sensitivities_cut/np.sqrt(muonCounts),
+            label=r"average sensitivity", fmt=".", alpha=0.5)
+        plt.xlabel(r"NSB rate /Hz/pixel")
+        plt.ylim([0,110])
+        plt.ylabel(r"sensitivity /\%")
+        plt.legend(fancybox= True, loc='lower right')
+        filename = "both_NSB_sensitivity.png"
         plotPath = os.path.join(self.output_dir, filename)
         plt.savefig(plotPath, bbox_inches='tight')
         plt.close("all")
