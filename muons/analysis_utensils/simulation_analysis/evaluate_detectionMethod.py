@@ -347,7 +347,7 @@ class DetectionMethodEvaluation:
             color = "k", label=r"average precision", fmt=".")
         plt.xlabel(r"NSB rate /Hz/pixel")
         plt.ylabel(r"precision /\%")
-        plt.legend(fancybox= True, loc='lower right')
+        plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
         plt.savefig(
             os.path.join(self.output_dir, method+"_NSB_precision.png"),
@@ -374,13 +374,13 @@ class DetectionMethodEvaluation:
     ):
         plt.errorbar(
             NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
-            label=r"average precision", fmt=".", alpha=0.5)
+            label=r"witout cut", fmt=".", alpha=0.5)
         plt.errorbar(
             NSB_rates, precisions_cut, yerr=precisions_cut/np.sqrt(muonCounts),
-            label=r"average precision", fmt=".", alpha=0.5)
+            label=r"with cut", fmt=".", alpha=0.5)
         plt.xlabel(r"NSB rate /Hz/pixel")
         plt.ylabel(r"precision /\%")
-        plt.legend(fancybox= True, loc='lower right')
+        plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
         plt.savefig(
             os.path.join(self.output_dir, "both_NSB_precision.png"),
@@ -388,10 +388,10 @@ class DetectionMethodEvaluation:
         plt.close("all")
         plt.errorbar(
             NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
-            label=r"average sensitivity", fmt=".", alpha=0.5)
+            label=r"without cut", fmt=".", alpha=0.5)
         plt.errorbar(
             NSB_rates, sensitivities_cut, yerr=sensitivities_cut/np.sqrt(muonCounts),
-            label=r"average sensitivity", fmt=".", alpha=0.5)
+            label=r"with cut", fmt=".", alpha=0.5)
         plt.xlabel(r"NSB rate /Hz/pixel")
         plt.ylim([0,110])
         plt.ylabel(r"sensitivity /\%")
