@@ -78,6 +78,7 @@ def create_jobs(
     point_spread_function=0
 ):
     jobs = []
+    new_dicts = []
     for event_id in range(number_of_muons):
         job = {}
         opening_angle = np.random.uniform(min_opening_angle, max_opening_angle)
@@ -97,7 +98,7 @@ def create_jobs(
         job["output_dir"] = output_dir
         job["casual_muon_support"] = casual_muon_support
         job["casual_muon_direction"] = casual_muon_direction
-        job["event_id"] = event_id
+        job["event_id"] = int(event_id)
         job["nsb_rate"] = nsb_rate
         job["ch_rate"] = ch_rate
         job["opening_angle"] = opening_angle
@@ -109,7 +110,8 @@ def create_jobs(
         jobs.append(job)
         new_job_dict = job.copy()
         del new_job_dict["output_dir"]
-        save_simulationTruth(event_id, new_job_dict, output_dir)
+        new_dicts.append(new_job_dict)
+    save_simulationTruth(event_id, new_dicts, output_dir)
     return jobs
 
 
@@ -139,13 +141,17 @@ def save_simulationFile(event_id, event, output_dir):
 
 
 def save_simulationTruth(event_id, dictionary, output_dir):
-    filename = "_".join(["event", str(event_id)]) + ".simulationtruth.csv"
+    filename = "muonFlux.simulationtruth.csv"
     simTruthPath = os.path.join(output_dir, filename)
     header, values = get_header_and_values(dictionary)
-    values = map(str, values)
-    value_string = ",".join(values)
-    with open(simTruthPath, "w") as fOut:
-        fOut.write(("\n".join([header, value_string])))
+    np.savetxt(
+        simTruthPath,
+        values,
+        fmt = "%s",
+        delimiter=",",
+        comments="",
+        header=header
+    )
 
 def create_new_dict(dictionary):
     keys = dictionary.keys()
@@ -160,9 +166,12 @@ def create_new_dict(dictionary):
     return new_dict
 
 
-def get_header_and_values(dictionary):
-    new_dict = create_new_dict(dictionary)
+def get_header_and_values(dictionaries):
+    values = []
+    for dictionary in dictionaries:
+        new_dict = create_new_dict(dictionary)
+        value = list(new_dict.values())
+        values.append(value)
     headers = new_dict.keys()
-    values = list(new_dict.values())
     header = ",".join(headers)
     return header, values
