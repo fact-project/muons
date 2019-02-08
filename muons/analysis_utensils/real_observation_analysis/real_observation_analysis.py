@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib
-matplotlib.use('agg')
+# matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import pandas
 import glob
@@ -25,11 +25,16 @@ class RealObservationAnalysis:
         using all here established tools"""
 
 
-    def __init__(self, muon_dir, output_dir, epochFile, scoop_hosts):
+    def __init__(
+        self, muon_dir, output_dir,
+        epochFile, scoop_hosts,
+        fitDir
+    ):
         self.muon_dir = muon_dir
         self.output_dir = output_dir
         self.epochFile = epochFile
-        self.scoop_hosts =scoop_hosts
+        self.scoop_hosts = scoop_hosts
+        self.fitDir = fitDir
         self.check_inputValidity()
         self.plot_dir = os.path.join(output_dir, "Plots")
 
@@ -47,6 +52,9 @@ class RealObservationAnalysis:
         if not os.path.exists(self.scoop_hosts):
             raise ValueError(
                 "Scoop hosts file missing")
+        if not os.path.isdir(self.fitDir):
+            raise ValueError(
+                "Directory for fit does not exist")
 
 
     def create_jobs(self):
@@ -189,12 +197,12 @@ class RealObservationAnalysis:
 
 
     def get_scoopScript_path(self):
-        filePath = os.path.normpath(os.path.abspath(__file__))
-        parentDir = os.path.normpath(os.path.join(
-            filePath, os.pardir))
-        scriptDir = os.path.join(parentDir, "real_observation_analysis")
+        # filePath = os.path.normpath(os.path.abspath(__file__))
+        # parentDir = os.path.normpath(os.path.join(
+        #     filePath, os.pardir))
+        # scriptDir = os.path.join(parentDir, "real_observation_analysis")
         scoopScriptPath = os.path.join(
-            parentDir, "scoop_real_distributions.py")
+            os.getcwd(), "scoop_real_distributions.py")
         return scoopScriptPath
 
 
@@ -204,7 +212,8 @@ class RealObservationAnalysis:
             "python", "-m", "scoop", "--hostfile", self.scoop_hosts,
             scriptPath, "--muon_dir", self.muon_dir, "--output_dir",
             self.output_dir, "--epochFile", self.epochFile, "--scoop_hosts",
-            self.scoop_hosts
+            self.scoop_hosts, "--std_fitpath", self.stdev_fitpath,
+            "--response_fitpath", self.response_fitpath
         ]
         subprocess.call(scoopCommand)
 
@@ -377,18 +386,23 @@ class RealObservationAnalysis:
         extractions = ["response", "stdev"]
         for detection in detections:
             for extraction in extractions:
-                if extraction == "response":
-                    suffix = "rsp.muon.fuzz.jsonl"
-                elif extraction == "stdev":
-                    suffix = "stdev.muon.fuzz.jsonl"
-                merged_nightwise = os.path.join(self.output_dir, detection)
-                muon_fuzz = self.reduction(merged_nightwise, suffix)
                 plot_outDir = os.path.join(
                     self.plot_dir, "Fuzz", detection, extraction)
                 if not os.path.isdir(plot_outDir):
                     os.makedirs(plot_outDir)
+                if extraction == "response":
+                    suffix = "rsp.muon.fuzz.jsonl"
+                elif extraction == "stdev":
+                    suffix = "stdev.muon.fuzz.jsonl"
+                fit_fileName = "_".join([extraction, "function_fit.csv"])
+                functionFit_path = os.path.join(
+                    self.fitDir, detection, fit_fileName)
+                merged_nightwise = os.path.join(
+                    self.output_dir, detection)
+                muon_fuzz = self.reduction(merged_nightwise, suffix)
                 self.plot(muon_fuzz, plot_outDir)
-                self.plot_psf_vs_time(muon_fuzz, plot_outDir)
+                self.plot_psf_vs_time(
+                    muon_fuzz, plot_outDir, functionFit_path, extraction)
 
 
     """ ############## Distribution analysis ################## """
@@ -466,28 +480,51 @@ class RealObservationAnalysis:
 
 
     """ Plot PSF vs time using the relation from the simulations """
-#### only test_phase
-    def plot_psf_vs_time(self, muon_fuzz, plt_dir):
+
+    def plot_psf_vs_time(
+        self,
+        muon_fuzz,
+        plt_dir,
+        functionFit_path,
+        extraction
+    ):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
-        dataFrame = pandas.read_csv("/home/titan/Desktop/functionFit.csv")
+        dataFrame = pandas.read_csv(functionFit_path)
         a = dataFrame["x^3"][0]
         b = dataFrame["x^2"][0]
         c = dataFrame["x"][0]
         d = dataFrame["const"][0]
+        max_m_count = (np.amax(muon_nr))
         unix_time = []
         avg_fz_deg = np.rad2deg(avg_fz_rad)
         std_fz_deg = np.rad2deg(std_fz_rad)
-        psf = a*(avg_fz_deg**3) + b*(avg_fz_deg**2) + c*(avg_fz_deg) + d
+        if extraction == "response":
+            x = np.arange(0.1, 0, -0.0001)
+        else:
+            x = np.arange(0,0.1, 0.0001)
+        y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
+        plt.plot(x, y(x))
+        plt.show()
+        psf = np.interp(avg_fz_deg, y(x), x)
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
-        plt.errorbar(unix_time, psf, yerr=std_fz_deg/np.sqrt(muon_nr))
+        print("psf", psf, "unix_time", unix_time, "fuzz", avg_fz_deg)
+        for i in range(len(unix_time) - 1):
+            check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
+            if check:
+                plt.plot(
+                    [unix_time[i], unix_time[i + 1]],
+                    [psf[i], psf[i + 1]],
+                    "k-"
+                )
         first_night = datetime.fromtimestamp(np.min(unix_time))
         last_night = datetime.fromtimestamp(np.max(unix_time))
         first_year = first_night.year
         last_year = last_night.year
         years = np.arange(first_year, last_year + 1)
         year_time_stamps = []
+        plt.figure(figsize=(16, 9))
         for year in years:
             year_time_stamps.append(
                 datetime(year=year, month=1, day=1).timestamp()
@@ -506,12 +543,13 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.xlabel("unix time / s")
+        plt.ylim(0,0.15)
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
         plt.ylabel("reconstructed PSF / deg")
         plt.legend(fancybox= True, loc='upper right')
         fig_name = "psf_vs_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
-        plt.savefig(fig_path, dpi = 120, bbox_inches='tight')
+        plt.savefig(fig_path, dpi = 120)
 
 
     """ ################## Analysis main ################## """
