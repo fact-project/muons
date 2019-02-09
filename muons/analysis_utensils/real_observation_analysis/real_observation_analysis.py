@@ -145,9 +145,9 @@ class RealObservationAnalysis:
         output_dirR = os.path.dirname(output_path_stdevR)
         output_dirH = os.path.dirname(output_path_stdevH)
         if not os.path.isdir(output_dirR):
-            os.makedirs(output_dirR)
+            os.makedirs(output_dirR, exist_ok=True)
         if not os.path.isdir(output_dirH):
-            os.makedirs(output_dirH)
+            os.makedirs(output_dirH, exist_ok=True)
         self.save_to_file("ringM", output_dirR, filename, muon_ring_featuresR)
         self.save_to_file("hough", output_dirH, filename, muon_ring_featuresH)
         self.save_fuzz_param(output_path_stdevR, fuzziness_stdParamRs, muonCountR)
@@ -387,7 +387,7 @@ class RealObservationAnalysis:
                 plot_outDir = os.path.join(
                     self.plot_dir, "Fuzz", detection, extraction)
                 if not os.path.isdir(plot_outDir):
-                    os.makedirs(plot_outDir)
+                    os.makedirs(plot_outDir, exist_ok=True)
                 if extraction == "response":
                     suffix = "rsp.muon.fuzz.jsonl"
                 elif extraction == "stdev":
@@ -461,18 +461,18 @@ class RealObservationAnalysis:
         ringM_dir = os.path.join(self.output_dir, "ringM")
         plot_out = os.path.join(self.plot_dir, "Distributions")
         if not os.path.isdir(plot_out):
-            os.makedirs(plot_out)
+            os.makedirs(plot_out, exist_ok=True)
         hough_cxs, hough_cys, hough_rs = self.collect_items(hough_dir)
         hough_plotOut = os.path.join(plot_out, "Hough")
         hough_plotOut = os.path.normpath(hough_plotOut)
         if not os.path.isdir(hough_plotOut):
-            os.makedirs(hough_plotOut)
+            os.makedirs(hough_plotOut, exist_ok=True)
         self.plot_distribution(hough_cxs, hough_cys, hough_rs, hough_plotOut)
         ringM_cx, ringM_cy, ringM_rs = self.collect_items(ringM_dir)
         ringM_plotOut = os.path.join(plot_out, "ringM")
         ringM_plotOut = os.path.normpath(ringM_plotOut)
         if not os.path.isdir(ringM_plotOut):
-            os.makedirs(ringM_plotOut)
+            os.makedirs(ringM_plotOut, exist_ok=True)
         self.plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
         self.compare_rs(hough_rs, ringM_rs, plot_out)
 
