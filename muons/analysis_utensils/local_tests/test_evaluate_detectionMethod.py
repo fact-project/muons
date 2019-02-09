@@ -2,17 +2,14 @@ import sys
 import os
 import numpy as np
 import glob
-filePath = os.path.normpath(os.path.abspath(__file__))
-fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
-parentDir = os.path.normpath(os.path.join(
-    fileDir, os.pardir))
-scriptDir = os.path.join(parentDir, "simulation_analysis")
-sys.path.insert(0, scriptDir)
-import evaluate_detectionMethod as edM
+from muons.analysis_utensils.simulation_analysis import (
+    evaluate_detectionMethod as edM)
 import photon_stream as ps
 import shutil
 
 
+filePath = os.path.normpath(os.path.abspath(__file__))
+fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
 output_dir = os.path.join(fileDir, "resources", "testDir")
 number_of_muons = 3
 steps = 3

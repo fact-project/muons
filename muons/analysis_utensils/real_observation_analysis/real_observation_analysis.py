@@ -402,7 +402,7 @@ class RealObservationAnalysis:
                 muon_fuzz = self.reduction(merged_nightwise, suffix)
                 self.plot(muon_fuzz, plot_outDir)
                 self.plot_psf_vs_time(
-                    muon_fuzz, plot_outDir, functionFit_path, extraction)
+                    muon_fuzz, plot_outDir, functionFit_path)
 
 
     """ ############## Distribution analysis ################## """
@@ -485,8 +485,7 @@ class RealObservationAnalysis:
         self,
         muon_fuzz,
         plt_dir,
-        functionFit_path,
-        extraction
+        functionFit_path
     ):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
         dataFrame = pandas.read_csv(functionFit_path)
@@ -498,21 +497,21 @@ class RealObservationAnalysis:
         unix_time = []
         avg_fz_deg = np.rad2deg(avg_fz_rad)
         std_fz_deg = np.rad2deg(std_fz_rad)
-        if extraction == "response":
-            x = np.arange(0.1, 0, -0.0001)
-        else:
-            x = np.arange(0,0.1, 0.0001)
+
+        x = np.arange(0,0.1, 0.0001)
         y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
-        plt.plot(x, y(x))
-        plt.show()
-        psf = np.interp(avg_fz_deg, y(x), x)
+        sorted_arguments = np.argsort(y(x))
+
+        psf = np.interp(avg_fz_deg, y(x)[sorted_arguments], x[sorted_arguments])
+
+
+
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
-        print("psf", psf, "unix_time", unix_time, "fuzz", avg_fz_deg)
         for i in range(len(unix_time) - 1):
             check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
-            if check:
+            if not check:
                 plt.plot(
                     [unix_time[i], unix_time[i + 1]],
                     [psf[i], psf[i + 1]],

@@ -2,16 +2,14 @@ import sys
 import os
 import shutil
 import glob
-filePath = os.path.normpath(os.path.abspath(__file__))
-fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
-parentDir = os.path.normpath(os.path.join(
-    fileDir, os.pardir))
-scriptDir = os.path.join(parentDir, "simulation_analysis")
-sys.path.insert(0, scriptDir)
-import plot_single_simulation as pss
+from muons.analysis_utensils.simulation_analysis import(
+    plot_single_simulation as pss)
 import pandas
 
 
+
+filePath = os.path.normpath(os.path.abspath(__file__))
+fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
 reconstructed_muons_path = os.path.join(
     fileDir, "resources", "reconstructed_muons.csv")
 simulationTruth = os.path.join(

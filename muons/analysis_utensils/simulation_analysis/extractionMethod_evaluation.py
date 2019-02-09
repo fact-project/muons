@@ -9,11 +9,8 @@ import os
 import pandas
 import docopt
 import sys
-filePath = os.path.normpath(os.path.abspath(__file__))
-parentDir = os.path.normpath(os.path.join(filePath, os.pardir))
-scriptDir = os.path.normpath(os.path.join(parentDir, os.pardir))
-sys.path.insert(0, scriptDir)
-import plot_single_simulation as pss
+from muons.analysis_utensils.simulation_analysis import (
+    plot_single_simulation as pss)
 
 
 class ExtractionMethod_Evaluation:
