@@ -212,8 +212,7 @@ class RealObservationAnalysis:
             "python", "-m", "scoop", "--hostfile", self.scoop_hosts,
             scriptPath, "--muon_dir", self.muon_dir, "--output_dir",
             self.output_dir, "--epochFile", self.epochFile, "--scoop_hosts",
-            self.scoop_hosts, "--std_fitpath", self.stdev_fitpath,
-            "--response_fitpath", self.response_fitpath
+            self.scoop_hosts, "--fitDir", self.fitDir
         ]
         subprocess.call(scoopCommand)
 

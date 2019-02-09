@@ -2,15 +2,14 @@
 Distribution of muon ring features
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: scoop_real_distributions.py --muon_dir=DIR --output_dir=DIR --epochFile=PTH --scoop_hosts=PTH --std_fitpath=PTH --response_fitpath=PTH
+Usage: scoop_real_distributions.py --muon_dir=DIR --output_dir=DIR --epochFile=PTH --scoop_hosts=PTH --fitDir=DIR
 
 Options:
     --muon_dir=DIR               The location of muon data
     --output_dir=DIR             The output of caluculated fuzzyness
     --epochFile=PTH              Path to the epoch file
     --scoop_hosts=PTH            Path to scoop_hosts.txt
-    --std_fitpath=PTH            Path to stdev fit .csv file
-    --response_fitpath=PTH       Path to response fit .csv file
+    --fitDir=DIR                 Directory for function fits.
 """
 import photon_stream as ps
 import os
@@ -29,7 +28,7 @@ import scoop
 def main(
     muon_dir, output_dir,
     scoop_hosts, epochFile,
-    std_fitpath, response_fitpath
+    fitDir
 ):
     Analysis = roa.RealObservationAnalysis(
         muon_dir, output_dir, epochFile,
@@ -46,13 +45,12 @@ if __name__=='__main__':
         output_dir = arguments['--output_dir']
         scoop_hosts = arguments['--scoop_hosts']
         epochFile = arguments['--epochFile']
-        std_fitpath = arguments['--std_fitpath']
-        response_fitpath = arguments['--response_fitpath']
+        fitDir = arguments['--fitDir']
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
         main(
             muon_dir, output_dir, scoop_hosts,
-            epochFile, std_fitpath, response_fitpath
+            epochFile, fitDir
         )
     except docopt.DocoptExit as e:
         print(e)
