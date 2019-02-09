@@ -502,11 +502,23 @@ class RealObservationAnalysis:
 
         psf = np.interp(avg_fz_deg, y(x)[sorted_arguments], x[sorted_arguments])
 
-
-
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
+
+        first_night = datetime.fromtimestamp(np.min(unix_time))
+        last_night = datetime.fromtimestamp(np.max(unix_time))
+        first_year = first_night.year
+        last_year = last_night.year
+        years = np.arange(first_year, last_year + 1)
+        year_time_stamps = []
+        for year in years:
+            year_time_stamps.append(
+                datetime(year=year, month=1, day=1).timestamp()
+            )
+        plt.figure(figsize=(16, 9))
+        plt.rcParams.update({'font.size': 15})
+
         for i in range(len(unix_time) - 1):
             check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
             if not check:
@@ -515,22 +527,8 @@ class RealObservationAnalysis:
                     [psf[i], psf[i + 1]],
                     "k-"
                 )
-        first_night = datetime.fromtimestamp(np.min(unix_time))
-        last_night = datetime.fromtimestamp(np.max(unix_time))
-        first_year = first_night.year
-        last_year = last_night.year
-        years = np.arange(first_year, last_year + 1)
-        year_time_stamps = []
-        plt.figure(figsize=(16, 9))
-        for year in years:
-            year_time_stamps.append(
-                datetime(year=year, month=1, day=1).timestamp()
-            )
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
-        plt.axvspan(
-            1420113600, 1432123200, color='r',
-            alpha=0.3, label='faulty electronics')
         dict_list = self.read_epoch_file()
         for preference in dict_list:
             x = preference["x"]
@@ -539,6 +537,10 @@ class RealObservationAnalysis:
             linewidth = preference["linewidth"]
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
+        plt.axvspan(
+            1420113600, 1432123200, color='r',
+            alpha=0.3, label='faulty electronics')
+        axes = plt.gca()
         plt.xlabel("unix time / s")
         plt.ylim(0,0.15)
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
@@ -547,6 +549,7 @@ class RealObservationAnalysis:
         fig_name = "psf_vs_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
         plt.savefig(fig_path, dpi = 120)
+        plt.close("all")
 
 
     """ ################## Analysis main ################## """
