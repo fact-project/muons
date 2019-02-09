@@ -32,7 +32,7 @@ def main(
 ):
     Analysis = roa.RealObservationAnalysis(
         muon_dir, output_dir, epochFile,
-        scoop_hosts, std_fitpath, response_fitpath
+        scoop_hosts, fitDir
     )
     jobs = Analysis.create_jobs()
     job_return_codes = list(scoop.futures.map(Analysis.run_job, jobs))
