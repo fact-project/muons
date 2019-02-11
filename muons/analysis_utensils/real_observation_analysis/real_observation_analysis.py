@@ -339,8 +339,9 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
-            1420113600, 1432123200, color='r',
-            alpha=0.3, label='faulty electronics')
+            1420113600, 1432123200, facecolor="none", edgecolor='k',
+            alpha=0.2, label='faulty electronics',
+            hatch="X")
         axes = plt.gca()
         # axes.set_ylim([0.1, 0.275])
         plt.xlabel("unix time / s")
@@ -584,8 +585,9 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
-            1420113600, 1432123200, color='r',
-            alpha=0.3, label='faulty electronics')
+            1420113600, 1432123200, facecolor="none", edgecolor='k',
+            alpha=0.2, label='faulty electronics',
+            hatch="X")
         axes = plt.gca()
         plt.xlabel("unix time / s")
         plt.ylim(0,0.15)
