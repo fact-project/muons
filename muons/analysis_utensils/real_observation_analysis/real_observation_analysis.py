@@ -570,7 +570,7 @@ class RealObservationAnalysis:
                     [unix_time[i], unix_time[i + 1]],
                     [psf[i], psf[i + 1]],
                     color="k",
-                    alpha=alpha
+                    alpha=alpha[i]
                 )
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
