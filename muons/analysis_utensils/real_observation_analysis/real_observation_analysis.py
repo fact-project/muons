@@ -560,7 +560,7 @@ class RealObservationAnalysis:
                 plt.errorbar(
                     [unix_time[i], unix_time[i + 1]],
                     [psf[i], psf[i + 1]],
-                    yerr=[psf[i]/np.sqrt(muon_nr[i]), psf[i+i]/np.sqrt(muon_nr[i+1])],
+                    yerr=[psf[i]/np.sqrt(muon_nr[i]), psf[i+1]/np.sqrt(muon_nr[i+1])],
                     color="k"
                 )
         for year_time_stamp in year_time_stamps:
