@@ -522,7 +522,8 @@ class RealObservationAnalysis:
         self,
         muon_fuzz,
         plt_dir,
-        functionFit_path
+        functionFit_path,
+        min_alpha = 0.1
     ):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
         dataFrame = pandas.read_csv(functionFit_path)
