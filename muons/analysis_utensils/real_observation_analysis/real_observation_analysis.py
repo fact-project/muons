@@ -353,42 +353,6 @@ class RealObservationAnalysis:
         plt.savefig(fig_path, dpi = 120)
         plt.close("all")
 
-        plt.figure(figsize=(16, 9))
-        plt.rcParams.update({'font.size': 15})
-        for i in range(len(alpha) - 1):
-            check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
-            if not check:
-                plt.plot(
-                    [unix_time[i], unix_time[i + 1]], 
-                    [muon_nr[i], muon_nr[i + 1]],
-                    "k-",
-                    linewidth=0.5,
-                    alpha=alpha[i],
-                    )
-        for year_time_stamp in year_time_stamps:
-            plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
-        dict_list = self.read_epoch_file()
-        for preference in dict_list:
-            x = preference["x"]
-            linestyle = preference["linestyle"]
-            color = preference["color"]
-            linewidth = preference["linewidth"]
-            comment = preference["comment"]
-            self.plot_epoch(x, linestyle, color, linewidth, comment)
-        plt.axvspan(
-            1420113600, 1432123200, facecolor="none", edgecolor='k',
-            alpha=0.2, label='faulty electronics',
-            hatch="X")
-        axes = plt.gca()
-        # axes.set_ylim([0.1, 0.275])
-        plt.xlabel("unix time / s")
-        plt.grid(alpha = 0.2, axis = "y" , color = "k")
-        plt.ylabel("detected muons / 1")
-        plt.legend(fancybox= True, loc='upper right')
-        fig_name = "muonCount_over_time.png"
-        fig_path = os.path.join(plt_dir, fig_name)
-        plt.savefig(fig_path, dpi = 120)
-        plt.close("all")
 
     def plot_epoch(self, x, linestyle, color, linewidth, comment):
         plt.axvline(
@@ -449,15 +413,14 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
-            try:
-                r = np.rad2deg(df["cx"])
-                cx = np.rad2deg(df["cy"])
-                cy = np.rad2deg(df["r"])
-                rs.extend(r)
-                cxs.extend(cx)
-                cys.extend(cy)
-            except AttributeError:
-                continue
+            if df["r"] == "nan":
+                pass
+            r = np.rad2deg(df["cx"])
+            cx = np.rad2deg(df["cy"])
+            cy = np.rad2deg(df["r"])
+            rs.extend(r)
+            cxs.extend(cx)
+            cys.extend(cy)
         return cxs, cys, rs
 
 
