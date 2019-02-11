@@ -413,7 +413,7 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
-            if (df["r"] == "NaN").any():
+            if df["r"].any() == "NaN":
                 pass
             r = np.rad2deg(df["cx"])
             cx = np.rad2deg(df["cy"])
