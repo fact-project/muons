@@ -375,7 +375,7 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
-            1420113600, 1432123200, color='k',
+            1420113600, 1432123200, facecolor="none", edgecolor='k',
             alpha=0.2, label='faulty electronics',
             hatch="X")
         axes = plt.gca()
