@@ -487,6 +487,7 @@ class RealObservationAnalysis:
         plt.hist(
             ringM_rs, alpha=0.5, bins=bin_count,
             label="ringModel", density=True, stacked=True)
+        plt.xlim(0.2, 1.8)
         plt.xlabel("opening angle /deg")
         plt.ylabel("muon count /1")
         plt.legend(loc="upper right")
@@ -539,6 +540,10 @@ class RealObservationAnalysis:
         sorted_arguments = np.argsort(y(x))
 
         psf = np.interp(avg_fz_deg, y(x)[sorted_arguments], x[sorted_arguments])
+        # psf_err = psf/np.sqrt(muon_nr)
+        max_m_count = (np.amax(muon_nr))
+        alpha = np.divide(muon_nr, max_m_count)
+        alpha = (min_alpha + alpha)/(1 + min_alpha)
 
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
@@ -560,11 +565,11 @@ class RealObservationAnalysis:
         for i in range(len(unix_time) - 1):
             check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
             if not check:
-                plt.errorbar(
+                plt.plot(
                     [unix_time[i], unix_time[i + 1]],
                     [psf[i], psf[i + 1]],
-                    yerr=[psf[i]/np.sqrt(muon_nr[i]), psf[i+1]/np.sqrt(muon_nr[i+1])],
-                    color="k"
+                    color="k",
+                    alpha=alpha
                 )
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
