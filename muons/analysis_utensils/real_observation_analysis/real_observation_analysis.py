@@ -417,9 +417,9 @@ class RealObservationAnalysis:
             df = pandas.read_csv(run)
             df = df.dropna()
             try:
-                r = np.rad2deg(df["cx"])
-                cx = np.rad2deg(df["cy"])
-                cy = np.rad2deg(df["r"])
+                cx = np.rad2deg(df["cx"])
+                cy = np.rad2deg(df["cy"])
+                r = np.rad2deg(df["r"])
                 rs.extend(r)
                 cxs.extend(cx)
                 cys.extend(cy)
