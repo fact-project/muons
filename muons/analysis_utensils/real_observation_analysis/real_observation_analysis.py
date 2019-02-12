@@ -420,11 +420,11 @@ class RealObservationAnalysis:
                 cy = np.rad2deg(df["cy"])
                 cx = np.rad2deg(df["cx"])
                 r = np.rad2deg(df["r"])
-                rs.extend(r)
-                cxs.extend(cx)
-                cys.extend(cy)
             except AttributeError:
                 break
+            rs.extend(r)
+            cxs.extend(cx)
+            cys.extend(cy)
         return cxs, cys, rs
 
 
