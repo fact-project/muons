@@ -35,6 +35,8 @@ def detection(
     # full_clusters_fps = flat_photon_stream[full_cluster_mask]
     initial_found_cherenkov = flat_photon_stream[full_cluster_mask]
     full_clusters_fps = cut_hist(initial_found_cherenkov)
+    if len(full_clusters_fps) == 0:
+        return ret
     number_of_photons = full_cluster_mask.sum()
     ret, inliers = perform_circleModel(
         ret, full_clusters_fps,
@@ -120,7 +122,7 @@ def cut_hist(nsb_cherenkov_photon_stream):
                 photon[2] < t_average - 1.95*t_stdev
             ):
                 cherenkov_photons.append(photon)
-    return cherenkov_photons
+    return np.array(cherenkov_photons)
 
 
 def check_photon_count(
