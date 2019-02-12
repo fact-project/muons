@@ -414,6 +414,7 @@ class RealObservationAnalysis:
         cxs = []
         cys = []
         for run in glob.glob(wild_card_path):
+            print(run)
             df = pandas.read_csv(run)
             df = df.dropna()
             print(df['cx'])
@@ -429,11 +430,13 @@ class RealObservationAnalysis:
 
     def plot_distribution(self, cxs, cys, rs, plot_out):
         observables = [cxs, cys, rs]
-        names = ["cx", "cy", "opening angle"]
+        names = ["cx", "cy", "openingAngle"]
         for name, observable in zip(names, observables):
             plt.hist(observable, histtype='step', color='k', bins=250)
             plt.xlabel(name +" /deg")
             plt.ylabel("muon count /1")
+            if not name =="openingAngle":
+                plt.xlim(-4.5,4.5)
             figname = str(name) + "_histogram_real.png"
             plotPath = os.path.join(plot_out, figname)
             plt.savefig(plotPath)
