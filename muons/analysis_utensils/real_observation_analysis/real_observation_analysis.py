@@ -415,10 +415,10 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
-            new_df = df[df.r != 'NaN']
-            r = np.rad2deg(new_df["cx"])
-            cx = np.rad2deg(new_df["cy"])
-            cy = np.rad2deg(new_df["r"])
+            print(run)
+            r = np.rad2deg(df["cx"])
+            cx = np.rad2deg(df["cy"])
+            cy = np.rad2deg(df["r"])
             rs.extend(r)
             cxs.extend(cx)
             cys.extend(cy)
@@ -453,6 +453,7 @@ class RealObservationAnalysis:
         plt.hist(
             ringM_rs, alpha=0.5, bins=bin_count,
             label="ringModel", density=True, stacked=True)
+        plt.xlim(0.2, 1.8)
         plt.xlabel("opening angle /deg")
         plt.ylabel("muon count /1")
         plt.legend(loc="upper right")
