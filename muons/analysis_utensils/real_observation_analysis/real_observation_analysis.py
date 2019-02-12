@@ -431,13 +431,7 @@ class RealObservationAnalysis:
         observables = [cxs, cys, rs]
         names = ["cx", "cy", "opening angle"]
         for name, observable in zip(names, observables):
-            bin_count = np.sqrt(len(observable))
-            bin_count = int(round(bin_count, 0))
-            if bin_count < 100 and bin_count != 0:
-                bin_count = bin_count
-            else:
-                bin_count = 100
-            plt.hist(observable, histtype='step', color='k', bins=bin_count)
+            plt.hist(observable, histtype='step', color='k', bins=150)
             plt.xlabel(name +" /deg")
             plt.ylabel("muon count /1")
             figname = str(name) + "_histogram_real.png"
