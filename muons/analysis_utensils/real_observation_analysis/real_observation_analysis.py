@@ -414,14 +414,15 @@ class RealObservationAnalysis:
         cxs = []
         cys = []
         for run in glob.glob(wild_card_path):
-            print(run)
             df = pandas.read_csv(run)
             df = df.dropna()
-            print(df['cx'])
-            cx = np.rad2deg(df["cx"])
-            cy = np.rad2deg(df["cy"])
-            r = np.rad2deg(df["r"])
-
+            df = df[df.cx != 'e-02']
+            try:
+                cx = np.rad2deg(df["cx"])
+                cy = np.rad2deg(df["cy"])
+                r = np.rad2deg(df["r"])
+            except AttributeError:
+                break
             rs.extend(r)
             cxs.extend(cx)
             cys.extend(cy)
@@ -435,8 +436,8 @@ class RealObservationAnalysis:
             plt.hist(observable, histtype='step', color='k', bins=250)
             plt.xlabel(name +" /deg")
             plt.ylabel("muon count /1")
-            if not name =="openingAngle":
-                plt.xlim(-4.5,4.5)
+            if not name == "openingAngle":
+                plt.xlim(-4.5, 4.5)
             figname = str(name) + "_histogram_real.png"
             plotPath = os.path.join(plot_out, figname)
             plt.savefig(plotPath)
