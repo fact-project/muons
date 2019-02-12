@@ -285,7 +285,7 @@ class RealObservationAnalysis:
 
 
     # plot data nightwise
-    def plot(self, muon_fuzz, plt_dir, min_alpha=0.1):
+    def plot(self, muon_fuzz, plt_dir, extraction, min_alpha=0.1):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
         unix_time = []
         max_m_count = (np.amax(muon_nr))
@@ -343,10 +343,12 @@ class RealObservationAnalysis:
             alpha=0.2, label='faulty electronics',
             hatch="X")
         axes = plt.gca()
-        # axes.set_ylim([0.1, 0.275])
         plt.xlabel("unix time / s")
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
-        plt.ylabel("fuzz / deg")
+        if extraction == "response":
+            plt.ylabel(r"response / %")
+        else:
+            plt.ylabel(r"fuzz / deg")
         plt.legend(fancybox= True, loc='upper right')
         fig_name = "fuzziness_over_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
@@ -399,7 +401,7 @@ class RealObservationAnalysis:
                 merged_nightwise = os.path.join(
                     self.output_dir, detection)
                 muon_fuzz = self.reduction(merged_nightwise, suffix)
-                self.plot(muon_fuzz, plot_outDir)
+                self.plot(muon_fuzz, plot_outDir, extraction)
                 self.plot_psf_vs_time(
                     muon_fuzz, plot_outDir, functionFit_path)
 
@@ -550,7 +552,7 @@ class RealObservationAnalysis:
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
             1420113600, 1432123200, facecolor="none", edgecolor='k',
-            alpha=0.2, label='faulty electronics',
+            alpha=0.05, label='faulty electronics',
             hatch="X")
         axes = plt.gca()
         plt.xlabel("unix time / s")
