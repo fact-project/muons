@@ -416,12 +416,11 @@ class RealObservationAnalysis:
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
             df = df.dropna()
-            try:
-                cy = np.rad2deg(df["cy"])
-                cx = np.rad2deg(df["cx"])
-                r = np.rad2deg(df["r"])
-            except AttributeError:
-                break
+            print(df['cx'])
+            cx = np.rad2deg(df["cx"])
+            cy = np.rad2deg(df["cy"])
+            r = np.rad2deg(df["r"])
+
             rs.extend(r)
             cxs.extend(cx)
             cys.extend(cy)
