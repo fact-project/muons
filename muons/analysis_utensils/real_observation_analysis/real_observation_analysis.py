@@ -417,8 +417,8 @@ class RealObservationAnalysis:
             df = pandas.read_csv(run)
             df = df.dropna()
             try:
-                cx = np.rad2deg(df["cx"])
                 cy = np.rad2deg(df["cy"])
+                cx = np.rad2deg(df["cx"])
                 r = np.rad2deg(df["r"])
                 rs.extend(r)
                 cxs.extend(cx)
@@ -432,7 +432,7 @@ class RealObservationAnalysis:
         observables = [cxs, cys, rs]
         names = ["cx", "cy", "opening angle"]
         for name, observable in zip(names, observables):
-            plt.hist(observable, histtype='step', color='k', bins=150)
+            plt.hist(observable, histtype='step', color='k', bins=250)
             plt.xlabel(name +" /deg")
             plt.ylabel("muon count /1")
             figname = str(name) + "_histogram_real.png"
@@ -449,7 +449,7 @@ class RealObservationAnalysis:
             ringM_rs, alpha=0.5, bins=250,
             label="ringModel", density=True, stacked=True)
         plt.xlabel("opening angle /deg")
-        plt.ylabel("muon count /1")
+        plt.ylabel("normed muon count /1")
         plt.legend(loc="upper right")
         plt.savefig(plot_out + "/radius_comparison_real.png")
         plt.close("all")
