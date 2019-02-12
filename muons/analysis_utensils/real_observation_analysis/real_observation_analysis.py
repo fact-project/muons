@@ -415,15 +415,13 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
-            try:
-                r = np.rad2deg(df["cx"])
-                cx = np.rad2deg(df["cy"])
-                cy = np.rad2deg(df["r"])
-            except AttributeError:
-                continue
-                rs.extend(r)
-                cxs.extend(cx)
-                cys.extend(cy)
+            df.dropna()
+            r = np.rad2deg(df["cx"])
+            cx = np.rad2deg(df["cy"])
+            cy = np.rad2deg(df["r"])
+            rs.extend(r)
+            cxs.extend(cx)
+            cys.extend(cy)
         return cxs, cys, rs
 
 
@@ -441,15 +439,12 @@ class RealObservationAnalysis:
 
 
     def compare_rs(self, hough_rs, ringM_rs, plot_out):
-        bin_count = np.sqrt(len(hough_rs))
-        bin_count = int(round(bin_count, 0))
         plt.hist(
             hough_rs, alpha=0.5, bins=250,
             label="Hough", density=True, stacked=True)
         plt.hist(
-            ringM_rs, alpha=0.5, bins=bin_count,
+            ringM_rs, alpha=0.5, bins=250,
             label="ringModel", density=True, stacked=True)
-        plt.xlim(0.2, 1.8)
         plt.xlabel("opening angle /deg")
         plt.ylabel("muon count /1")
         plt.legend(loc="upper right")
