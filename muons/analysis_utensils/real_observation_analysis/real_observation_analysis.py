@@ -415,7 +415,9 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
+            print(df)
             df = df.dropna()
+            print(df)
             r = np.rad2deg(df["cx"])
             cx = np.rad2deg(df["cy"])
             cy = np.rad2deg(df["r"])
