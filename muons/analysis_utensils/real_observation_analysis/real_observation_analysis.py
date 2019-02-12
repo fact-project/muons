@@ -416,32 +416,10 @@ class RealObservationAnalysis:
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
             df = df.dropna()
-            df = df[df.cx != 'e-02']
-            try:
-                cx = np.rad2deg(df["cx"])
-                cy = np.rad2deg(df["cy"])
-                r = np.rad2deg(df["r"])
-            except AttributeError:
-                break
+            r = np.rad2deg(df["r"])
             rs.extend(r)
-            cxs.extend(cx)
-            cys.extend(cy)
-        return cxs, cys, rs
+        return rs
 
-
-    def plot_distribution(self, cxs, cys, rs, plot_out):
-        observables = [cxs, cys, rs]
-        names = ["cx", "cy", "openingAngle"]
-        for name, observable in zip(names, observables):
-            plt.hist(observable, histtype='step', color='k', bins=250)
-            plt.xlabel(name +" /deg")
-            plt.ylabel("muon count /1")
-            if not name == "openingAngle":
-                plt.xlim(-4.5, 4.5)
-            figname = str(name) + "_histogram_real.png"
-            plotPath = os.path.join(plot_out, figname)
-            plt.savefig(plotPath)
-            plt.close("all")
 
 
     def compare_rs(self, hough_rs, ringM_rs, plot_out):
@@ -459,23 +437,11 @@ class RealObservationAnalysis:
 
 
     def distribution_main(self):
-        hough_dir = os.path.join(self.output_dir, "hough")
-        ringM_dir = os.path.join(self.output_dir, "ringM")
         plot_out = os.path.join(self.plot_dir, "Distributions")
         if not os.path.isdir(plot_out):
             os.makedirs(plot_out, exist_ok=True)
-        hough_cxs, hough_cys, hough_rs = self.collect_items(hough_dir)
-        hough_plotOut = os.path.join(plot_out, "Hough")
-        hough_plotOut = os.path.normpath(hough_plotOut)
-        if not os.path.isdir(hough_plotOut):
-            os.makedirs(hough_plotOut, exist_ok=True)
-        self.plot_distribution(hough_cxs, hough_cys, hough_rs, hough_plotOut)
-        ringM_cx, ringM_cy, ringM_rs = self.collect_items(ringM_dir)
-        ringM_plotOut = os.path.join(plot_out, "ringM")
-        ringM_plotOut = os.path.normpath(ringM_plotOut)
-        if not os.path.isdir(ringM_plotOut):
-            os.makedirs(ringM_plotOut, exist_ok=True)
-        self.plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
+        hough_rs = self.collect_items(hough_dir)
+        ringM_rs = self.collect_items(ringM_dir)
         self.compare_rs(hough_rs, ringM_rs, plot_out)
 
 
