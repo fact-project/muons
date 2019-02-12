@@ -453,7 +453,6 @@ class RealObservationAnalysis:
         plt.hist(
             ringM_rs, alpha=0.5, bins=bin_count,
             label="ringModel", density=True, stacked=True)
-        plt.xlim(0.2, 1.8)
         plt.xlabel("opening angle /deg")
         plt.ylabel("muon count /1")
         plt.legend(loc="upper right")
