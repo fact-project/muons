@@ -416,9 +416,9 @@ class RealObservationAnalysis:
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
             new_df = df[df.r != 'NaN']
-            r = np.rad2deg(df["cx"])
-            cx = np.rad2deg(df["cy"])
-            cy = np.rad2deg(df["r"])
+            r = np.rad2deg(new_df["cx"])
+            cx = np.rad2deg(new_df["cy"])
+            cy = np.rad2deg(new_df["r"])
             rs.extend(r)
             cxs.extend(cx)
             cys.extend(cy)
