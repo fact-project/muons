@@ -437,6 +437,8 @@ class RealObservationAnalysis:
 
 
     def distribution_main(self):
+        hough_dir = os.path.join(self.output_dir, "hough")
+        ringM_dir = os.path.join(self.output_dir, "ringM")
         plot_out = os.path.join(self.plot_dir, "Distributions")
         if not os.path.isdir(plot_out):
             os.makedirs(plot_out, exist_ok=True)
