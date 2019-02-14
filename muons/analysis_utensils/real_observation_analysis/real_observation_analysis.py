@@ -346,7 +346,7 @@ class RealObservationAnalysis:
         plt.xlabel("unix time / s")
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
         if extraction == "response":
-            plt.ylabel(r"fuzz / \%")
+            plt.ylabel(r"response / \%")
         else:
             plt.ylabel(r"fuzz / deg")
         plt.legend(fancybox= True, loc='upper right')
