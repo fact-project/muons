@@ -476,11 +476,9 @@ class PSF_FuzzAnalysis:
 
 
     def plot_all(self):
-        print("begin")
+        paths = []
         wild_card_path = os.path.join(self.fuzz_resultDir, "*", "*")
-        print(wild_card_path)
         for path in glob.glob(wild_card_path):
-            print(path)
             splitPath = path.split("/")
             extractionMethod = splitPath[-2]
             fuzzParameter = splitPath[-1].split("_")[0]
@@ -561,11 +559,12 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
-        return (a*(x**2) + b*x + c)
+        d = self.popt[3]
+        return (a*(x**3) + b*(x**2) + c*x + d)
 
 
     def plot_curve_fit(self):
-        rr = np.arange(0.0, 0.125, 0.01)
+        rr = np.arange(0.0, 0.12, 0.01)
         plt.plot(rr, self.f(rr), linewidth=0.75, label="curveFit")
         plt.scatter(self.psf, self.fuzz, label="dataPoints")
         plt.xlim(-0.01, 0.125)
@@ -593,8 +592,8 @@ class CurveFitting:
         filename = "_".join([self.fuzzParameter, "function_fit.csv"])
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
-        header = list(["x^2", "x", "const"])
-        values = np.transpose([a, b, c])
+        header = list(["x^3, x^2", "x", "const"])
+        values = np.transpose([a, b, c, d])
         headers = ",".join(header)
         np.savetxt(
             fOut,
