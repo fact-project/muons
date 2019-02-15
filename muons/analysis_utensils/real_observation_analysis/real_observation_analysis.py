@@ -403,7 +403,7 @@ class RealObservationAnalysis:
                 muon_fuzz = self.reduction(merged_nightwise, suffix)
                 self.plot(muon_fuzz, plot_outDir, extraction)
                 self.plot_psf_vs_time(
-                    muon_fuzz, plot_outDir, functionFit_path)
+                    muon_fuzz, plot_outDir, functionFit_path, extraction)
 
 
     """ ############## Distribution analysis ################## """
@@ -454,6 +454,7 @@ class RealObservationAnalysis:
         muon_fuzz,
         plt_dir,
         functionFit_path,
+        extraction,
         min_alpha = 0.1
     ):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
@@ -464,9 +465,12 @@ class RealObservationAnalysis:
         d = dataFrame["const"][0]
         max_m_count = (np.amax(muon_nr))
         unix_time = []
-        avg_fz_deg = np.rad2deg(avg_fz_rad)
-        std_fz_deg = np.rad2deg(std_fz_rad)
-
+        if extraction == 'stdev':
+            avg_fz_deg = np.rad2deg(avg_fz_rad)
+            std_fz_deg = np.rad2deg(std_fz_rad)
+        elif extraction == 'response':
+            avg_fz_deg = 100 * avg_fz_rad
+            std_fz_deg = 100 * std_fz_rad
         x = np.arange(0,0.1, 0.0001)
         y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
         sorted_arguments = np.argsort(y(x))
