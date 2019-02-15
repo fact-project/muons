@@ -589,6 +589,7 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
+        d = self.popt[3]
         filename = "_".join([self.fuzzParameter, "function_fit.csv"])
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
