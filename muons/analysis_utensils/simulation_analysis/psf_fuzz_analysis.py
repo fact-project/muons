@@ -477,8 +477,8 @@ class PSF_FuzzAnalysis:
 
     def plot_all(self):
         print("begin")
-        paths = []
         wild_card_path = os.path.join(self.fuzz_resultDir, "*", "*")
+        print(wild_card_path)
         for path in glob.glob(wild_card_path):
             print(path)
             splitPath = path.split("/")
