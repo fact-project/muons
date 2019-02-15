@@ -429,15 +429,21 @@ class PSF_FuzzAnalysis:
         ring_df = pandas.read_csv(ringM_psf_fuzz_csv_path)
         hough_df = pandas.read_csv(hough_psf_fuzz_csv_path)
 
-        fuzz_ringM = np.rad2deg(ring_df["average_fuzz"])
-        psf_ringM = np.rad2deg(ring_df["point_spread_function"])
-        std_fuzz_ringM = np.rad2deg(ring_df["fuzz_std"])
         muonCount_ringM = ring_df['detected_muonCount']
-
-        fuzz_hough = np.rad2deg(hough_df["average_fuzz"])
+        psf_ringM = np.rad2deg(ring_df["point_spread_function"])
         psf_hough = np.rad2deg(hough_df["point_spread_function"])
-        std_fuzz_hough = np.rad2deg(hough_df["fuzz_std"])
         muonCount_hough = hough_df['detected_muonCount']
+
+        if fuzz_parameter == 'stdev':
+            fuzz_ringM = np.rad2deg(ring_df["average_fuzz"])
+            std_fuzz_ringM = np.rad2deg(ring_df["fuzz_std"])
+            fuzz_hough = np.rad2deg(hough_df["average_fuzz"])
+            std_fuzz_hough = np.rad2deg(hough_df["fuzz_std"])
+        elif fuzz_parameter == 'response':
+            fuzz_ringM = 100*(ring_df["average_fuzz"])
+            std_fuzz_ringM = 100*(ring_df["fuzz_std"])
+            fuzz_hough = 100*(hough_df["average_fuzz"])
+            std_fuzz_hough = 100*(hough_df["fuzz_std"])
 
         fig = plt.figure()
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -450,10 +456,11 @@ class PSF_FuzzAnalysis:
             yerr=std_fuzz_ringM/np.sqrt(muonCount_ringM),
             fmt=".", alpha=0.4, label=r"ringModel")
         ax.set_xlabel(r"true point spread function /deg")
-        ax.set_ylabel(r"fuzziness /deg")
+        ax.set_ylabel(r"response / \%")
         ax.set_xlim(psf_ringM.min()-0.01, psf_ringM.max()+0.01)
         if fuzz_parameter == "stdev":
             ax.set_ylim(0.10,0.22)
+            ax.set_ylabel(r"fuzziness /deg")
         plt.legend(loc="upper right")
         plt.grid()
         fileName = "_".join([
@@ -530,7 +537,10 @@ class CurveFitting:
     def read_dataFrame(self):
         dataFrame = pandas.read_csv(self.psf_fuzz_csv_path)
         psf = np.rad2deg(dataFrame['point_spread_function'])
-        fuzz = np.rad2deg(dataFrame['average_fuzz'])
+        if self.fuzzParameter == 'stdev':
+            fuzz = np.rad2deg(dataFrame['average_fuzz'])
+        elif self.fuzzParameter == 'response':
+            fuzz = 100 * (dataFrame['average_fuzz'])
         return psf, fuzz
 
 
@@ -582,7 +592,7 @@ class CurveFitting:
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
         header = list(["x^2", "x", "const"])
-        values = [a, b, c]
+        values = np.transpose([a, b, c])
         headers = ",".join(header)
         np.savetxt(
             fOut,
