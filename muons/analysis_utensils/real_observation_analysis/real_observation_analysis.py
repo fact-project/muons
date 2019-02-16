@@ -295,8 +295,8 @@ class RealObservationAnalysis:
             avg_fz_deg = np.rad2deg(avg_fz_rad)
             std_fz_deg = np.rad2deg(std_fz_rad)
         elif extraction == 'response':
-            avg_fz_deg = avg_fz_rad
-            std_fz_deg = std_fz_rad
+            avg_fz_deg = np.multiply(100, avg_fz_rad)
+            std_fz_deg = np.multiply(100, std_fz_rad)
             print(avg_fz_deg)
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
@@ -473,7 +473,7 @@ class RealObservationAnalysis:
         if extraction == 'stdev':
             avg_fz_deg = np.rad2deg(avg_fz_rad)
         elif extraction == 'response':
-            avg_fz_deg = 100 * avg_fz_rad
+            avg_fz_deg = np.multiply(100, avg_fz_rad)
         x = np.arange(0,0.1, 0.0001)
         y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
         sorted_arguments = np.argsort(y(x))
