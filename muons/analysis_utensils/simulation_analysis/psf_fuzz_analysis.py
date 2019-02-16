@@ -311,8 +311,11 @@ class PSF_FuzzAnalysis:
         self, psf_fuzz_csv_path, fuzz_parameter, extractionMethod
     ):
         psf_fuzz_df = pandas.read_csv(psf_fuzz_csv_path)
-        fuzz = np.rad2deg(psf_fuzz_df["average_fuzz"])
         psf = np.rad2deg(psf_fuzz_df["point_spread_function"])
+        if fuzz_parameter == 'stdev':
+            fuzz = np.rad2deg(psf_fuzz_df["average_fuzz"])
+        elif fuzz_parameter == 'response':
+            fuzz = 100 * (psf_fuzz_df["average_fuzz"])
         std_fuzz = np.rad2deg(psf_fuzz_df["fuzz_std"])
         number_muons = psf_fuzz_df['detected_muonCount']
         fig = plt.figure()

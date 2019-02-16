@@ -291,8 +291,12 @@ class RealObservationAnalysis:
         max_m_count = (np.amax(muon_nr))
         alpha = np.divide(muon_nr, max_m_count)
         alpha = (min_alpha + alpha)/(1 + min_alpha)
-        avg_fz_deg = np.rad2deg(avg_fz_rad)
-        std_fz_deg = np.rad2deg(std_fz_rad)
+        if extraction == 'stdev':
+            avg_fz_deg = np.rad2deg(avg_fz_rad)
+            std_fz_deg = np.rad2deg(std_fz_rad)
+        elif extraction == 'response':
+            avg_fz_deg = 100*(avg_fz_rad)
+            std_fz_deg = 100*(std_fz_rad)
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
@@ -467,10 +471,8 @@ class RealObservationAnalysis:
         unix_time = []
         if extraction == 'stdev':
             avg_fz_deg = np.rad2deg(avg_fz_rad)
-            std_fz_deg = np.rad2deg(std_fz_rad)
         elif extraction == 'response':
             avg_fz_deg = 100 * avg_fz_rad
-            std_fz_deg = 100 * std_fz_rad
         x = np.arange(0,0.1, 0.0001)
         y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
         sorted_arguments = np.argsort(y(x))
