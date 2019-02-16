@@ -2,15 +2,12 @@ import sys
 import os
 import shutil
 import glob
-filePath = os.path.normpath(os.path.abspath(__file__))
-fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
-parentDir = os.path.normpath(os.path.join(
-    fileDir, os.pardir))
-scriptDir = os.path.join(parentDir, "simulation_analysis")
-sys.path.insert(0, scriptDir)
-import extract_muons_from_single_run as emf
+from muons.analysis_utensils.simulation_analysis import (
+    extract_muons_from_single_run as emf)
 import pandas
 
+filePath = os.path.normpath(os.path.abspath(__file__))
+fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
 simulationFile = os.path.join(
     fileDir, "resources", "100simulations_psf0.0.sim.phs")
 simulationTruth = os.path.join(

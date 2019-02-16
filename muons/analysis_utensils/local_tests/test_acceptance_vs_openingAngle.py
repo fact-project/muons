@@ -3,15 +3,13 @@ import os
 import numpy as np
 import shutil
 import glob
-filePath = os.path.normpath(os.path.abspath(__file__))
-fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
-parentDir = os.path.normpath(os.path.join(
-    fileDir, os.pardir))
-scriptDir = os.path.join(parentDir, "simulation_analysis")
-sys.path.insert(0, scriptDir)
+from muons.analysis_utensils.simulation_analysis import (
+    acceptance_vs_openingAngle as evo)
 import acceptance_vs_openingAngle as evo
 
 
+filePath = os.path.normpath(os.path.abspath(__file__))
+fileDir = os.path.normpath(os.path.join(filePath, os.pardir))
 scoop_hosts = os.path.join(fileDir, "resources", "scoop_hosts.txt")
 preferencesFile = os.path.join(fileDir, "resources", "preferences_file.csv")
 steps = 3

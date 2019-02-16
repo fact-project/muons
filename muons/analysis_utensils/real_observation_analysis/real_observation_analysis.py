@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib
-matplotlib.use('agg')
+# matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import pandas
 import glob
@@ -25,11 +25,16 @@ class RealObservationAnalysis:
         using all here established tools"""
 
 
-    def __init__(self, muon_dir, output_dir, epochFile, scoop_hosts):
+    def __init__(
+        self, muon_dir, output_dir,
+        epochFile, scoop_hosts,
+        fitDir
+    ):
         self.muon_dir = muon_dir
         self.output_dir = output_dir
         self.epochFile = epochFile
-        self.scoop_hosts =scoop_hosts
+        self.scoop_hosts = scoop_hosts
+        self.fitDir = fitDir
         self.check_inputValidity()
         self.plot_dir = os.path.join(output_dir, "Plots")
 
@@ -47,6 +52,9 @@ class RealObservationAnalysis:
         if not os.path.exists(self.scoop_hosts):
             raise ValueError(
                 "Scoop hosts file missing")
+        if not os.path.isdir(self.fitDir):
+            raise ValueError(
+                "Directory for fit does not exist")
 
 
     def create_jobs(self):
@@ -137,9 +145,9 @@ class RealObservationAnalysis:
         output_dirR = os.path.dirname(output_path_stdevR)
         output_dirH = os.path.dirname(output_path_stdevH)
         if not os.path.isdir(output_dirR):
-            os.makedirs(output_dirR)
+            os.makedirs(output_dirR, exist_ok=True)
         if not os.path.isdir(output_dirH):
-            os.makedirs(output_dirH)
+            os.makedirs(output_dirH, exist_ok=True)
         self.save_to_file("ringM", output_dirR, filename, muon_ring_featuresR)
         self.save_to_file("hough", output_dirH, filename, muon_ring_featuresH)
         self.save_fuzz_param(output_path_stdevR, fuzziness_stdParamRs, muonCountR)
@@ -163,14 +171,13 @@ class RealObservationAnalysis:
 
 
     def save_fuzz_param(self, outpath, fuzz, number_muons):
-        with open(outpath + ".temp", "wt") as fout:
+        with open(outpath, "wt") as fout:
             out = {
                 "average_fuzz": float(np.average(fuzz)),
                 "std_fuzz": float(np.std(fuzz)),
                 "number_muons": number_muons,
             }
             fout.write(json.dumps(out))
-        os.rename(outpath + ".temp", outpath)
 
 
     def get_fuzziness_parameters(self, photon_clusters, muon_props):
@@ -189,12 +196,12 @@ class RealObservationAnalysis:
 
 
     def get_scoopScript_path(self):
-        filePath = os.path.normpath(os.path.abspath(__file__))
-        parentDir = os.path.normpath(os.path.join(
-            filePath, os.pardir))
-        scriptDir = os.path.join(parentDir, "real_observation_analysis")
+        # filePath = os.path.normpath(os.path.abspath(__file__))
+        # parentDir = os.path.normpath(os.path.join(
+        #     filePath, os.pardir))
+        # scriptDir = os.path.join(parentDir, "real_observation_analysis")
         scoopScriptPath = os.path.join(
-            parentDir, "scoop_real_distributions.py")
+            os.getcwd(), "scoop_real_distributions.py")
         return scoopScriptPath
 
 
@@ -204,7 +211,7 @@ class RealObservationAnalysis:
             "python", "-m", "scoop", "--hostfile", self.scoop_hosts,
             scriptPath, "--muon_dir", self.muon_dir, "--output_dir",
             self.output_dir, "--epochFile", self.epochFile, "--scoop_hosts",
-            self.scoop_hosts
+            self.scoop_hosts, "--fitDir", self.fitDir
         ]
         subprocess.call(scoopCommand)
 
@@ -278,14 +285,19 @@ class RealObservationAnalysis:
 
 
     # plot data nightwise
-    def plot(self, muon_fuzz, plt_dir, min_alpha=0.1):
+    def plot(self, muon_fuzz, plt_dir, extraction, min_alpha=0.1):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
         unix_time = []
         max_m_count = (np.amax(muon_nr))
         alpha = np.divide(muon_nr, max_m_count)
         alpha = (min_alpha + alpha)/(1 + min_alpha)
-        avg_fz_deg = np.rad2deg(avg_fz_rad)
-        std_fz_deg = np.rad2deg(std_fz_rad)
+        if extraction == 'stdev':
+            avg_fz_deg = np.rad2deg(avg_fz_rad)
+            std_fz_deg = np.rad2deg(std_fz_rad)
+        elif extraction == 'response':
+            avg_fz_deg = np.multiply(100, avg_fz_rad)
+            std_fz_deg = np.multiply(100, std_fz_rad)
+            print(avg_fz_deg)
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
@@ -332,13 +344,16 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
-            1420113600, 1432123200, color='r',
-            alpha=0.3, label='faulty electronics')
+            1420113600, 1432123200, facecolor="none", edgecolor='k',
+            alpha=0.2, label='faulty electronics',
+            hatch="X")
         axes = plt.gca()
-        # axes.set_ylim([0.1, 0.275])
         plt.xlabel("unix time / s")
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
-        plt.ylabel("fuzz / deg")
+        if extraction == "response":
+            plt.ylabel(r"response / \%")
+        else:
+            plt.ylabel(r"fuzz / deg")
         plt.legend(fancybox= True, loc='upper right')
         fig_name = "fuzziness_over_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
@@ -377,18 +392,23 @@ class RealObservationAnalysis:
         extractions = ["response", "stdev"]
         for detection in detections:
             for extraction in extractions:
+                plot_outDir = os.path.join(
+                    self.plot_dir, "Fuzz", detection, extraction)
+                if not os.path.isdir(plot_outDir):
+                    os.makedirs(plot_outDir, exist_ok=True)
                 if extraction == "response":
                     suffix = "rsp.muon.fuzz.jsonl"
                 elif extraction == "stdev":
                     suffix = "stdev.muon.fuzz.jsonl"
-                merged_nightwise = os.path.join(self.output_dir, detection)
+                fit_fileName = "_".join([extraction, "function_fit.csv"])
+                functionFit_path = os.path.join(
+                    self.fitDir, detection, fit_fileName)
+                merged_nightwise = os.path.join(
+                    self.output_dir, detection)
                 muon_fuzz = self.reduction(merged_nightwise, suffix)
-                plot_outDir = os.path.join(
-                    self.plot_dir, "Fuzz", detection, extraction)
-                if not os.path.isdir(plot_outDir):
-                    os.makedirs(plot_outDir)
-                self.plot(muon_fuzz, plot_outDir)
-                self.plot_psf_vs_time(muon_fuzz, plot_outDir)
+                self.plot(muon_fuzz, plot_outDir, extraction)
+                self.plot_psf_vs_time(
+                    muon_fuzz, plot_outDir, functionFit_path, extraction)
 
 
     """ ############## Distribution analysis ################## """
@@ -400,45 +420,22 @@ class RealObservationAnalysis:
         cys = []
         for run in glob.glob(wild_card_path):
             df = pandas.read_csv(run)
-            r = np.rad2deg(df["cx"])
-            cx = np.rad2deg(df["cy"])
-            cy = np.rad2deg(df["r"])
+            df = df.dropna()
+            r = np.rad2deg(df["r"])
             rs.extend(r)
-            cxs.extend(cx)
-            cys.extend(cy)
-        return cxs, cys, rs
+        return rs
 
-
-    def plot_distribution(self, cxs, cys, rs, plot_out):
-        observables = [cxs, cys, rs]
-        names = ["cx", "cy", "opening angle"]
-        for name, observable in zip(names, observables):
-            bin_count = np.sqrt(len(observable))
-            bin_count = int(round(bin_count, 0))
-            if bin_count < 100 and bin_count != 0:
-                bin_count = bin_count
-            else:
-                bin_count = 100
-            plt.hist(observable, histtype='step', color='k', bins=bin_count)
-            plt.xlabel(name +" /deg")
-            plt.ylabel("muon count /1")
-            figname = str(name) + "_histogram_real.png"
-            plotPath = os.path.join(plot_out, figname)
-            plt.savefig(plotPath)
-            plt.close("all")
 
 
     def compare_rs(self, hough_rs, ringM_rs, plot_out):
-        bin_count = np.sqrt(len(hough_rs))
-        bin_count = int(round(bin_count, 0))
         plt.hist(
             hough_rs, alpha=0.5, bins=250,
             label="Hough", density=True, stacked=True)
         plt.hist(
-            ringM_rs, alpha=0.5, bins=bin_count,
+            ringM_rs, alpha=0.5, bins=250,
             label="ringModel", density=True, stacked=True)
         plt.xlabel("opening angle /deg")
-        plt.ylabel("muon count /1")
+        plt.ylabel("normed muon count /1")
         plt.legend(loc="upper right")
         plt.savefig(plot_out + "/radius_comparison_real.png")
         plt.close("all")
@@ -449,39 +446,48 @@ class RealObservationAnalysis:
         ringM_dir = os.path.join(self.output_dir, "ringM")
         plot_out = os.path.join(self.plot_dir, "Distributions")
         if not os.path.isdir(plot_out):
-            os.makedirs(plot_out)
-        hough_cxs, hough_cys, hough_rs = self.collect_items(hough_dir)
-        hough_plotOut = os.path.join(plot_out, "Hough")
-        hough_plotOut = os.path.normpath(hough_plotOut)
-        if not os.path.isdir(hough_plotOut):
-            os.makedirs(hough_plotOut)
-        self.plot_distribution(hough_cxs, hough_cys, hough_rs, hough_plotOut)
-        ringM_cx, ringM_cy, ringM_rs = self.collect_items(ringM_dir)
-        ringM_plotOut = os.path.join(plot_out, "ringM")
-        ringM_plotOut = os.path.normpath(ringM_plotOut)
-        if not os.path.isdir(ringM_plotOut):
-            os.makedirs(ringM_plotOut)
-        self.plot_distribution(ringM_cx, ringM_cy, ringM_rs, ringM_plotOut)
+            os.makedirs(plot_out, exist_ok=True)
+        hough_rs = self.collect_items(hough_dir)
+        ringM_rs = self.collect_items(ringM_dir)
         self.compare_rs(hough_rs, ringM_rs, plot_out)
 
 
     """ Plot PSF vs time using the relation from the simulations """
-#### only test_phase
-    def plot_psf_vs_time(self, muon_fuzz, plt_dir):
+
+    def plot_psf_vs_time(
+        self,
+        muon_fuzz,
+        plt_dir,
+        functionFit_path,
+        extraction,
+        min_alpha = 0.1
+    ):
         avg_fz_rad, std_fz_rad, night, muon_nr = self.night_wise(muon_fuzz)
-        dataFrame = pandas.read_csv("/home/titan/Desktop/functionFit.csv")
+        dataFrame = pandas.read_csv(functionFit_path)
         a = dataFrame["x^3"][0]
         b = dataFrame["x^2"][0]
         c = dataFrame["x"][0]
         d = dataFrame["const"][0]
+        max_m_count = (np.amax(muon_nr))
         unix_time = []
-        avg_fz_deg = np.rad2deg(avg_fz_rad)
-        std_fz_deg = np.rad2deg(std_fz_rad)
-        psf = a*(avg_fz_deg**3) + b*(avg_fz_deg**2) + c*(avg_fz_deg) + d
+        if extraction == 'stdev':
+            avg_fz_deg = np.rad2deg(avg_fz_rad)
+        elif extraction == 'response':
+            avg_fz_deg = np.multiply(100, avg_fz_rad)
+        x = np.arange(0,0.1, 0.0001)
+        y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
+        sorted_arguments = np.argsort(y(x))
+
+        psf = np.interp(avg_fz_deg, y(x)[sorted_arguments], x[sorted_arguments])
+        # psf_err = psf/np.sqrt(muon_nr)
+        max_m_count = (np.amax(muon_nr))
+        alpha = np.divide(muon_nr, max_m_count)
+        alpha = (min_alpha + alpha)/(1 + min_alpha)
+
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
-        plt.errorbar(unix_time, psf, yerr=std_fz_deg/np.sqrt(muon_nr))
+
         first_night = datetime.fromtimestamp(np.min(unix_time))
         last_night = datetime.fromtimestamp(np.max(unix_time))
         first_year = first_night.year
@@ -492,11 +498,20 @@ class RealObservationAnalysis:
             year_time_stamps.append(
                 datetime(year=year, month=1, day=1).timestamp()
             )
+        plt.figure(figsize=(16, 9))
+        plt.rcParams.update({'font.size': 15})
+
+        for i in range(len(unix_time) - 1):
+            check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
+            if not check:
+                plt.plot(
+                    [unix_time[i], unix_time[i + 1]],
+                    [psf[i], psf[i + 1]],
+                    color="k",
+                    alpha=alpha[i]
+                )
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
-        plt.axvspan(
-            1420113600, 1432123200, color='r',
-            alpha=0.3, label='faulty electronics')
         dict_list = self.read_epoch_file()
         for preference in dict_list:
             x = preference["x"]
@@ -505,13 +520,20 @@ class RealObservationAnalysis:
             linewidth = preference["linewidth"]
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
+        plt.axvspan(
+            1420113600, 1432123200, facecolor="none", edgecolor='k',
+            alpha=0.05, label='faulty electronics',
+            hatch="X")
+        axes = plt.gca()
         plt.xlabel("unix time / s")
+        plt.ylim(0,0.15)
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
         plt.ylabel("reconstructed PSF / deg")
         plt.legend(fancybox= True, loc='upper right')
         fig_name = "psf_vs_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
-        plt.savefig(fig_path, dpi = 120, bbox_inches='tight')
+        plt.savefig(fig_path, dpi = 120)
+        plt.close("all")
 
 
     """ ################## Analysis main ################## """

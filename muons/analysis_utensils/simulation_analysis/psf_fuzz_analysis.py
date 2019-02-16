@@ -311,8 +311,11 @@ class PSF_FuzzAnalysis:
         self, psf_fuzz_csv_path, fuzz_parameter, extractionMethod
     ):
         psf_fuzz_df = pandas.read_csv(psf_fuzz_csv_path)
-        fuzz = np.rad2deg(psf_fuzz_df["average_fuzz"])
         psf = np.rad2deg(psf_fuzz_df["point_spread_function"])
+        if fuzz_parameter == 'stdev':
+            fuzz = np.rad2deg(psf_fuzz_df["average_fuzz"])
+        elif fuzz_parameter == 'response':
+            fuzz = 100 * (psf_fuzz_df["average_fuzz"])
         std_fuzz = np.rad2deg(psf_fuzz_df["fuzz_std"])
         number_muons = psf_fuzz_df['detected_muonCount']
         fig = plt.figure()
@@ -429,15 +432,21 @@ class PSF_FuzzAnalysis:
         ring_df = pandas.read_csv(ringM_psf_fuzz_csv_path)
         hough_df = pandas.read_csv(hough_psf_fuzz_csv_path)
 
-        fuzz_ringM = np.rad2deg(ring_df["average_fuzz"])
-        psf_ringM = np.rad2deg(ring_df["point_spread_function"])
-        std_fuzz_ringM = np.rad2deg(ring_df["fuzz_std"])
         muonCount_ringM = ring_df['detected_muonCount']
-
-        fuzz_hough = np.rad2deg(hough_df["average_fuzz"])
+        psf_ringM = np.rad2deg(ring_df["point_spread_function"])
         psf_hough = np.rad2deg(hough_df["point_spread_function"])
-        std_fuzz_hough = np.rad2deg(hough_df["fuzz_std"])
         muonCount_hough = hough_df['detected_muonCount']
+
+        if fuzz_parameter == 'stdev':
+            fuzz_ringM = np.rad2deg(ring_df["average_fuzz"])
+            std_fuzz_ringM = np.rad2deg(ring_df["fuzz_std"])
+            fuzz_hough = np.rad2deg(hough_df["average_fuzz"])
+            std_fuzz_hough = np.rad2deg(hough_df["fuzz_std"])
+        elif fuzz_parameter == 'response':
+            fuzz_ringM = 100*(ring_df["average_fuzz"])
+            std_fuzz_ringM = 100*(ring_df["fuzz_std"])
+            fuzz_hough = 100*(hough_df["average_fuzz"])
+            std_fuzz_hough = 100*(hough_df["fuzz_std"])
 
         fig = plt.figure()
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -450,10 +459,11 @@ class PSF_FuzzAnalysis:
             yerr=std_fuzz_ringM/np.sqrt(muonCount_ringM),
             fmt=".", alpha=0.4, label=r"ringModel")
         ax.set_xlabel(r"true point spread function /deg")
-        ax.set_ylabel(r"fuzziness /deg")
+        ax.set_ylabel(r"response / \%")
         ax.set_xlim(psf_ringM.min()-0.01, psf_ringM.max()+0.01)
         if fuzz_parameter == "stdev":
             ax.set_ylim(0.10,0.22)
+            ax.set_ylabel(r"fuzziness /deg")
         plt.legend(loc="upper right")
         plt.grid()
         fileName = "_".join([
@@ -530,7 +540,10 @@ class CurveFitting:
     def read_dataFrame(self):
         dataFrame = pandas.read_csv(self.psf_fuzz_csv_path)
         psf = np.rad2deg(dataFrame['point_spread_function'])
-        fuzz = np.rad2deg(dataFrame['average_fuzz'])
+        if self.fuzzParameter == 'stdev':
+            fuzz = np.rad2deg(dataFrame['average_fuzz'])
+        elif self.fuzzParameter == 'response':
+            fuzz = 100 * (dataFrame['average_fuzz'])
         return psf, fuzz
 
 
@@ -549,11 +562,12 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
-        return (a*(x**2) + b*x + c)
+        d = self.popt[3]
+        return (a*(x**3) + b*(x**2) + c*x + d)
 
 
     def plot_curve_fit(self):
-        rr = np.arange(0.0, 0.125, 0.01)
+        rr = np.arange(0.0, 0.12, 0.01)
         plt.plot(rr, self.f(rr), linewidth=0.75, label="curveFit")
         plt.scatter(self.psf, self.fuzz, label="dataPoints")
         plt.xlim(-0.01, 0.125)
@@ -578,11 +592,12 @@ class CurveFitting:
         a = self.popt[0]
         b = self.popt[1]
         c = self.popt[2]
+        d = self.popt[3]
         filename = "_".join([self.fuzzParameter, "function_fit.csv"])
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
-        header = list(["x^2", "x", "const"])
-        values = [a, b, c]
+        header = list(["x^3, x^2", "x", "const"])
+        values = np.transpose([a, b, c, d])
         headers = ",".join(header)
         np.savetxt(
             fOut,
