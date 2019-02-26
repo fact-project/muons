@@ -1,6 +1,11 @@
 # Muons[![Build Status](https://travis-ci.org/fact-project/muons.svg?branch=master)](https://travis-ci.org/fact-project/muons)
 
-Run "*pip install requirements.txt*" before you run "*pip install .*"
+### Install
+
+````
+pip install -r requirements.txt
+pip install .
+````
 
 ![img](readme/example_event_view.png)
 
