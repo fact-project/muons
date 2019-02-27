@@ -64,8 +64,18 @@ def main():
         events = list(
             scoop.futures.map(ed.run_job, jobs)
         )
+        save_simulationFile(events, output_dir)
     except docopt.DocoptExit as e:
         print(e)
+
+
+def save_simulationFile(events, output_dir):
+    simulationFileName = "simulations.sim.phs"
+    simulationPath = os.path.join(output_dir, simulationFileName)
+    with open(simulationPath + ".temp", "wb") as fOut:
+        for event in events:
+            ps.io.binary.append_event_to_file(event, fOut)
+    os.rename(simulationPath + ".temp", simulationPath)
 
 
 if __name__ == '__main__':

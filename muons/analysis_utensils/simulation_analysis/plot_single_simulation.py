@@ -89,9 +89,8 @@ class SingleSimulatonPlotting:
             difference, color = 'k', histtype='step', bins=100,
             label='reconstructed minus true'
             )
-        plt.xlabel("true minus reconstructed opening angle /deg")
+        plt.xlabel("reconstructed minus true opening angle /deg")
         plt.ylabel("Muon count /1")
-        plt.legend(loc="upper right", fontsize='small')
         figName = "r_difference_gauss.png"
         fig_path = os.path.join(self.plot_out, figName)
         plt.savefig(fig_path, bbox_inches="tight")

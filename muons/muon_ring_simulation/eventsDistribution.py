@@ -129,19 +129,11 @@ def run_job(job):
         fact_aperture_radius=job["fact_aperture_radius"],
         point_spread_function_std=job["point_spread_function"]
     )
-    save_simulationFile(event_id, event, output_dir)
-    return 0
-
-
-def save_simulationFile(event_id, event, output_dir):
-    simulationFileName = "_".join(["event", str(event_id)]) + ".sim.phs"
-    simulationPath = os.path.join(output_dir, simulationFileName)
-    with open(simulationPath, "wb") as fOut:
-        ps.io.binary.append_event_to_file(event, fOut)
+    return event
 
 
 def save_simulationTruth(event_id, dictionary, output_dir):
-    filename = "muonFlux.simulationtruth.csv"
+    filename = "simulationtruth.csv"
     simTruthPath = os.path.join(output_dir, filename)
     header, values = get_header_and_values(dictionary)
     np.savetxt(
@@ -152,6 +144,7 @@ def save_simulationTruth(event_id, dictionary, output_dir):
         comments="",
         header=header
     )
+
 
 def create_new_dict(dictionary):
     keys = dictionary.keys()

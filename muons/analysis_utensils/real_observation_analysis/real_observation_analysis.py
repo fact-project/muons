@@ -297,7 +297,6 @@ class RealObservationAnalysis:
         elif extraction == 'response':
             avg_fz_deg = np.multiply(100, avg_fz_rad)
             std_fz_deg = np.multiply(100, std_fz_rad)
-            print(avg_fz_deg)
         for dt in night:
             dto = datetime.strptime(str(dt), "%Y%m%d")
             unix_time.append(dto.timestamp())
