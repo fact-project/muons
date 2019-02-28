@@ -46,7 +46,7 @@ class SingleSimulatonPlotting:
 
 
     def create_bins(self, input_data):
-        bin_edges = np.histogram_bin_edges(input_data, bins='sqrt')
+        bin_edges = np.histogram_bin_edges(input_data, bins=100)
         return bin_edges
 
 
@@ -112,10 +112,10 @@ class SingleSimulatonPlotting:
     def plot_impact_r_sq(self):
         r_d_sq, r_t_sq = self.calculate_r_sq()
         bin_edges = self.create_bins(r_t_sq)
-        self.create_step_histogram(r_t_sq, "blue", bin_edges, "thrown")
-        self.create_step_histogram(r_d_sq, "red", bin_edges, "detected")
+        self.create_step_histogram(r_t_sq, "k", bin_edges, "thrown")
+        self.create_step_histogram(r_d_sq, "grey", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon impact radius / $m^2$")
+        plt.xlabel("$(muon impact radius)^2$ / $m^2$")
         plt.ylabel("number of muons / 1")
         outpath = os.path.join(self.plot_out, "impact_r_sq.png")
         plt.savefig(outpath, bbox_inches="tight")
@@ -159,11 +159,11 @@ class SingleSimulatonPlotting:
         detected_r_sq = self.extract_cx_cy()[1]
         bin_edges = np.rad2deg(self.create_bins(thrown_r_sq))
         self.create_step_histogram(
-            np.rad2deg(thrown_r_sq), "blue", bin_edges, "thrown")
+            np.rad2deg(thrown_r_sq), "k", bin_edges, "thrown")
         self.create_step_histogram(
-            np.rad2deg(detected_r_sq), "red", bin_edges, "detected")
+            np.rad2deg(detected_r_sq), "grey", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon $cx^2 + cy^2$ /$deg^2$")
+        plt.xlabel("muon $(incident angle)^2$ /$deg^2$")
         plt.ylabel("number of muons / 1")
         plotPath = os.path.join(self.plot_out, "cxcy_squared.png")
         plt.savefig(plotPath, bbox_inches="tight")
