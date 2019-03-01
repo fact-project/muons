@@ -64,7 +64,7 @@ def main():
         ))
 
         chunk_jobs = []
-        NUM_EVENTS_IN_CHUNK = 10
+        NUM_EVENTS_IN_CHUNK = 1000
         chunk_index = 0
         jobs_in_chunk = []
         for i, job in enumerate(jobs):
