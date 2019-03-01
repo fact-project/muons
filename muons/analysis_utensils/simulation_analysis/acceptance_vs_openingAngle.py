@@ -239,11 +239,11 @@ class Acceptance_vs_OpeningAngle:
         plt.errorbar(
             opening_angle, acceptance, xerr=stepSize/2,
             yerr=acceptance*(1/np.sqrt(detected_muonCount)),
-            fmt='.')
+            color="k", linestyle='none', fmt=".")
         plt.grid()
         plt.xlim(opening_angle.min()-0.1, opening_angle.max() + 0.1)
-        plt.xlabel("openingAngle /deg")
-        plt.ylabel("acceptance")
+        plt.xlabel("opening angle /deg")
+        plt.ylabel("acceptance / $m^2 * sr$")
         plotPath = os.path.join(
             self.output_dir, "acceptance_vs_opening_angle.png")
         plt.savefig(plotPath, bbox_inches="tight")

@@ -25,6 +25,7 @@ from muons.muon_ring_simulation import eventsDistribution as ed
 import photon_stream as ps
 import numpy as np
 import os
+import glob
 
 
 def main():
@@ -61,21 +62,33 @@ def main():
             point_spread_function=np.deg2rad(float(
                 arguments['--point_spread_function_std'])
         ))
-        events = list(
-            scoop.futures.map(ed.run_job, jobs)
+
+        chunk_jobs = []
+        NUM_EVENTS_IN_CHUNK = 10
+        chunk_index = 0
+        jobs_in_chunk = []
+        for i, job in enumerate(jobs):
+            jobs_in_chunk.append(job)
+            if (len(jobs_in_chunk) == NUM_EVENTS_IN_CHUNK) or i == len(jobs) - 1:
+                chunk_job = {
+                    "path": os.path.join(output_dir, "{:06d}.sim.phs.chunk".format(chunk_index)),
+                    "jobs": jobs_in_chunk 
+                }
+                chunk_jobs.append(chunk_job)
+                jobs_in_chunk = []
+                chunk_index += 1
+
+        return_codes = list(
+            scoop.futures.map(ed.run_chunk_job, chunk_jobs)
         )
-        save_simulationFile(events, output_dir)
+        with open(os.path.join(output_dir, "simulations.sim.phs"), "wb") as fOut:
+            wild_card_path = os.path.join(output_dir, "*.sim.phs.chunk")
+            for path in glob.glob(wild_card_path):
+                with open(path, "rb") as fIn:
+                    fOut.write(fIn.read())
+                os.remove(path)
     except docopt.DocoptExit as e:
         print(e)
-
-
-def save_simulationFile(events, output_dir):
-    simulationFileName = "simulations.sim.phs"
-    simulationPath = os.path.join(output_dir, simulationFileName)
-    with open(simulationPath + ".temp", "wb") as fOut:
-        for event in events:
-            ps.io.binary.append_event_to_file(event, fOut)
-    os.rename(simulationPath + ".temp", simulationPath)
 
 
 if __name__ == '__main__':

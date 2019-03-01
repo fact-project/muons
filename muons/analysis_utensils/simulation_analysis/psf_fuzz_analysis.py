@@ -322,6 +322,7 @@ class PSF_FuzzAnalysis:
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
         ax.errorbar(
             psf, fuzz, yerr=std_fuzz/np.sqrt(number_muons),
+            xerr=self.calculate_stepSize()/2,
             fmt=".", color="k")
         ax.set_xlim(psf.min()-0.01, psf.max()+0.01)
         plt.grid()
@@ -354,7 +355,6 @@ class PSF_FuzzAnalysis:
         psf_fuzz_csv_path,
         extractionMethod
     ):
-        simulated_muonCount = self.preferences['--number_of_muons']
         psf_fuzz_df = pandas.read_csv(psf_fuzz_csv_path)
         detected_muonCount = psf_fuzz_df['detected_muonCount']
         psf = np.rad2deg(psf_fuzz_df["point_spread_function"])
@@ -363,13 +363,11 @@ class PSF_FuzzAnalysis:
         ax.set_xlabel(r"true point spread function /deg")
         ax.set_ylabel(r"number of muons /1")
         ax.set_xlim(psf.min()-0.01, psf.max()+0.01)
-        ax.axhline(
-            simulated_muonCount, color="red",
-            label=r"number of simulated muons")
         ax.errorbar(
             psf, detected_muonCount, fmt=".",
-            yerr=np.sqrt(detected_muonCount),
-            label=r"number of detected muons")
+            xerr=self.calculate_stepSize()/2,
+            yerr=1/np.sqrt(detected_muonCount),
+            label=r"number of detected muons", color="k")
         plt.legend(loc="upper right")
         ax.set_yscale('log')
         plt.grid()
@@ -451,13 +449,13 @@ class PSF_FuzzAnalysis:
         fig = plt.figure()
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
         ax.errorbar(
-            psf_hough, fuzz_hough,
+            psf_hough, fuzz_hough, xerr=self.calculate_stepSize()/2,
             yerr=std_fuzz_hough/np.sqrt(muonCount_hough),
-            fmt=".", alpha=0.4, label=r"Hough")
+            fmt="*", alpha=1, label=r"Hough", color="k")
         ax.errorbar(
-            psf_ringM, fuzz_ringM,
+            psf_ringM, fuzz_ringM, xerr=self.calculate_stepSize()/2,
             yerr=std_fuzz_ringM/np.sqrt(muonCount_ringM),
-            fmt=".", alpha=0.4, label=r"ringModel")
+            fmt=".", alpha=0.4, label=r"ringModel", color="k")
         ax.set_xlabel(r"true point spread function /deg")
         ax.set_ylabel(r"response / \%")
         ax.set_xlim(psf_ringM.min()-0.01, psf_ringM.max()+0.01)
@@ -567,9 +565,13 @@ class CurveFitting:
 
 
     def plot_curve_fit(self):
+        psf_fuzz_df = pandas.read_csv(self.psf_fuzz_csv_path)
+        detected_muonCount = psf_fuzz_df['detected_muonCount']
         rr = np.arange(0.0, 0.12, 0.01)
-        plt.plot(rr, self.f(rr), linewidth=0.75, label="curveFit")
-        plt.scatter(self.psf, self.fuzz, label="dataPoints")
+        plt.plot(rr, self.f(rr), linewidth=0.75, label="curveFit", color="k")
+        plt.errorbar(self.psf, self.fuzz, fmt=".",
+            yerr=self.fuzz/np.sqrt(detected_muonCount), label="dataPoints", color="k",
+            ls="none")
         plt.xlim(-0.01, 0.125)
         plt.xlabel(r"true point spread function /deg")
         if self.fuzzParameter == "stdev":

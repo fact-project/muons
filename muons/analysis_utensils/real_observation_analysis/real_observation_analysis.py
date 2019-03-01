@@ -428,14 +428,15 @@ class RealObservationAnalysis:
 
     def compare_rs(self, hough_rs, ringM_rs, plot_out):
         plt.hist(
-            hough_rs, alpha=0.5, bins=250,
+            hough_rs, alpha=0.5, bins=250, color="k",
             label="Hough", density=True, stacked=True)
         plt.hist(
-            ringM_rs, alpha=0.5, bins=250,
-            label="ringModel", density=True, stacked=True)
+            ringM_rs, alpha=0.5, color="grey", bins=250,
+            label="ringModel", density=True, stacked=True, zorder=10)
         plt.xlabel("opening angle /deg")
         plt.ylabel("normed muon count /1")
         plt.legend(loc="upper right")
+        plt.xlim(0.4, 1.7)
         plt.savefig(plot_out + "/radius_comparison_real.png")
         plt.close("all")
 

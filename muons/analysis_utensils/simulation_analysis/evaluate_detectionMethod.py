@@ -232,29 +232,29 @@ class DetectionMethodEvaluation:
         self, output_dir, nsb_rate
     ):
         simulation_dir = os.path.join(output_dir, "simulation")
-        if not os.path.isdir(simulation_dir):
-            os.makedirs(simulation_dir)
-        self.run_simulation(simulation_dir, nsb_rate)
-        pure_cherenkov_events_path = os.path.join(
-            simulation_dir, "pure", "psf_0.sim.phs")
-        events_with_nsb_path = os.path.join(
-            simulation_dir, "NSB", "psf_0.sim.phs")
-        clustering_results = self.do_clustering(
-            pure_cherenkov_events_path, events_with_nsb_path)
-        events = self.true_false_decisions(
-            clustering_results[0],
-            clustering_results[1],
-            clustering_results[2])
-        events_cut = self.true_false_decisions(
-            clustering_results[0],
-            clustering_results[1],
-            clustering_results[3])
+        # if not os.path.isdir(simulation_dir):
+        #     os.makedirs(simulation_dir)
+        # self.run_simulation(simulation_dir, nsb_rate)
+        # pure_cherenkov_events_path = os.path.join(
+        #     simulation_dir, "pure", "psf_0.sim.phs")
+        # events_with_nsb_path = os.path.join(
+        #     simulation_dir, "NSB", "psf_0.sim.phs")
+        # clustering_results = self.do_clustering(
+        #     pure_cherenkov_events_path, events_with_nsb_path)
+        # events = self.true_false_decisions(
+        #     clustering_results[0],
+        #     clustering_results[1],
+        #     clustering_results[2])
+        # events_cut = self.true_false_decisions(
+        #     clustering_results[0],
+        #     clustering_results[1],
+        #     clustering_results[3])
         filename_cut = "cut_precision_results.csv"
         filename = "precision_results.csv"
         file_out = os.path.join(output_dir, filename)
         file_out_cut = os.path.join(output_dir, filename_cut)
-        self.save_to_file(file_out, events)
-        self.save_to_file(file_out_cut, events_cut)
+        # self.save_to_file(file_out, events)
+        # self.save_to_file(file_out_cut, events_cut)
         results = self.analyze(file_out)
         results_cut = self.analyze(file_out_cut)
         self.plot_sensitivity_precision(results, output_dir, "noCut")
@@ -313,7 +313,7 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=prec_min,
             y2=prec_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / \%")
+        plt.ylabel(r"precision / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
         plt.legend(fancybox= True, loc='lower right')
@@ -330,7 +330,7 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=sens_min,
             y2=sens_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / \%")
+        plt.ylabel(r"sensitivity / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
         plt.legend(fancybox= True, loc='lower right')
@@ -344,8 +344,8 @@ class DetectionMethodEvaluation:
     ):
         plt.errorbar(
             NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
-            color = "k", label=r"average precision", fmt=".")
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            color = "k", label=r"average precision", fmt=".", linestyle=":", alpha=0.5)
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylabel(r"precision /\%")
         plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
@@ -355,8 +355,8 @@ class DetectionMethodEvaluation:
         plt.close("all")
         plt.errorbar(
             NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
-            color = "k", label=r"average sensitivity", fmt=".")
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            color = "k", label=r"average sensitivity", fmt=".", linestyle=":", alpha=0.5)
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylim([0,110])
         plt.ylabel(r"sensitivity /\%")
         plt.legend(fancybox= True, loc='lower right')
@@ -374,11 +374,11 @@ class DetectionMethodEvaluation:
     ):
         plt.errorbar(
             NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
-            label=r"witout cut", fmt=".", alpha=0.5)
+            label=r"DBSCAN", fmt=".", alpha=0.5, color="k", linestyle=":")
         plt.errorbar(
             NSB_rates, precisions_cut, yerr=precisions_cut/np.sqrt(muonCounts),
-            label=r"with cut", fmt=".", alpha=0.5)
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            label=r"DBSCAN+", fmt=".", alpha=0.5, color="k", linestyle="-.")
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylabel(r"precision /\%")
         plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
@@ -388,11 +388,11 @@ class DetectionMethodEvaluation:
         plt.close("all")
         plt.errorbar(
             NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
-            label=r"without cut", fmt=".", alpha=0.5)
+            label=r"DBSCAN", fmt=".", alpha=0.5, color="k", linestyle=":")
         plt.errorbar(
             NSB_rates, sensitivities_cut, yerr=sensitivities_cut/np.sqrt(muonCounts),
-            label=r"with cut", fmt=".", alpha=0.5)
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            label=r"DBSCAN+", fmt=".", alpha=0.5, color="k", linestyle="-.")
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylim([0,110])
         plt.ylabel(r"sensitivity /\%")
         plt.legend(fancybox= True, loc='lower right')
