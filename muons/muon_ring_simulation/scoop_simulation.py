@@ -2,7 +2,7 @@
 Simulate muon rings
 Call with 'python -m scoop --hostfile scoop_hosts.txt'
 
-Usage: scoop_simulation.py --output_dir=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS [--min_opening_angle=ANGL] [--max_opening_angle=ANGL] [--min_nsb_rate=INT] [--max_nsb_rate=INT] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT]
+Usage: scoop_simulation.py --output_dir=DIR --number_of_muons=NBR --max_inclination=ANGL --max_aperture_radius=RDS [--min_opening_angle=ANGL] [--max_opening_angle=ANGL] [--min_nsb_rate=INT] [--max_nsb_rate=INT] [--arrival_time_std=STD] [--ch_rate=CHR] [--fact_aperture_radius=RDS] [--random_seed=INT] [--point_spread_function_std=FLT] [--chunck_files=BOOL]
 
 Options:
     --output_dir=DIR                   The output directory for simulations
@@ -18,6 +18,7 @@ Options:
     --fact_aperture_radius=RDS         [default: 1.965] Aperture radius of FACT telescope in m
     --random_seed=INT                  [default: 1] Random seed
     --point_spread_function_std=FLT    [default: 0] Standard deviation of the point spread function
+    --chunck_files=BOOL                [default: False] Whether to chunck the simulation files into one big file
 """
 import docopt
 import scoop
@@ -81,12 +82,13 @@ def main():
         return_codes = list(
             scoop.futures.map(ed.run_chunk_job, chunk_jobs)
         )
-        with open(os.path.join(output_dir, "simulations.sim.phs"), "wb") as fOut:
-            wild_card_path = os.path.join(output_dir, "*.sim.phs.chunk")
-            for path in glob.glob(wild_card_path):
-                with open(path, "rb") as fIn:
-                    fOut.write(fIn.read())
-                os.remove(path)
+        if arguments['--chunck_files'] == "True":
+            with open(os.path.join(output_dir, "simulations.sim.phs"), "wb") as fOut:
+                wild_card_path = os.path.join(output_dir, "*.sim.phs.chunk")
+                for path in glob.glob(wild_card_path):
+                    with open(path, "rb") as fIn:
+                        fOut.write(fIn.read())
+                    os.remove(path)
     except docopt.DocoptExit as e:
         print(e)
 

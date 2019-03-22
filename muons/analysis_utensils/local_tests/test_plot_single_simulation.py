@@ -77,7 +77,7 @@ def test_create_bins():
         reconstructed_muons_path, simulationTruth, output_dir)
     input_data = [1, 2, 3, 4]
     bin_edges = Ssp.create_bins(input_data)
-    assert (bin_edges == [1, 2.5, 4]).all()
+    assert (bin_edges == [1, 2.5, 4])
 
 
 def test_read_dataFrames_simulationTruth():

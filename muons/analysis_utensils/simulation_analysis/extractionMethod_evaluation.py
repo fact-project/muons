@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import numpy as np
 import photon_stream as ps
 from muons.detection_with_simple_ring_fit import (

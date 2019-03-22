@@ -1,5 +1,5 @@
 import numpy as np
-from muons.muon_ring_simulation import ring_simulation as rs
+from muons.muon_ring_simulation import single_simulation as rs
 import photon_stream as ps
 from scipy import stats
 

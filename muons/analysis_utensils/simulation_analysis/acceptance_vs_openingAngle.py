@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import subprocess
 import docopt
 import numpy as np
@@ -8,11 +8,11 @@ from shutil import copy
 import shutil
 import pandas
 import scoop
-from muons.muon_ring_simulation import many_simulations as ms
+from muons.analysis_utensils.detectionTesting_muon_simulation import many_simulations as ms
 import re
 import photon_stream as ps
 from muons.detection import detection
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.analysis_utensils.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 import glob
 import matplotlib.pyplot as plt
 

@@ -10,13 +10,15 @@ import fact
 import time
 from datetime import datetime
 import csv
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
-from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrfa
+from muons.analysis_utensils.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.analysis_utensils.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrfa
 import subprocess
 import photon_stream as ps
 from muons.detection_with_simple_ring_fit import (
     detection_with_simple_ring_fit as ringM_detection)
 from muons.detection import detection
+from scipy.optimize import curve_fit
+
 
 
 class RealObservationAnalysis:
@@ -310,28 +312,16 @@ class RealObservationAnalysis:
             year_time_stamps.append(
                 datetime(year=year, month=1, day=1).timestamp()
             )
-        y_p = np.subtract(avg_fz_deg, std_fz_deg)
-        y_m = np.add(avg_fz_deg, std_fz_deg)
+        y_m = np.subtract(avg_fz_deg, std_fz_deg/np.sqrt(muon_nr))
+        y_p = np.add(avg_fz_deg, std_fz_deg/np.sqrt(muon_nr))
         plt.figure(figsize=(16, 9))
-        plt.rcParams.update({'font.size': 15})
+        plt.rcParams.update({'font.size': 25})
         for i in range(len(alpha) - 1):
             check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
             if not check:
-                plt.plot(
-                    [unix_time[i], unix_time[i + 1]], 
-                    [avg_fz_deg[i], avg_fz_deg[i + 1]],
-                    "k-",
-                    linewidth=0.5,
-                    alpha=alpha[i],
-                    )
-                plt.fill_between(
-                    [unix_time[i], unix_time[i + 1]],
-                    [y_m [i], y_m[i + 1]],
-                    [y_p[i], y_p[i + 1]],
-                    color="c",
-                    alpha=alpha[i],
-                    linewidth = 0.0
-                    )
+                plt.errorbar(
+                    unix_time[i], avg_fz_deg[i], yerr=std_fz_deg[i]/np.sqrt(muon_nr[i]),
+                    alpha=alpha[i], color="k", fmt=".")
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
         dict_list = self.read_epoch_file()
@@ -343,17 +333,16 @@ class RealObservationAnalysis:
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
         plt.axvspan(
-            1420113600, 1432123200, facecolor="none", edgecolor='k',
-            alpha=0.2, label='faulty electronics',
-            hatch="X")
-        axes = plt.gca()
+             1420113600, 1432123200, facecolor="none", edgecolor='k',
+             alpha=0.05, label='faulty electronics',
+             hatch="X")
         plt.xlabel("unix time / s")
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
         if extraction == "response":
             plt.ylabel(r"response / \%")
         else:
             plt.ylabel(r"fuzz / deg")
-        plt.legend(fancybox= True, loc='upper right')
+        # plt.legend(fancybox= True, loc='upper right')
         fig_name = "fuzziness_over_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
         plt.savefig(fig_path, dpi = 120)
@@ -428,7 +417,7 @@ class RealObservationAnalysis:
 
     def compare_rs(self, hough_rs, ringM_rs, plot_out):
         plt.hist(
-            hough_rs, alpha=0.5, bins=250, color="k",
+            hough_rs, bins=250, color="k",
             label="Hough", density=True, stacked=True)
         plt.hist(
             ringM_rs, alpha=0.5, color="grey", bins=250,
@@ -470,6 +459,7 @@ class RealObservationAnalysis:
         d = dataFrame["const"][0]
         max_m_count = (np.amax(muon_nr))
         unix_time = []
+        std_fz_deg = np.rad2deg(std_fz_rad)
         if extraction == 'stdev':
             avg_fz_deg = np.rad2deg(avg_fz_rad)
         elif extraction == 'response':
@@ -477,7 +467,6 @@ class RealObservationAnalysis:
         x = np.arange(0,0.1, 0.0001)
         y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
         sorted_arguments = np.argsort(y(x))
-
         psf = np.interp(avg_fz_deg, y(x)[sorted_arguments], x[sorted_arguments])
         # psf_err = psf/np.sqrt(muon_nr)
         max_m_count = (np.amax(muon_nr))
@@ -499,17 +488,15 @@ class RealObservationAnalysis:
                 datetime(year=year, month=1, day=1).timestamp()
             )
         plt.figure(figsize=(16, 9))
-        plt.rcParams.update({'font.size': 15})
-
+        plt.rcParams.update({'font.size': 25})
+        a, b, c, d = find_inverse_function(x, y(x))
+        psf_error = abs((3*a*avg_fz_deg**2 + 2*b * avg_fz_deg + c) * (1/(np.sqrt(muon_nr))))
         for i in range(len(unix_time) - 1):
             check = unix_time[i] <= 1432123200 and unix_time[i] >= 1420113600
             if not check:
-                plt.plot(
-                    [unix_time[i], unix_time[i + 1]],
-                    [psf[i], psf[i + 1]],
-                    color="k",
-                    alpha=alpha[i]
-                )
+                plt.errorbar(
+                    unix_time[i], psf[i], yerr=psf_error[i],
+                    alpha=alpha[i], color="k", fmt=".")
         for year_time_stamp in year_time_stamps:
             plt.axvline(x=year_time_stamp, color='k', alpha=0.2)
         dict_list = self.read_epoch_file()
@@ -520,21 +507,48 @@ class RealObservationAnalysis:
             linewidth = preference["linewidth"]
             comment = preference["comment"]
             self.plot_epoch(x, linestyle, color, linewidth, comment)
+        self.save_psf_results(night, psf, psf_error, muon_nr, plt_dir)
         plt.axvspan(
             1420113600, 1432123200, facecolor="none", edgecolor='k',
             alpha=0.05, label='faulty electronics',
             hatch="X")
-        axes = plt.gca()
         plt.xlabel("unix time / s")
-        plt.ylim(0,0.15)
+        plt.ylim(0.02,0.08)
         plt.grid(alpha = 0.2, axis = "y" , color = "k")
         plt.ylabel("reconstructed PSF / deg")
-        plt.legend(fancybox= True, loc='upper right')
         fig_name = "psf_vs_time.png"
         fig_path = os.path.join(plt_dir, fig_name)
         plt.savefig(fig_path, dpi = 120)
         plt.close("all")
 
+
+    def save_psf_results(self, night, psf, psf_error, number_muons, plt_dir):
+        df = pandas.DataFrame(
+            {
+                "fNight": night,
+                "PSF_deg": psf,
+                "PSF_err_deg":psf_error,
+                "number_muons": number_muons
+            }
+        )
+        df1=df.loc[df["fNight"] >= 20150520]
+        df2=df.loc[df["fNight"] <= 20150101]
+        result = pandas.concat([df2, df1])
+        outpath = os.path.join(plt_dir, "psf_vs_time.csv")
+        result.to_csv(outpath, index=False)
+
+
+def find_inverse_function(x, y):
+    popt = curve_fit(func, y, x)[0]
+    a = popt[0]
+    b = popt[1]
+    c = popt[2]
+    d = popt[3]
+    return a, b, c, d
+
+
+def func(x, a, b, c, d):
+    return (a*(x**3) + b*(x**2) + c*(x) + d)
 
     """ ################## Analysis main ################## """
 

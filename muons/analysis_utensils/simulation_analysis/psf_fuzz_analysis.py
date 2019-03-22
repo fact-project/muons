@@ -1,14 +1,14 @@
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import subprocess
 import numpy as np
 import os
 from shutil import copy
-from muons.muon_ring_simulation import many_simulations as ms
+from muons.analysis_utensils.detectionTesting_muon_simulation import many_simulations as ms
 from numbers import Number
 import pandas
-from muons.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrfa
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.analysis_utensils.muon_ring_fuzzyness import ring_fuzziness_with_amplitude as mrfa
+from muons.analysis_utensils.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 from muons.detection import detection as hough
 from muons.detection_with_simple_ring_fit import (
     detection_with_simple_ring_fit as ringM)
@@ -16,6 +16,7 @@ import photon_stream as ps
 import glob
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+import csv
 
 
 class PSF_FuzzAnalysis:
@@ -535,6 +536,7 @@ class CurveFitting:
         self.plot_curve_fit()
         self.save_function()
 
+
     def read_dataFrame(self):
         dataFrame = pandas.read_csv(self.psf_fuzz_csv_path)
         psf = np.rad2deg(dataFrame['point_spread_function'])
@@ -599,12 +601,9 @@ class CurveFitting:
         fOut = os.path.join(
             self.output_dir, "Plots", self.extractionMethod, filename)
         header = list(["x^3, x^2", "x", "const"])
-        values = np.transpose([a, b, c, d])
+        values = ",".join([str(a), str(b), str(c), str(d)])
         headers = ",".join(header)
-        np.savetxt(
-            fOut,
-            values,
-            delimiter=",",
-            comments='',
-            header=headers
-        )
+        with open(fOut, "w") as out:
+            writer = csv.writer(out)
+            writer.writerow(headers)
+            writer.writerow(values)

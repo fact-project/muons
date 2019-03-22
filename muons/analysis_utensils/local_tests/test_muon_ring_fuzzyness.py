@@ -1,5 +1,5 @@
 import numpy as np
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.analysis_utensils.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 
 
 def test_standard_deviation():

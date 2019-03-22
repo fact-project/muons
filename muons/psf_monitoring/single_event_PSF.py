@@ -1,14 +1,15 @@
 import photon_stream as ps
+from muons.detection import detection
+import json
 import numpy as np
 import os
-import json
-from pathlib import Path
-import glob
-import fact
-from .. import extraction
-import warnings
-import muons
-warnings.filterwarnings("ignore")
+
+
+
+a = 2.768e4
+b = -2.759e3
+c = -2.859e2
+d = 5.127e1
 
 
 def evaluate_ring(
@@ -64,25 +65,25 @@ def apply_triangular_evaluation(
     return point_contribution
 
 
-def create_jobs(muon_dir, output_dir, method, suffix=".phs.jsonl.gz"):
-    jobs = []
-    wild_card_path = os.path.join(muon_dir, "*", "*", "*", "*"+suffix)
-    for path in glob.glob(wild_card_path):
-        job = {}
-        job["input_path"] = path
-        fact_path = fact.path.parse(path)
-        job["output_path"] = fact.path.tree_path(
-            night=fact_path["night"],
-            run=fact_path["run"],
-            suffix=".muon.fuzz.jsonl",
-            prefix=output_dir)
-        job["method"] = method
-        jobs.append(job)
-    return jobs
+def calculate_PSF(hough_response):
+    """ 
+    relation between hough_response and PSF is
+    ax^3 + bx^2 + cx + d , where 
+    a = 2.768e4
+    b = -2.759e3
+    c = -2.859e2
+    d = 5.127e1
+    For more info look at the thesis of Laurits
+    """
+    x = np.arange(0,0.1, 0.0001)
+    y = (lambda x: a*(x**3) + b*(x**2) + c*(x) + d)
+    sorted_arguments = np.argsort(y(x))
+    psf = np.interp(hough_response, y(x)[sorted_arguments], x[sorted_arguments])
+    return psf
 
 
-def run_job(inpath, outpath, method=False):
-    results = []
+def calculate_one_run(inpath, outpath):
+    hough_responses = []
     run = ps.EventListReader(inpath)
     number_muons = 0
     for event in run:
@@ -91,29 +92,28 @@ def run_job(inpath, outpath, method=False):
         cherenkov_point_cloud = photon_clusters.point_cloud
         cherenkov_clusters = cherenkov_point_cloud[cherenkov_cluster_mask]
         point_positions = cherenkov_clusters[:,0:2]
-        random_state = np.random.get_state()
-        np.random.seed(event.photon_stream.number_photons)
-        if not callable(method):
-            muon_props = extraction.detection(event, photon_clusters)
-        else:
-            muon_props = method(event, photon_clusters)
-        muon_props = extraction.detection(event, photon_clusters)
-        np.random.set_state(random_state)
+        muon_props = detection(event, photon_clusters)
         if muon_props["is_muon"]:
             cx = muon_props["muon_ring_cx"]
             cy = muon_props["muon_ring_cy"]
             r = muon_props["muon_ring_r"]
             total_amplitude = evaluate_ring(
                 point_positions, cx, cy, r)
-            results.append(total_amplitude)
+            hough_responses.append(total_amplitude)
             number_muons += 1
+    hough_responses = np.multiply(hough_responses, 100)
+    psf_values = calculate_PSF(hough_responses)
+    psf_error = psf_values * 1/np.sqrt(number_muons)
+    average_psf = float(np.average(psf_values))
     outdir = os.path.dirname(outpath)
     os.makedirs(outdir, exist_ok=True)
     with open(outpath + ".temp", "wt") as fout:
         out = {
-            "average_fuzz": float(np.average(results)),
-            "std_fuzz": float(np.std(results)),
-            "number_muons": number_muons,
+            "average_psf": float(np.average(psf_values)),
+            "psf_stdev": float(np.std(psf_values)),
+            "standard_error": np.average(psf_error),
+            "number_muons": number_muons
         }
         fout.write(json.dumps(out))
     os.rename(outpath + ".temp", outpath)
+    return 0
