@@ -36,12 +36,11 @@ Sensitivity = 67.2%
 
 Where:
 
-
-![img](README/precision.png)
+<img src="README/precision.png" alt="Precision" width="400"/>
 
 and
 
-![img](README/sensitivity.png)
+<img src="README/precision.png" alt="Precision" width="400"/>
 
 
 ## Acceptance vs point-spread-function
