@@ -24,7 +24,7 @@ Function fitted is:
 
 Using Hough response to reconstruct point-spread-function over time, we get the following figure:
 
-![Point-spread-function vs time](readme/psf_vs_time.csv)
+![Point-spread-function vs time](readme/psf_vs_time.png)
 
 Values for each point on the figure can be found in [psf\_vs\_time.csv](/readme/psf_vs_time.csv)
 
