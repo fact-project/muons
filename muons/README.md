@@ -35,11 +35,13 @@ Precision = 99.3%
 Sensitivity = 67.2%
 
 Where:
-![img](README/precision.pdf)
+
+
+![img](README/precision.png)
 
 and
 
-![img](README/sensitivity.pdf)
+![img](README/sensitivity.png)
 
 
 ## Acceptance vs point-spread-function
