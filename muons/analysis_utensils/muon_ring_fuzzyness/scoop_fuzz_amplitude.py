@@ -15,7 +15,7 @@ import scoop
 import os
 import muons
 import photon_stream as ps
-import muons.muon_ring_fuzzyness.ring_fuzziness_with_amplitude as rfwa
+import muons.analysis_utensils.muon_ring_fuzzyness.ring_fuzziness_with_amplitude as rfwa
 
 
 def run(job):

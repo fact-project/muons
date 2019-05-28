@@ -34,7 +34,7 @@ def main():
         rndm_seed = int(arguments['--random_seed'])
         test_detection = arguments['--test_detection']
         np.random.seed(seed=rndm_seed)
-        jobs = muons.muon_ring_simulation.many_simulations.create_jobs(
+        jobs = muons.analysis_utensils.detectionTesting_muon_simulation.many_simulations.create_jobs(
             number_of_muons=int(
                 arguments['--number_of_muons']),
             max_inclination=float(
@@ -59,7 +59,7 @@ def main():
         ))
         events = list(
             scoop.futures.map(
-                muons.muon_ring_simulation.many_simulations.run_job,
+                muons.analysis_utensils.detectionTesting_muon_simulation.many_simulations.run_job,
                 jobs
             )
         )
@@ -87,7 +87,7 @@ def save_file(output_dir, arguments, events, jobs):
         ".simulationtruth.csv"]
     )
     simTruthPath = os.path.join(output_dir, simTruthFilename)
-    muons.muon_ring_simulation.many_simulations.write_to_csv(
+    muons.analysis_utensils.detectionTesting_muon_simulation.many_simulations.write_to_csv(
         simTruthPath+".temp",
         jobs
     )

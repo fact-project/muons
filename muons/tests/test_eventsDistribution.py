@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats
-from muons.muon_ring_simulation import many_simulations as ms
+from muons.muon_ring_simulation import eventsDistribution as ms
 
 
 def test_draw_inclination():

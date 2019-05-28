@@ -111,7 +111,7 @@ def create_jobs(
         new_job_dict = job.copy()
         del new_job_dict["output_dir"]
         new_dicts.append(new_job_dict)
-    save_simulationTruth(event_id, new_dicts, output_dir)
+    save_simulationTruth(new_dicts, output_dir)
     return jobs
 
 
@@ -132,10 +132,24 @@ def run_job(job):
     return event
 
 
-def save_simulationTruth(event_id, dictionary, output_dir):
+def run_chunk_job(chunk_job):
+    events = []
+    simulationPath = chunk_job["path"]
+    for job in chunk_job["jobs"]:
+        event = run_job(job)
+        events.append(event)
+    with open(simulationPath + ".temp", "wb") as fOut:
+        for event in events:
+            ps.io.binary.append_event_to_file(event, fOut)
+    os.rename(simulationPath + ".temp", simulationPath)
+    return 0
+
+
+
+def save_simulationTruth(jobs, output_dir):
     filename = "simulationtruth.csv"
     simTruthPath = os.path.join(output_dir, filename)
-    header, values = get_header_and_values(dictionary)
+    header, values = get_header_and_values(jobs)
     np.savetxt(
         simTruthPath,
         values,

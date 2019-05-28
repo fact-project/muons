@@ -18,7 +18,7 @@ import photon_stream as ps
 
 
 def run(job):
-    muons.muon_ring_fuzzyness.muon_ring_fuzzyness.run_job(
+    muons.analysis_utensils.muon_ring_fuzzyness.muon_ring_fuzzyness.run_job(
         inpath=job["input_path"],
         outpath=job["output_path"],
         method=job["method"])
@@ -36,7 +36,7 @@ def main():
         elif method == "ringM":
             detection = (
                 muons.detection_with_simple_ring_fit.detection_with_simple_ring_fit)
-        jobs = muons.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
+        jobs = muons.analysis_utensils.muon_ring_fuzzyness.muon_ring_fuzzyness.create_jobs(
             muon_dir,
             output_dir,
             detection,

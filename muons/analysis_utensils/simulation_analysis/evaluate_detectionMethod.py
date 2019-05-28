@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import photon_stream as ps
 import numpy as np
 import os
@@ -10,7 +10,7 @@ from statistics import mean
 import matplotlib.pyplot as plt
 import glob
 from numbers import Number
-from muons import muon_ring_simulation as mrs
+from muons.analysis_utensils import detectionTesting_muon_simulation as mrs
 
 
 class DetectionMethodEvaluation:
@@ -269,6 +269,10 @@ class DetectionMethodEvaluation:
         nsb_rates = []
         sensitivities_cut = []
         precisions_cut = []
+        sens_std = []
+        prec_std = []
+        sensCut_std = []
+        precCut_std = []
         muonCounts = []
         for i in range(self.steps):
             nsb_rate = dark_night_nsb_rate * self.step_size**i
@@ -277,18 +281,22 @@ class DetectionMethodEvaluation:
                 os.makedirs(outDir)
             results, results_cut = self.one_nsb_rate(outDir, nsb_rate)
             sensitivities.append(results['avg_sensitivity'])
+            sens_std.append(results['std_sensitivity'])
             precisions.append(results['avg_precision'])
+            prec_std.append(results['std_precision'])
             sensitivities_cut.append(results_cut['avg_sensitivity'])
+            sensCut_std.append(results_cut["std_sensitivity"])
             precisions_cut.append(results_cut['avg_precision'])
+            precCut_std.append(results_cut["std_precision"])
             nsb_rates.append(nsb_rate)
             muonCount = len(results['precisions'])
             muonCounts.append(muonCount)
         self.plot_different_NSB(
-            nsb_rates, precisions_cut, sensitivities_cut, muonCounts, "cut")
+            nsb_rates, precisions_cut, precCut_std, sensitivities_cut, sensCut_std, muonCounts, "cut")
         self.plot_different_NSB(
-            nsb_rates, precisions, sensitivities, muonCounts, "noCut")
-        self.plot_different_NSB_sens_prec(nsb_rates, precisions, sensitivities, 
-            precisions_cut, sensitivities_cut, muonCounts
+            nsb_rates, precisions, prec_std, sensitivities, sens_std, muonCounts, "noCut")
+        self.plot_different_NSB_sens_prec(nsb_rates, precisions, prec_std, sensitivities, sens_std,
+            precisions_cut, precCut_std, sensitivities_cut, sensCut_std, muonCounts
         )
 
 
@@ -301,10 +309,10 @@ class DetectionMethodEvaluation:
         if not os.path.isdir(output_dirP):
             os.makedirs(output_dirP)
         nr_events = len(results['sensitivities'])
-        sens_max = results['avg_sensitivity'] + results['std_sensitivity']
-        sens_min = results['avg_sensitivity'] - results['std_sensitivity']
-        prec_max = results['avg_precision'] + results['std_precision']
-        prec_min = results['avg_precision'] - results['std_precision']
+        sens_max = results['avg_sensitivity'] + results['std_sensitivity']/np.sqrt(nr_events)
+        sens_min = results['avg_sensitivity'] - results['std_sensitivity']/np.sqrt(nr_events)
+        prec_max = results['avg_precision'] + results['std_precision']/np.sqrt(nr_events)
+        prec_min = results['avg_precision'] - results['std_precision']/np.sqrt(nr_events)
         plt.scatter(
             np.arange(nr_events), results['precisions'], s=8, color = 'red')
         plt.axhline(
@@ -313,12 +321,15 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=prec_min,
             y2=prec_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / \%")
+        plt.ylabel(r"precision / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
         plt.legend(fancybox= True, loc='lower right')
         plot_out = os.path.join(output_dirP, "precision.png")
         plt.savefig(plot_out, bbox_inches='tight')
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
         plt.close("all")
         plt.scatter(
             np.arange(nr_events),
@@ -330,9 +341,12 @@ class DetectionMethodEvaluation:
             x=np.arange(nr_events), y1=sens_min,
             y2=sens_max, alpha=0.3, color='gray')
         plt.xlabel(r"event id")
-        plt.ylabel(r"percentage / \%")
+        plt.ylabel(r"sensitivity / \%")
         plt.ylim([0, 101])
         plt.xlim([0, nr_events])
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
         plt.legend(fancybox= True, loc='lower right')
         plot_out = os.path.join(output_dirP, "sensitivity.png")
         plt.savefig(plot_out, bbox_inches='tight')
@@ -340,26 +354,32 @@ class DetectionMethodEvaluation:
 
 
     def plot_different_NSB(
-        self, NSB_rates, precisions, sensitivities, muonCounts, method
+        self, NSB_rates, precisions, prec_std, sensitivities, sens_std, muonCounts, method
     ):
         plt.errorbar(
-            NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
-            color = "k", label=r"average precision", fmt=".")
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            NSB_rates, precisions, yerr=prec_std/np.sqrt(muonCounts),
+            color = "k", label=r"average precision", fmt=".", linestyle=":", alpha=0.5)
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylabel(r"precision /\%")
         plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
         plt.savefig(
             os.path.join(self.output_dir, method+"_NSB_precision.png"),
             bbox_inches='tight')
         plt.close("all")
         plt.errorbar(
-            NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
-            color = "k", label=r"average sensitivity", fmt=".")
-        plt.xlabel(r"NSB rate /Hz/pixel")
-        plt.ylim([0,110])
+            NSB_rates, sensitivities, yerr=sens_std/np.sqrt(muonCounts),
+            color = "k", label=r"average sensitivity", fmt=".", linestyle=":", alpha=0.5)
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
+        plt.ylim([85,100])
         plt.ylabel(r"sensitivity /\%")
         plt.legend(fancybox= True, loc='lower right')
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
         filename = "_".join([method, "NSB_sensitivity.png"])
         plotPath = os.path.join(self.output_dir, filename)
         plt.savefig(plotPath, bbox_inches='tight')
@@ -368,32 +388,41 @@ class DetectionMethodEvaluation:
 
     def plot_different_NSB_sens_prec(
         self, NSB_rates,
-        precisions, sensitivities,
-        precisions_cut, sensitivities_cut,
+        precisions, prec_std,
+        sensitivities, sens_std,
+        precisions_cut, precCut_std,
+        sensitivities_cut, sensCut_std,
         muonCounts
     ):
+        # fig, ax = plt.subplots()
         plt.errorbar(
-            NSB_rates, precisions, yerr=precisions/np.sqrt(muonCounts),
-            label=r"witout cut", fmt=".", alpha=0.5)
+            NSB_rates, precisions, yerr=prec_std/np.sqrt(muonCounts),
+            label=r"DBSCAN", fmt=".", alpha=0.5, color="k", linestyle=":")
         plt.errorbar(
-            NSB_rates, precisions_cut, yerr=precisions_cut/np.sqrt(muonCounts),
-            label=r"with cut", fmt=".", alpha=0.5)
-        plt.xlabel(r"NSB rate /Hz/pixel")
+            NSB_rates, precisions_cut, yerr=precCut_std/np.sqrt(muonCounts),
+            label=r"DBSCAN+", fmt=".", alpha=0.5, color="k", linestyle="-.")
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
         plt.ylabel(r"precision /\%")
         plt.legend(fancybox= True, loc='upper right')
         plt.ylim([0,110])
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
         plt.savefig(
             os.path.join(self.output_dir, "both_NSB_precision.png"),
             bbox_inches='tight')
         plt.close("all")
         plt.errorbar(
-            NSB_rates, sensitivities, yerr=sensitivities/np.sqrt(muonCounts),
-            label=r"without cut", fmt=".", alpha=0.5)
+            NSB_rates, sensitivities, yerr=sens_std/np.sqrt(muonCounts),
+            label=r"DBSCAN", fmt=".", alpha=0.5, color="k", linestyle=":")
         plt.errorbar(
-            NSB_rates, sensitivities_cut, yerr=sensitivities_cut/np.sqrt(muonCounts),
-            label=r"with cut", fmt=".", alpha=0.5)
-        plt.xlabel(r"NSB rate /Hz/pixel")
-        plt.ylim([0,110])
+            NSB_rates, sensitivities_cut, yerr=sensCut_std/np.sqrt(muonCounts),
+            label=r"DBSCAN+", fmt=".", alpha=0.5, color="k", linestyle="-.")
+        ax = plt.gca()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        plt.xlabel(r"night-sky-background rate /s$^{-1}$ pixel$^{-1}$")
+        plt.ylim([85,100])
         plt.ylabel(r"sensitivity /\%")
         plt.legend(fancybox= True, loc='lower right')
         filename = "both_NSB_sensitivity.png"

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import glob
 import fact
-from .. import extraction
+from muons import extraction
 import warnings
 import muons
 warnings.filterwarnings("ignore")

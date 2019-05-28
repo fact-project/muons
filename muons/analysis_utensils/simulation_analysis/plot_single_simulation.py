@@ -1,6 +1,6 @@
 import pandas
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import docopt
@@ -46,7 +46,7 @@ class SingleSimulatonPlotting:
 
 
     def create_bins(self, input_data):
-        bin_edges = np.histogram_bin_edges(input_data, bins='sqrt')
+        bin_edges = np.histogram_bin_edges(input_data, bins=100)
         return bin_edges
 
 
@@ -70,7 +70,7 @@ class SingleSimulatonPlotting:
 
     def create_step_histogram(self, data, color, bin_edges, type):
         plt.hist(
-            data, label=str(type) + " muons", histtype="step",
+            data, label=str(type), histtype="step",
             bins=bin_edges, alpha=1, color=color
         )
 
@@ -112,10 +112,10 @@ class SingleSimulatonPlotting:
     def plot_impact_r_sq(self):
         r_d_sq, r_t_sq = self.calculate_r_sq()
         bin_edges = self.create_bins(r_t_sq)
-        self.create_step_histogram(r_t_sq, "blue", bin_edges, "thrown")
-        self.create_step_histogram(r_d_sq, "red", bin_edges, "detected")
+        self.create_step_histogram(r_t_sq, "k", bin_edges, "thrown")
+        self.create_step_histogram(r_d_sq, "grey", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon impact radius / $m^2$")
+        plt.xlabel("(muon impact radius)$^2$ / $m^2$")
         plt.ylabel("number of muons / 1")
         outpath = os.path.join(self.plot_out, "impact_r_sq.png")
         plt.savefig(outpath, bbox_inches="tight")
@@ -142,15 +142,11 @@ class SingleSimulatonPlotting:
     def add_matrix_to_ax(
         self, matrix, bin_edges_axis0, bin_edges_axis1, ax
     ):
-        return ax.imshow(
-            matrix.transpose()[::-1],
-            extent=[
-                bin_edges_axis1.min(),
-                bin_edges_axis1.max(),
-                bin_edges_axis0.min(),
-                bin_edges_axis0.max()
-            ],
-            interpolation="none"
+        return ax.pcolor(
+            bin_edges_axis0,
+            bin_edges_axis1,
+            matrix.transpose(),
+            cmap="Greys"
         )
 
 
@@ -159,11 +155,11 @@ class SingleSimulatonPlotting:
         detected_r_sq = self.extract_cx_cy()[1]
         bin_edges = np.rad2deg(self.create_bins(thrown_r_sq))
         self.create_step_histogram(
-            np.rad2deg(thrown_r_sq), "blue", bin_edges, "thrown")
+            np.rad2deg(thrown_r_sq), "k", bin_edges, "thrown")
         self.create_step_histogram(
-            np.rad2deg(detected_r_sq), "red", bin_edges, "detected")
+            np.rad2deg(detected_r_sq), "grey", bin_edges, "detected")
         plt.legend(loc="upper right")
-        plt.xlabel("muon $cx^2 + cy^2$ /$deg^2$")
+        plt.xlabel("(incident angle)$^2$ /$deg^2$")
         plt.ylabel("number of muons / 1")
         plotPath = os.path.join(self.plot_out, "cxcy_squared.png")
         plt.savefig(plotPath, bbox_inches="tight")
@@ -243,10 +239,10 @@ class SingleSimulatonPlotting:
         bin_edges = self.create_bins(thrown_opening_angle)
         self.create_step_histogram(
             np.rad2deg(detected_opening_angle),
-            "red", np.rad2deg(bin_edges), "reconstructed")
+            "k", np.rad2deg(bin_edges), "reconstructed")
         self.create_step_histogram(
             np.rad2deg(thrown_opening_angle),
-            "blue", np.rad2deg(bin_edges), "true")
+            "grey", np.rad2deg(bin_edges), "true")
         plt.legend(loc="upper right")
         plt.xlabel(r"muon Cherenkov cone opening angle /deg")
         plt.ylabel(r"number of muons / 1")

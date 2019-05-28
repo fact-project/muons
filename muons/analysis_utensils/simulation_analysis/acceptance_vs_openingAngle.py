@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import subprocess
 import docopt
 import numpy as np
@@ -8,11 +8,11 @@ from shutil import copy
 import shutil
 import pandas
 import scoop
-from muons.muon_ring_simulation import many_simulations as ms
+from muons.analysis_utensils.detectionTesting_muon_simulation import many_simulations as ms
 import re
 import photon_stream as ps
 from muons.detection import detection
-from muons.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
+from muons.analysis_utensils.muon_ring_fuzzyness import muon_ring_fuzzyness as mrf
 import glob
 import matplotlib.pyplot as plt
 
@@ -239,11 +239,11 @@ class Acceptance_vs_OpeningAngle:
         plt.errorbar(
             opening_angle, acceptance, xerr=stepSize/2,
             yerr=acceptance*(1/np.sqrt(detected_muonCount)),
-            fmt='.')
+            color="k", linestyle='none', fmt=".")
         plt.grid()
         plt.xlim(opening_angle.min()-0.1, opening_angle.max() + 0.1)
-        plt.xlabel("openingAngle /deg")
-        plt.ylabel("acceptance")
+        plt.xlabel("opening angle /deg")
+        plt.ylabel("acceptance / $m^2 * sr$")
         plotPath = os.path.join(
             self.output_dir, "acceptance_vs_opening_angle.png")
         plt.savefig(plotPath, bbox_inches="tight")

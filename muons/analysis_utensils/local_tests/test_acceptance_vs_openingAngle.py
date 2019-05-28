@@ -5,7 +5,6 @@ import shutil
 import glob
 from muons.analysis_utensils.simulation_analysis import (
     acceptance_vs_openingAngle as evo)
-import acceptance_vs_openingAngle as evo
 
 
 filePath = os.path.normpath(os.path.abspath(__file__))
