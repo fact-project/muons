@@ -13,7 +13,7 @@ The process of recognizing muon events:
 Cut parameters:
 
 | parameter | value |
-----------------------
+---------| -----------
 | number-of-photons-min | 3 |
 | muon-ring-radius-min | 0.45 deg |
 | muon-ring-radius-max | 1.6 deg |
@@ -35,11 +35,10 @@ Precision = 99.3%
 Sensitivity = 67.2%
 
 Where:
-´´´
-precision = true\_positives/(true\_positives + false\_positives)
+[img](README/precision.pdf)
 and
-sensitivity = true\_positives/(true\_positives + false\_negatives)
-´´´
+[img](README/sensitivity.pdf)
+
 
 ## Acceptance vs point-spread-function
 
