@@ -40,7 +40,7 @@ Where:
 
 and
 
-<img src="README/precision.png" alt="Precision" width="400"/>
+<img src="README/sensitivity.png" alt="Sensitivity" width="400"/>
 
 
 ## Acceptance vs point-spread-function
