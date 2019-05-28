@@ -14,8 +14,8 @@ Using a function of third degree polynomial we fit the dependence up to 0.1 degr
 
 Function fitted is: 
 
-![img](readme/fitFunction.png)
-
+![img]()
+<img src="readme/fitFunction.png" alt="fitFunction" width="400"/>
 
 **[^1]** B. Kamgar-Parsi and W. Sander, "Quantization error in spatial sampling: comparison between square and hexagonal pixels," in *Computer Vision and Pattern Recognition, 1989. Proceedings CVPR'89., IEEE Computer Society Conference on, pp. 604-611, IEEE, 1989*
 
